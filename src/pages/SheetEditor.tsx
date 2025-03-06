@@ -101,7 +101,7 @@ export default function SheetEditor() {
 
             {/* 🎵 和弦渲染 */}
             <SheetRenderer lyrics={lyrics} setLyrics={setLyrics} />
-            <SheetDisplay lyrics={lyrics} setLyrics={setLyrics} />
+            <SheetDisplay lyrics={lyrics}  />
 
             {/* 🎵 乐谱编辑 */}
             <textarea

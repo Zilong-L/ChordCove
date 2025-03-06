@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import '../App.css'
-import SheetRenderer from '../components/SheetRenderer';
+import SheetDisplay from '../components/SheetDisplay';
+import { Sheet } from '../types/sheet';
 export default function SheetDetails() {
-  const [song, setSong] = useState(null);
+  const [song, setSong] = useState<Sheet|null>(null);
 
   const fetchChordSheet = async (id:string) => {
     try {
@@ -38,11 +39,11 @@ export default function SheetDetails() {
           <h2 className="text-lg font-bold">{song.title}</h2>
           <p>作曲：{song.composer}</p>
           <p>演唱：{song.singer}</p>
-          <p>制谱：{song.creator}</p>
+          <p>制谱：{song.uploader}</p>
           <pre className="bg-gray-100 p-2 mt-2">{song.content}</pre>
         </div>
       )}
-      {song&&<SheetRenderer lyrics={song.content} />}
+      {song&&<SheetDisplay lyrics={song.content} />}
     </div>
   );
 }

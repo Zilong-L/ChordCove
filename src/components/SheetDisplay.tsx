@@ -1,4 +1,3 @@
-import React from "react";
 
 // 保持与 editor 中一致的类型与解析函数
 export type ChordData = { chord: string; position: number };
