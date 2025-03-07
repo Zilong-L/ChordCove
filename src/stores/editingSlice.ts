@@ -6,6 +6,8 @@ interface EditingSlotState {
   slotBeat: number | null;   // The beat (start) of the slot being edited
   noteInput: string;         // The note text input by the user
   insertedDuration: number;  // Duration of the note being inserted
+  insertNoteTime: number;
+  allowedNoteTime: number[];  
   allowedDurations: number[]; // List of allowed durations for splitting the slot (sorted descending ideally)
 }
 
@@ -14,7 +16,9 @@ const initialState: EditingSlotState = {
   slotBeat: null,
   noteInput: "",
   insertedDuration: 0,        // default value; update when setting the editing slot
-  allowedDurations: [2, 1, 0.5, 0.25]  // example allowed durations (in quarter-note units)
+  insertNoteTime: 4,
+  allowedNoteTime: [1,2,4,8,16],        // default value; update when setting the editing slot
+  allowedDurations: [4,2, 1, 0.5, 0.25]  // example allowed durations (in quarter-note units)
 };
 
 const editingSlice = createSlice({
@@ -34,8 +38,9 @@ const editingSlice = createSlice({
     updateNoteInput(state, action: PayloadAction<string>) {
       state.noteInput = action.payload;
     },
-    updateInputDuration(state, action: PayloadAction<number>) {
-      state.insertedDuration = action.payload;
+    updateInputDuration(state, action: PayloadAction<{newInputTime:number, baseBeat:number}>) {
+      state.insertNoteTime = action.payload.newInputTime;
+      state.insertedDuration = action.payload.newInputTime/action.payload.baseBeat;
     },
     clearEditingSlot(state) {
       state.barNumber = null;
@@ -47,5 +52,5 @@ const editingSlice = createSlice({
   }
 });
 
-export const { setEditingSlot, updateNoteInput, clearEditingSlot } = editingSlice.actions;
+export const { setEditingSlot, updateNoteInput, clearEditingSlot,updateInputDuration } = editingSlice.actions;
 export default editingSlice.reducer;

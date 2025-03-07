@@ -9,7 +9,7 @@ function App() {
     <div className="min-h-screen bg-dark text-dark">
       <Router>
         <Header />
-        <main className="p-4">
+        <main className="">
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/create" element={<SheetEditor />} />
