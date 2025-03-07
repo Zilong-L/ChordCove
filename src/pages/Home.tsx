@@ -8,26 +8,35 @@ function Home() {
   const navigate = useNavigate();
 
   const handleSearch = async () => {
-    // Replace with your Cloudflare Worker endpoint that queries D1
     const response = await fetch(`/api/search?query=${searchQuery}`);
     const results = await response.json();
     setSearchResults(results);
   };
 
   return (
-    <div>
+    <div className="max-w-[90rem] mx-auto">
       <input
         type="text"
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
         placeholder="Search for sheets..."
+        className="bg-gray-800 text-white border border-gray-700 rounded p-2"
       />
-      <button onClick={handleSearch}>Search</button>
-      <div>
+      <button 
+        onClick={handleSearch}
+        className="ml-2 bg-gray-700 text-white px-4 py-2 rounded hover:bg-gray-600"
+      >
+        Search
+      </button>
+      <div className="mt-4">
         {searchResults.map((sheet) => (
-          <div key={sheet.id} onClick={() => navigate(`/sheet/${sheet.id}`)}>
-            <h3>{sheet.title}</h3>
-            <p>{sheet.composer} - {sheet.singer}</p>
+          <div 
+            key={sheet.id} 
+            onClick={() => navigate(`/sheet/${sheet.id}`)}
+            className="bg-gray-800 p-4 rounded-lg mb-2 cursor-pointer hover:bg-gray-700"
+          >
+            <h3 className="text-xl font-bold">{sheet.title}</h3>
+            <p className="text-gray-400">{sheet.composer} - {sheet.singer}</p>
           </div>
         ))}
       </div>

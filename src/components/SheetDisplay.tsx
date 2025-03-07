@@ -1,5 +1,3 @@
-
-// 保持与 editor 中一致的类型与解析函数
 export type ChordData = { chord: string; position: number };
 
 function parseLine(line: string) {
@@ -19,27 +17,26 @@ function parseLine(line: string) {
   return { lyrics: lyricsOnly, chords };
 }
 
-// 只读版 renderer：根据传入的 lyrics 按行渲染，并对每一行进行和弦解析后展示
 export default function SheetDisplay({ lyrics }: { lyrics: string }) {
   const lines = lyrics.split("\n");
 
   return (
-    <div className="grid grid-cols-4 bg-white rounded-md px-4 py-2 min-h-[400px] content-start gap-2">
+    <div className="grid grid-cols-4 bg-gradient-to-b from-[#212121] to-[#121212] rounded-md px-4 py-2 min-h-[400px] content-start gap-2">
       {lines.map((line, idx) => {
         const { lyrics: plainLyrics, chords } = parseLine(line);
         return (
           <div
             key={idx}
-            className="relative flex items-center bg-[#fafafa] pt-[2rem] min-h-[4rem] p-2 rounded-md hover:bg-stone-100 hover:shadow-md"
+            className="relative flex items-center min-h-[4rem] pt-[2rem] p-2 rounded-md"
           >
             <div className="flex-grow">
               <div className="flex">
                 {plainLyrics.split("").map((char, charIndex) => {
                   const chordData = chords.find((ch) => ch.position === charIndex);
                   return (
-                    <span key={charIndex} className="relative text-zinc-900">
+                    <span key={charIndex} className="relative text-gray-100">
                       {chordData && (
-                        <div className="absolute top-[-1.5em] text-teal-600 font-bold">
+                        <div className="absolute top-[-1.5em] text-gray-300 font-bold">
                           {chordData.chord}
                         </div>
                       )}

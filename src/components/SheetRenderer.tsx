@@ -15,9 +15,6 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
-//
-// 1) ChordData 与 parseLine 保持不变
-//
 export type ChordData = { chord: string; position: number };
 
 function parseLine(line: string) {
@@ -37,20 +34,14 @@ function parseLine(line: string) {
   return { lyrics: lyricsOnly, chords };
 }
 
-//
-// 2) 用于表示每一行的结构
-//
 type LineItem = {
-  id: string;   // 每行唯一 ID（用于 @dnd-kit 排序）
-  text: string; // 每行内容
+  id: string;
+  text: string;
 };
 
-//
-// 3) 单行组件：可拖拽、可编辑、可删除，拖拽操作只通过手柄启动
-//
 function SortableLine({
   item,
-  index,                // 用来判断是否是“添加新行”那一项
+  index,
   editingIndex,
   setEditingIndex,
   tempValue,
@@ -67,7 +58,6 @@ function SortableLine({
   handleDelete: (index: number) => void;
   finishEditing: () => void;
 }) {
-  // 使用 useSortable 为当前行获取拖拽相关属性，但不直接绑定到外层容器
   const {
     attributes,
     listeners,
@@ -85,31 +75,26 @@ function SortableLine({
   };
 
   const { lyrics: plainLyrics, chords } = parseLine(item.text);
-
-  // 判断是否为“添加新行”占位项
   const isAppendItem = item.id === "append";
 
   return (
     <div
       ref={setNodeRef}
       style={style}
-      className="relative flex items-center min-h-[4rem] bg-[#fafafa] pt-[2rem] p-2 rounded-md hover:bg-stone-100 hover:shadow-md group"
-      // 点击外层区域触发编辑（或添加新行）
+      className="relative flex items-center min-h-[4rem] pt-[2rem] p-2 rounded-md  group"
       onClick={() => {
         if (isAppendItem) {
-          // “添加新行”区域：调用父级添加逻辑
           return;
         }
         setEditingIndex(index);
         setTempValue(item.text);
       }}
     >
-      {/* 主体内容区域 */}
       <div className="flex-grow">
         {editingIndex === index ? (
           <input
             type="text"
-            className="w-full outline-none text-zinc-900 rounded"
+            className="w-full bg-transparent text-gray-100 outline-none rounded "
             value={tempValue}
             onChange={(e) => setTempValue(e.target.value)}
             onBlur={finishEditing}
@@ -125,9 +110,9 @@ function SortableLine({
             {plainLyrics.split("").map((char, charIndex) => {
               const chordData = chords.find((ch) => ch.position === charIndex);
               return (
-                <span key={charIndex} className="relative text-zinc-900">
+                <span key={charIndex} className="relative text-gray-100">
                   {chordData && (
-                    <div className="absolute top-[-1.5em] text-teal-600 font-bold">
+                    <div className="absolute top-[-1.5em] text-gray-300 font-bold">
                       {chordData.chord}
                     </div>
                   )}
@@ -138,13 +123,12 @@ function SortableLine({
           </div>
         )}
       </div>
-      {/* 拖拽手柄，仅对非“添加新行”项显示 */}
       {!isAppendItem && (
         <div
           {...listeners}
           {...attributes}
-          className="cursor-grab absolute right-12 top-[50%] -translate-y-[50%] hidden group-hover:block"
-          onClick={(e) => e.stopPropagation()} // 防止点击手柄也触发编辑
+          className="cursor-grab absolute right-12 top-[50%] -translate-y-[50%] hidden group-hover:block text-gray-400"
+          onClick={(e) => e.stopPropagation()}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -162,10 +146,9 @@ function SortableLine({
           </svg>
         </div>
       )}
-      {/* 删除按钮，仅对非“添加新行”项显示 */}
       {!isAppendItem && (
         <button
-          className="absolute right-4 top-[50%] -translate-y-[50%] hidden group-hover:block text-red-500 hover:text-red-700 hover:cursor-pointer"
+          className="absolute right-4 top-[50%] -translate-y-[50%] hidden group-hover:block text-gray-400 hover:text-gray-200 hover:cursor-pointer"
           onClick={(e) => {
             e.stopPropagation();
             handleDelete(index);
@@ -191,9 +174,6 @@ function SortableLine({
   );
 }
 
-//
-// 4) 主组件：整合排序、编辑、删除、添加等功能
-//
 export default function SheetRenderer({
   lyrics,
   setLyrics,
@@ -201,17 +181,14 @@ export default function SheetRenderer({
   lyrics: string;
   setLyrics: (val: string) => void;
 }) {
-  // 将外部 lyrics 拆分成行
   const [lineItems, setLineItems] = useState<LineItem[]>(() => {
     const arr = lyrics.split("\n");
-    // 末尾再加一个专门用于“添加新行”的占位
     return [
       ...arr.map((line, i) => ({ id: `line-${i}`, text: line })),
       { id: "append", text: "[C]歌词" },
     ];
   });
 
-  // 当外部 lyrics 改变时，同步更新 lineItems（可选）
   useEffect(() => {
     const arr = lyrics.split("\n");
     setLineItems([
@@ -220,14 +197,11 @@ export default function SheetRenderer({
     ]);
   }, [lyrics]);
 
-  // 编辑相关
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [tempValue, setTempValue] = useState("");
 
-  // 传感器：让 DnDKit 监听鼠标/触摸事件
   const sensors = useSensors(useSensor(PointerSensor));
 
-  // 拖拽结束时，根据 active 与 over 的 id 重排
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     if (!over || active.id === over.id) return;
@@ -239,14 +213,12 @@ export default function SheetRenderer({
     const newArr = arrayMove(lineItems, oldIndex, newIndex);
     setLineItems(newArr);
 
-    // 同步到父级 lyrics（排除“append”那一项）
     const filtered = newArr
       .filter((it) => it.id !== "append")
       .map((it) => it.text);
     setLyrics(filtered.join("\n"));
   };
 
-  // 删除行
   const handleDelete = (index: number) => {
     const newArr = [...lineItems];
     newArr.splice(index, 1);
@@ -261,7 +233,6 @@ export default function SheetRenderer({
     }
   };
 
-  // 添加新行
   const handleAppend = () => {
     const newArr = [...lineItems];
     newArr.splice(newArr.length - 1, 0, {
@@ -277,7 +248,6 @@ export default function SheetRenderer({
     setTempValue("");
   };
 
-  // 编辑结束时调用的函数
   const finishEditing = () => {
     const newArr = [...lineItems];
     if (editingIndex !== null && editingIndex < newArr.length) {
@@ -301,19 +271,19 @@ export default function SheetRenderer({
         items={lineItems.map((it) => it.id)}
         strategy={rectSortingStrategy}
       >
-        <div className="grid grid-cols-4 bg-white rounded-md px-4 py-2 min-h-[400px] content-start gap-2">
+        <div className="grid grid-cols-4 bg-gradient-to-b from-[#212121] to-[#121212] rounded-md px-4 py-2 min-h-[400px] content-start gap-2">
           {lineItems.map((item, idx) => {
             if (item.id === "append") {
               return (
                 <div
                   key={item.id}
-                  className="relative flex items-center bg-[#fafafa] p-2 rounded-md hover:cursor-pointer hover:bg-stone-100 hover:shadow-md group"
+                  className="relative flex items-center  p-2 rounded-md hover:cursor-pointer group"
                   onClick={handleAppend}
                 >
-                  <div className="flex min-h-[3rem] w-full justify-center items-center">
-                    <span className="text-gray-500">点击添加新行</span>
+                  <div className="flex min-h-[3rem] w-full justify-start items-center">
+                    <span className="text-gray-400">点击添加新行</span>
                   </div>
-                  <div className="hidden group-hover:block absolute right-4 top-[50%] -translate-y-[50%] text-gray-500 hover:text-gray-700 hover:cursor-pointer">
+                  <div className="hidden group-hover:block absolute right-4 top-[50%] -translate-y-[50%] text-gray-400 hover:text-gray-200 hover:cursor-pointer">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       fill="none"
