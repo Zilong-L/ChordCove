@@ -4,6 +4,7 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 interface EditingSlotState {
   barNumber: number | null;      // ID of the bar being edited
   slotBeat: number | null;   // The beat (start) of the slot being edited
+  lastInputNote: string;         // The note text input by the user
   noteInput: string;         // The note text input by the user
   insertedDuration: number;  // Duration of the note being inserted
   insertNoteTime: number;
@@ -14,6 +15,7 @@ interface EditingSlotState {
 const initialState: EditingSlotState = {
   barNumber: null,
   slotBeat: null,
+  lastInputNote: "",
   noteInput: "",
   insertedDuration: 1,        // default value; update when setting the editing slot
   insertNoteTime: 4,
@@ -38,6 +40,9 @@ const editingSlice = createSlice({
     updateNoteInput(state, action: PayloadAction<string>) {
       state.noteInput = action.payload;
     },
+    updateLastInputNote(state, action: PayloadAction<string>) {
+      state.lastInputNote = action.payload;
+    },
     updateInputDuration(state, action: PayloadAction<{newInputTime:number, baseBeat:number}>) {
       state.insertNoteTime = action.payload.newInputTime;
       state.insertedDuration = action.payload.baseBeat/action.payload.newInputTime;
@@ -51,5 +56,5 @@ const editingSlice = createSlice({
   }
 });
 
-export const { setEditingSlot, updateNoteInput, clearEditingSlot,updateInputDuration } = editingSlice.actions;
+export const { setEditingSlot, updateNoteInput, clearEditingSlot,updateInputDuration,updateLastInputNote } = editingSlice.actions;
 export default editingSlice.reducer;

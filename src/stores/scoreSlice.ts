@@ -22,14 +22,14 @@ const initialState: Score = {
       id: crypto.randomUUID(),
       barNumber: 1,
       slots: [
-        { beat: 0, duration: 4, note: "C4", chord: "C", lyric: "1" },
+        { beat: 0, duration: 4, note: "C4", chord: "C", lyric: "1" ,sustain:false},
       ]
     },
     {
       id: crypto.randomUUID(),
       barNumber: 2,
       slots: [
-        { beat: 0, duration: 4, note: "C4", chord: "C", lyric: "1" },
+        { beat: 0, duration: 4, note: "C4", chord: "C", lyric: "1" ,sustain:false},
       ]
     }
   ],
@@ -58,7 +58,7 @@ const scoreSlice = createSlice({
         id: crypto.randomUUID(),
         barNumber: state.bars.length + 1,
         slots: [
-          { beat: 0, duration: state.beatsPerBar, note: "C4", chord: "C", lyric: "没填" },
+          { beat: 0, duration: state.beatsPerBar, note: "C4", chord: "C", lyric: "没填" ,sustain:false},
         ],
       });
     },

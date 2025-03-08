@@ -25,6 +25,8 @@ export type Slot = {
   note: string;   // 可选，表示音高
   chord: string;    // 可选，和弦
   lyric: string;    // 可选，歌词
+  sustain: boolean;
+
 };
 
 export type BarData = {

@@ -19,6 +19,7 @@
     "motion": "^12.4.10",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-hotkeys-hook": "^4.6.1",
     "react-redux": "^9.2.0",
     "react-router-dom": "^7.2.0",
     "tonal": "^6.4.0"
