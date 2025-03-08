@@ -112,7 +112,7 @@ export default function Editor() {
       <h2 className="text-2xl text-white">{score.tempo}bpm</h2>
       <h2 className="text-2xl text-white">{score.timeSignature}</h2>
       <div className="flex flex-wrap">
-        {allowedNoteTime.map((duration) => (
+        {allowedNoteTime.map((duration   ) => (
           <button
             key={duration}
             onClick={() =>

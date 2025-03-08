@@ -1,4 +1,4 @@
-import { BarData, Score, Slot } from "@/types/sheet";
+import {  Score, Slot } from "@/types/sheet";
 
 function insertScore(score: Score, barNumber: number, slotBeat: number, note: string, duration: number, allowedDurations: number[]) {
   console.log('inserting', note, 'at', barNumber, slotBeat)

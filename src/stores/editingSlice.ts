@@ -8,7 +8,7 @@ interface EditingSlotState {
   noteInput: string;         // The note text input by the user
   insertedDuration: number;  // Duration of the note being inserted
   insertNoteTime: number;
-  allowedNoteTime: number[];  
+  allowedNoteTime: [1,2,4,8,16]  
   allowedDurations: number[]; // List of allowed durations for splitting the slot (sorted descending ideally)
   isdotted:boolean
 }
