@@ -1,9 +1,9 @@
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@stores/store";
 import { TrashIcon } from "@heroicons/react/20/solid";
-import { removeBar } from "@stores/scoreSlice";
+import { removeBar,updateBars } from "@stores/scoreSlice";
 import { setEditingSlot, updateNoteInput, clearEditingSlot } from "@stores/editingSlice";
-import { BarData, Slot } from "@/types/sheet";
+import { BarData, Score, Slot } from "@/types/sheet";
 import { calculateDegree } from "@utils/theory/Note";
 
 interface BarProps {
@@ -15,13 +15,11 @@ export default function Bar({ bar }: BarProps) {
   const timeSignature = useSelector((state: RootState) => state.score.timeSignature);
   const beatsPerBar = Number(timeSignature.split("/")[0]);
   const key = useSelector((state: RootState) => state.score.key);
+
+  const editing = useSelector((state: RootState) => state.editing);
   
-  const barNumber = useSelector((state: RootState) => state.editing.barNumber);
-  const editingSlotBeat = useSelector((state: RootState) => state.editing.slotBeat);
-  const noteInput = useSelector((state: RootState) => state.editing.noteInput);
-  const editingDuration = useSelector((state: RootState) => state.editing.insertedDuration);
-
-
+  const {barNumber, slotBeat, noteInput, insertedDuration, allowedDurations} = editing;
+  const score = useSelector((state: RootState) => state.score);
 
   const onDelete = (id: string) => dispatch(removeBar( {barId: id})); 
 
@@ -42,8 +40,16 @@ export default function Bar({ bar }: BarProps) {
 
   // Handler to finish editing (on blur or Enter key).
   const finishEditing = () => {
-    console.log('inputed',noteInput,'at',barNumber,'beat',editingSlotBeat,'duration',editingDuration)
+    console.log('inputed',noteInput,'at',barNumber,'beat',slotBeat,'duration',insertedDuration)
+    const {newBars,nextBarNumber,nextBeat} = insertScore(score,barNumber!,slotBeat!,noteInput,insertedDuration,allowedDurations)
+    console.log(newBars)
+    if(nextBarNumber===barNumber&&nextBeat===slotBeat){
+      dispatch(clearEditingSlot());
+      return;
+    }
+    dispatch(updateBars({newBars}));
     dispatch(clearEditingSlot());
+    dispatch(setEditingSlot({barNumber:nextBarNumber,slotBeat:nextBeat}))
   };
 
   return (
@@ -51,8 +57,8 @@ export default function Bar({ bar }: BarProps) {
       style={{ gridTemplateColumns: `repeat(${totalColumns}, 1fr)` }}
       className="relative group grid items-end min-h-[4rem] min-w-[16rem] pt-[2rem] p-2 rounded-md outline-x-2"
     >
-      <h3 className="absolute top-0 left-0 ">{bar.barNumber}</h3>
-
+      {bar.barNumber%4==1&&<h3 className="absolute top-0 left-0 ">{bar.barNumber}</h3>
+}
       {slots.map((slot) => {
         const { beat, note, chord, lyric, duration } = slot;
         // Convert beat and duration into grid units.
@@ -61,8 +67,8 @@ export default function Bar({ bar }: BarProps) {
 
         // Determine if this slot is being edited based on the global editing state.
         const isEditing =
-          barNumber === bar.barNumber && editingSlotBeat === beat;
-        console.log(barNumber,editingSlotBeat)
+          barNumber === bar.barNumber && slotBeat === beat;
+        console.log(barNumber,slotBeat)
         return (
           <div
             key={beat}
@@ -83,7 +89,7 @@ export default function Bar({ bar }: BarProps) {
                   onKeyDown={(e) => {
                     if (e.key === "Enter") finishEditing();
                   }}
-                  className="mt-1 p-1 border rounded"
+                  className=" border rounded text-white bg-transparent  w-8 flex justify-center text-center"
                   autoFocus
                 />
               )}
@@ -101,42 +107,80 @@ export default function Bar({ bar }: BarProps) {
     </div>
   );
 }
+function insertScore(score: Score, barNumber: number, slotBeat: number, note: string, duration: number, allowedDurations: number[]) {
+  if(note==="") return {newBars:score.bars,nextBarNumber:barNumber,nextBeat:slotBeat}
+  let [currentBarNumber, currentBeat] = [barNumber-1, slotBeat]
+  let bars = structuredClone(score.bars)
 
+  let remainingDuration = duration
+  while(remainingDuration>0){
+    let currentBar = bars[currentBarNumber].slots
+    console.log('processing bar',currentBarNumber,'beat',currentBeat)
+    const slot = currentBar.find(slot=>slot.beat===currentBeat)
+    const result = splitSlot(slot!,note,remainingDuration,allowedDurations)
+    const newSlots = result.newSlots
+    bars[currentBarNumber].slots = currentBar.map(_slot=>slot===_slot?newSlots:_slot).flat(1)
+    console.log(bars[currentBarNumber].slots)
+    currentBeat = currentBeat + remainingDuration 
+    remainingDuration = result.remainingDuration
+    currentBeat -= remainingDuration
 
-function splitSlot(slot:Slot, insertedNote:string, insertedDuration:number, allowedDurations:number[]):Slot[] {
-  // Calculate the remaining duration after the inserted note.
-  let gap = slot.duration - insertedDuration;
-  // We'll build the list of durations to fill the gap.
-  let restDurations = [];
-  
-  // Greedy selection: fill the gap with the largest allowed durations.
-  while (gap > 0) {
-    // Find the largest allowed duration that is <= gap.
-    const d = allowedDurations.find(val => val <= gap);
-    if (d === undefined) {
-      // If none found, break (should not happen if allowedDurations contains very small values)
-      break;
+    if(currentBeat>=score.beatsPerBar){
+      currentBeat = currentBeat - score.beatsPerBar
+      currentBarNumber++
+    } 
+    if(currentBarNumber>=bars.length){
+      // add a new bar
+      bars.push({
+        id: crypto.randomUUID(),
+        barNumber: currentBarNumber+1,
+        slots: [{
+          beat: 0,
+          duration: score.beatsPerBar,
+          note: "",
+          chord: "",
+          lyric: ""
+        }
+      ]})
     }
+  }
+  return {newBars:bars,nextBarNumber:currentBarNumber+1,nextBeat:currentBeat}
+}
+
+function splitSlot(slot: Slot, insertedNote: string, insertedDuration: number, allowedDurations: number[]): { newSlots: Slot[], remainingDuration: number } {
+  if (insertedDuration >= slot.duration) {
+    return {
+      newSlots: [{
+        beat: slot.beat,
+        duration: slot.duration,
+        note: insertedNote,
+        chord: "",
+        lyric: ""
+      }],
+      remainingDuration: insertedDuration - slot.duration
+    };
+  }
+
+  let gap = slot.duration - insertedDuration;
+  let restDurations = [];
+
+  while (gap > 0) {
+    const d = allowedDurations.find(val => val <= gap);
+    if (d === undefined) break;
     restDurations.push(d);
     gap -= d;
   }
-  
-  // The greedy algorithm built pieces from the end (largest first).
-  // Reverse so that they line up in chronological order right after the inserted note.
+
   restDurations.reverse();
-  
-  // Build the new slots.
-  let newSlots:Slot[] = [];
-  // Inserted note slot:
-  newSlots.push({
-    beat: slot.beat, 
-    duration: insertedDuration, 
-    note: insertedNote, 
-    chord: "", 
+
+  let newSlots: Slot[] = [{
+    beat: slot.beat,
+    duration: insertedDuration,
+    note: insertedNote,
+    chord: "",
     lyric: ""
-  });
-  
-  // Fill the remainder with rest slots.
+  }];
+
   let currentBeat = slot.beat + insertedDuration;
   for (let d of restDurations) {
     newSlots.push({
@@ -148,6 +192,6 @@ function splitSlot(slot:Slot, insertedNote:string, insertedDuration:number, allo
     });
     currentBeat += d;
   }
-  
-  return newSlots;
+
+  return { newSlots, remainingDuration: 0 };
 }

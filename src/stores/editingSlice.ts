@@ -15,7 +15,7 @@ const initialState: EditingSlotState = {
   barNumber: null,
   slotBeat: null,
   noteInput: "",
-  insertedDuration: 0,        // default value; update when setting the editing slot
+  insertedDuration: 1,        // default value; update when setting the editing slot
   insertNoteTime: 4,
   allowedNoteTime: [1,2,4,8,16],        // default value; update when setting the editing slot
   allowedDurations: [4,2, 1, 0.5, 0.25]  // example allowed durations (in quarter-note units)
@@ -40,13 +40,12 @@ const editingSlice = createSlice({
     },
     updateInputDuration(state, action: PayloadAction<{newInputTime:number, baseBeat:number}>) {
       state.insertNoteTime = action.payload.newInputTime;
-      state.insertedDuration = action.payload.newInputTime/action.payload.baseBeat;
+      state.insertedDuration = action.payload.baseBeat/action.payload.newInputTime;
     },
     clearEditingSlot(state) {
       state.barNumber = null;
       state.slotBeat = null;
       state.noteInput = "";
-      state.insertedDuration = 0;
       // Optionally, you could reset allowedDurations to a default here.
     }
   }

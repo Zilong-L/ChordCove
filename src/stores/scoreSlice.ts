@@ -22,7 +22,7 @@ const initialState: Score = {
       id: crypto.randomUUID(),
       barNumber: 1,
       slots: [
-        { beat: 0, duration: 1, note: "C4", chord: "C", lyric: "1" },
+        { beat: 0, duration: 4, note: "C4", chord: "C", lyric: "1" },
       ]
     },
     {
@@ -48,6 +48,10 @@ const scoreSlice = createSlice({
       state.beatsPerBar = beatsPerBar;
       state.baseBeat = baseBeat;
     },
+    updateBars: (state, action: PayloadAction<{ newBars: BarData[] }>) => {
+      const {  newBars } = action.payload;
+      state.bars= newBars;
+    },
     // 📌 Add a bar to the score
     addBar: (state) => {
       state.bars.push({
@@ -71,5 +75,5 @@ const scoreSlice = createSlice({
   },
 });
 
-export const { setTempo, setTimeSignature, addBar, removeBar, reorderBars } = scoreSlice.actions;
+export const { setTempo, setTimeSignature, addBar, removeBar, reorderBars ,updateBars} = scoreSlice.actions;
 export default scoreSlice.reducer;
