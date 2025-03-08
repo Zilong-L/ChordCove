@@ -32,25 +32,23 @@ export default function Bar({ bar }: BarProps) {
     dispatch(setEditingSlot({ barNumber: bar.barNumber, slotBeat: slot.beat}));
   };
 
-
+  
 
   return (
     <div
       style={{ gridTemplateColumns: `repeat(${totalColumns}, 1fr)` }}
-      className="relative group grid items-end min-h-[4rem] min-w-[16rem] pt-[2rem] p-2 rounded-md outline-x-2"
+      className="relative group grid items-end min-h-[4rem] min-w-[10rem] pt-[2rem] p-2 rounded-md outline-x-2 text-xl "
     >
-      {bar.barNumber%4==1&&<h3 className="absolute top-0 left-0 ">{bar.barNumber}</h3>
-}
+      {<h3 className="absolute top-0 left-0 text-xl hidden group-hover:block">{bar.barNumber}</h3>}
       {slots.map((slot) => {
         const { beat, note, chord, lyric, duration } = slot;
         // Convert beat and duration into grid units.
-        const gridStart = beat / minDuration + 1;
-        const gridSpan = duration / minDuration;
+        const gridStart = Math.floor(beat / minDuration + 1);
+        const gridSpan = Math.floor(duration / minDuration);
 
         // Determine if this slot is being edited based on the global editing state.
         const isEditing =
           barNumber === bar.barNumber && slotBeat === beat;
-        console.log(barNumber,slotBeat)
         return (
           <div
             key={beat}
@@ -58,9 +56,9 @@ export default function Bar({ bar }: BarProps) {
             style={{ gridColumn: `${gridStart} / span ${gridSpan}` }}
             onClick={() => handleSlotClick(slot)}
           >
-            <div className={`box-border flex flex-col items-center ${isEditing?"bg-[#323232]":""}` }>
+            <div className={`box-border block w-full p-2  ${isEditing?"bg-[#323232]":""}` }>
               <p>{chord}</p>
-              <p className={`${duration==0.5?underline:duration==0.25?underlineDouble:""}`}>{!slot.sustain?calculateDegree(key, note, "number"):'-'}</p>
+              <p className={`${duration==0.5||duration==0.75?underline:duration==0.25?underlineDouble:""}`}>{!slot.sustain?calculateDegree(key, note, "number")+((duration==1.5||duration==0.75)?'.':''):'-'}</p>
               <p>{lyric}</p>
              
             </div>
@@ -69,7 +67,7 @@ export default function Bar({ bar }: BarProps) {
       })}
 
       <button
-        className="absolute top-[50%] right-0 -translate-y-[50%] hidden group-hover:block"
+        className="absolute top-[20%] right-[0%] -translate-y-[50%] hidden group-hover:block"
         onClick={() => onDelete(bar.id)}
       >
         <TrashIcon className="w-5 h-5" />

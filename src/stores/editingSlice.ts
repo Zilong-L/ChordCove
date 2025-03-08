@@ -10,6 +10,7 @@ interface EditingSlotState {
   insertNoteTime: number;
   allowedNoteTime: number[];  
   allowedDurations: number[]; // List of allowed durations for splitting the slot (sorted descending ideally)
+  isdotted:boolean
 }
 
 const initialState: EditingSlotState = {
@@ -20,7 +21,8 @@ const initialState: EditingSlotState = {
   insertedDuration: 1,        // default value; update when setting the editing slot
   insertNoteTime: 4,
   allowedNoteTime: [1,2,4,8,16],        // default value; update when setting the editing slot
-  allowedDurations: [4,2, 1, 0.5, 0.25]  // example allowed durations (in quarter-note units)
+  allowedDurations: [4,2, 1, 0.5, 0.25],  // example allowed durations (in quarter-note units)
+  isdotted:false
 };
 
 const editingSlice = createSlice({
@@ -44,6 +46,9 @@ const editingSlice = createSlice({
       state.lastInputNote = action.payload;
     },
     updateInputDuration(state, action: PayloadAction<{newInputTime:number, baseBeat:number}>) {
+      if(state.isdotted&&action.payload.newInputTime==16){
+        state.isdotted = false;
+      }
       state.insertNoteTime = action.payload.newInputTime;
       state.insertedDuration = action.payload.baseBeat/action.payload.newInputTime;
     },
@@ -52,9 +57,16 @@ const editingSlice = createSlice({
       state.slotBeat = null;
       state.noteInput = "";
       // Optionally, you could reset allowedDurations to a default here.
+    },
+    toggleDotted(state){
+      if(state.insertNoteTime==16){
+        return;
+      }
+      state.isdotted = !state.isdotted
+
     }
   }
 });
 
-export const { setEditingSlot, updateNoteInput, clearEditingSlot,updateInputDuration,updateLastInputNote } = editingSlice.actions;
+export const { setEditingSlot, updateNoteInput, clearEditingSlot,updateInputDuration,updateLastInputNote,toggleDotted } = editingSlice.actions;
 export default editingSlice.reducer;

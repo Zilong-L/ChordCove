@@ -44,7 +44,7 @@ function insertScore(score: Score, barNumber: number, slotBeat: number, note: st
           slots: [{
             beat: 0,
             duration: score.beatsPerBar,
-            note: "",
+            note: "C4",
             chord: "",
             lyric: "",
             sustain: false

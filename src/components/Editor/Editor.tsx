@@ -8,9 +8,10 @@ import {
 import { SortableContext, arrayMove } from "@dnd-kit/sortable";
 import { useSelector, useDispatch } from "react-redux";
 import { addBar, reorderBars,updateBars } from "../../stores/scoreSlice";
-import { updateLastInputNote, updateInputDuration,clearEditingSlot,setEditingSlot } from "../../stores/editingSlice";
+import { updateLastInputNote, updateInputDuration,clearEditingSlot,setEditingSlot, toggleDotted } from "../../stores/editingSlice";
 import { RootState } from "../../stores/store";
 import { SortableBar } from "./SortableBar";
+
 import { PlusIcon } from "@heroicons/react/20/solid";
 import WholeNote from "@assets/musicnotes/Whole";
 import HalfNote from "@assets/musicnotes/Half";
@@ -18,6 +19,7 @@ import QuarterNote from "@assets/musicnotes/Quarter";
 import EighthNote from "@assets/musicnotes/Eighth";
 import SixteenthNote from "@assets/musicnotes/Sixteenth";
 import ThirtySecondNote from "@assets/musicnotes/Thirtysecond";
+import Dotted from "@assets/musicnotes/Dotted";
 
 // Import react-hotkeys-hook and your theory helpers
 import { useHotkeys } from "react-hotkeys-hook";
@@ -40,7 +42,7 @@ export default function Editor() {
   
   const rotatedScale = getNoteInKey(score.key);
   const editingStore = useSelector((state: RootState) => state.editing);
-  const { allowedNoteTime, insertNoteTime, insertedDuration,lastInputNote } = editingStore;
+  const { allowedNoteTime, insertNoteTime } = editingStore;
   const bars = score.bars;
 
   // Local state to track the most recent note input (for octave placement)
@@ -54,31 +56,30 @@ export default function Editor() {
       event.preventDefault();
       // The pressed key (e.g. "1" or "ctrl+1") is available in handler.key
       let pressedKey = handler.keys![0];
-      console.log(pressedKey,handler);
       if(handler.ctrl&&handler.alt){
         pressedKey = "ctrl+alt+"+pressedKey;
       }
       const degreeIndex = keyMap[pressedKey];
-      // Rotate the scale based on the current key signature
-      // Retrieve the target note letter from the rotated scale
-      const targetNoteLetter = rotatedScale[degreeIndex];
 
+
+      const targetNoteLetter = rotatedScale[degreeIndex];
+      let {barNumber,slotBeat,allowedDurations,isdotted,insertedDuration,lastInputNote} = editingStore;
       // Determine the closest note (with octave) relative to the last input
       const finalNote = findCloestNote(lastInputNote, targetNoteLetter);
-      console.log(finalNote);
-      console.log(score)  
       if (finalNote) {
         dispatch(updateLastInputNote(finalNote));
-        const{barNumber,slotBeat,allowedDurations} = editingStore;
-        console.log(`insert at${barNumber},${slotBeat}`)
+        
+        if(isdotted){
+          insertedDuration = insertedDuration*1.5;
+        }
+
         const {newBars,nextBarNumber,nextBeat} = insertScore(score,barNumber!,slotBeat!,finalNote,insertedDuration,allowedDurations);
-        console.log(newBars)
         dispatch(updateBars({newBars}));
         dispatch(clearEditingSlot());
         dispatch(setEditingSlot({barNumber:nextBarNumber,slotBeat:nextBeat}))
       }
     }
-  ,[lastInputNote,editingStore,score]);
+  );
 
   // --- DnD and Bar operations ---
   function handleAppend() {
@@ -107,7 +108,7 @@ export default function Editor() {
   });
 
   return (
-    <div className="bg-gradient-to-b from-[#212121] to-[#121212] min-h-[400px]">
+    <div className="bg-gradient-to-b from-[#212121] to-[#121212] min-h-[400px] ">
       <h2 className="text-2xl text-white">{score.tempo}bpm</h2>
       <h2 className="text-2xl text-white">{score.timeSignature}</h2>
       <div className="flex flex-wrap">
@@ -130,6 +131,9 @@ export default function Editor() {
             {noteIcons[duration]({ className: "w-12 h-12 text-white" })}
           </button>
         ))}
+        <button onClick={() => dispatch(toggleDotted())}>
+          {Dotted({ className: `w-12 h-12 text-white ${editingStore.isdotted?"bg-gray-200":""}` })}
+        </button>
       </div>
       <DndContext
         collisionDetection={closestCenter}
@@ -137,9 +141,9 @@ export default function Editor() {
         sensors={[sensor]}
       >
         <SortableContext items={bars.map((bar) => bar.id)}>
-          <ul className="max-w-6xl grid grid-cols-4 p-4 content-start">
+          <ul className="w-[1280px] grid grid-cols-4 px-24 py-4 content-start gap-4">
             {bars.map((bar) => (
-              <li key={bar.id}>
+              <li key={bar.id} className={`${bar.slots.length>8?"col-span-2":""}`}>
                 <SortableBar bar={bar} />
               </li>
             ))}
