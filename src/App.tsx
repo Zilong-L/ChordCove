@@ -4,6 +4,7 @@ import SheetDetails from './pages/SheetDetailsPage';
 import SheetEditor from './pages/SheetEditorPage';
 import Header from './components/Header';
 import Demo from './pages/Demo';
+import FullSheetEditorPage from './pages/FullSheetEditorPage';
 function App() {
   return (
     <div className="min-h-screen bg-dark text-dark">
@@ -13,6 +14,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/create" element={<SheetEditor />} />
+            <Route path="/create/full" element={<FullSheetEditorPage />} />
             <Route path="/sheet/:id" element={<SheetDetails />} />
             <Route path="/demo" element={<Demo />} />
           </Routes>

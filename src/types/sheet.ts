@@ -1,4 +1,4 @@
-export interface Sheet {
+export interface StringSheet {
     id: string;
     title: string;
     composer: string;
@@ -6,18 +6,22 @@ export interface Sheet {
     uploader: string;
     content: string;
   }
-  
 
-// types.ts
-
-export interface Sheet {
+export interface SimpleScore{
+  tempo: number;
+  key: string;
+  timeSignature: string;
+  content: string;
+}
+export interface  SheetMetaData  {
   id: string;
   title: string;
   composer: string;
   singer: string;
   uploader: string;
-  content: string;
+  coverImage: string;
 }
+
 
 export type Slot = {
   beat: number;     

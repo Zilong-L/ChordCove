@@ -1,20 +1,21 @@
 import { useState } from "react";
-import SheetRenderer from "../components/SimpleEditor/SheetRenderer";
-import MetadataForm from "../components/MetadataForm";
 
+import MetadataForm from "../components/MetadataForm";
+import Editor from "@components/Editor/Editor";
+
+// redux states
 import { useSelector } from "react-redux";
-import { RootState } from "../stores/store";
-export default function SheetEditor() {
-    const [lyrics, setLyrics] = useState(`[G]春风又[C]绿江南岸
-[Am]明月何[D]时照我还
-[G]想你[Em]时你在[C]天涯海角
-[Am]望你[D]时你在[G]天上`);
+import { RootState } from "@stores/store";
+
+export default function FullSheetEditorPage() {
     const [uploading, setUploading] = useState(false);
     const [message, setMessage] = useState("");
-
-
+    
+    
     const sheetMetadata = useSelector((state: RootState) => state.sheetMetadata);
     const { title, composer, singer, coverImage } = sheetMetadata;
+    const score = useSelector((state: RootState) => state.score);
+
 
     const handleUpload = async () => {
         if (!title.trim()) {
@@ -30,7 +31,7 @@ export default function SheetEditor() {
             composer,
             singer,
             uploader: "anonymous",
-            lyrics,
+            score:score,
             coverImage
         };
 
@@ -55,28 +56,24 @@ export default function SheetEditor() {
     };
 
     return (
-        <div className="max-w-[90rem] mx-auto px-4 ">
-            <div className="flex flex-col lg:flex-row gap-6">
-                <div className="order-2 lg:order-[-1] lg:w-1/4">
+        <div className="xl:max-w-[90rem] mx-auto px-2 md:px-8">
+            <div className="flex flex-col xl:flex-row gap-6 items-center xl:items-start">
+                <div className="lg:w-1/4 order-3 xl:order-[-1] grid ">
                     <MetadataForm/>
-                </div>
-
-                <div className="lg:w-3/4">
-                    <SheetRenderer lyrics={lyrics} setLyrics={setLyrics} />
-
-                    <textarea
-                        value={lyrics}
-                        onChange={(e) => setLyrics(e.target.value)}
-                        className="w-full mt-4 h-32 p-2 bg-transparent border border-gray-700 rounded mb-4 text-gray-100"
-                    />
-
                     <button
                         onClick={handleUpload}
                         disabled={uploading}
-                        className="w-full bg-gray-700 text-gray-100 py-2 rounded hover:bg-gray-600 transition disabled:bg-gray-800"
+                        className="w-[90%]  text-gray-100 py-2 rounded hover:bg-gray-700 transition bg-[#1f1f1f] justify-self-center shadow-[#1f1f1f] shadow-inner"
                     >
                         {uploading ? "上传中..." : "上传乐谱"}
                     </button>
+                </div>
+
+                <div className="  xl:w-3/4">
+                    <Editor />
+
+       
+                    
                     {message && <p className="mt-2 text-center text-gray-400">{message}</p>}
                 </div>
             </div>

@@ -22,14 +22,14 @@ const initialState: Score = {
       id: crypto.randomUUID(),
       barNumber: 1,
       slots: [
-        { beat: 0, duration: 4, note: "C4", chord: "C", lyric: "1" ,sustain:false},
+        { beat: 0, duration: 4, note: "C4", chord: "\u00A0",lyric: "\u00A0" ,sustain:false},
       ]
     },
     {
       id: crypto.randomUUID(),
       barNumber: 2,
       slots: [
-        { beat: 0, duration: 4, note: "C4", chord: "C", lyric: "1" ,sustain:false},
+        { beat: 0, duration: 4, note: "C4", chord: "\u00A0",lyric: "\u00A0" ,sustain:false},
       ]
     }
   ],
@@ -42,6 +42,10 @@ const scoreSlice = createSlice({
     setTempo: (state, action: PayloadAction<number>) => {
       state.tempo = action.payload;
     },
+    setKey: (state, action: PayloadAction<string>) => {
+      state.key = action.payload;
+    }
+    ,
     setTimeSignature: (state, action: PayloadAction<string>) => {
       state.timeSignature = action.payload;
       const { beatsPerBar, baseBeat } = parseTimeSignature(action.payload);
@@ -58,7 +62,7 @@ const scoreSlice = createSlice({
         id: crypto.randomUUID(),
         barNumber: state.bars.length + 1,
         slots: [
-          { beat: 0, duration: state.beatsPerBar, note: "C4", chord: "C", lyric: "没填" ,sustain:false},
+          { beat: 0, duration: state.beatsPerBar, note: "C4", chord: "\u00A0",lyric: "\u00A0",sustain:false},
         ],
       });
     },
@@ -75,5 +79,5 @@ const scoreSlice = createSlice({
   },
 });
 
-export const { setTempo, setTimeSignature, addBar, removeBar, reorderBars ,updateBars} = scoreSlice.actions;
+export const { setTempo, setTimeSignature, addBar, removeBar, reorderBars ,updateBars,setKey} = scoreSlice.actions;
 export default scoreSlice.reducer;

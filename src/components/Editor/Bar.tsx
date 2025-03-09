@@ -37,9 +37,9 @@ export default function Bar({ bar }: BarProps) {
   return (
     <div
       style={{ gridTemplateColumns: `repeat(${totalColumns}, 1fr)` }}
-      className="relative group grid items-end min-h-[4rem] min-w-[10rem] pt-[2rem] p-2 rounded-md outline-x-2 text-xl "
+      className="relative group grid items-end min-h-[4rem] p-2  text-xl border-gray-300"
     >
-      {<h3 className="absolute top-0 left-0 text-xl hidden group-hover:block">{bar.barNumber}</h3>}
+      {<h3 className="absolute top-0 left-[-5%] text-sm hidden group-hover:block">{bar.barNumber}</h3>}
       {slots.map((slot) => {
         const { beat, note, chord, lyric, duration } = slot;
         // Convert beat and duration into grid units.
@@ -56,7 +56,7 @@ export default function Bar({ bar }: BarProps) {
             style={{ gridColumn: `${gridStart} / span ${gridSpan}` }}
             onClick={() => handleSlotClick(slot)}
           >
-            <div className={`box-border block w-full p-2  ${isEditing?"bg-[#323232]":""}` }>
+            <div className={`box-border block w-full  ${isEditing?"bg-[#323232]":""}` }>
               <p>{chord}</p>
               <p className={`${duration==0.5||duration==0.75?underline:duration==0.25?underlineDouble:""}`}>{!slot.sustain?calculateDegree(key, note, "number")+((duration==1.5||duration==0.75)?'.':''):'-'}</p>
               <p>{lyric}</p>

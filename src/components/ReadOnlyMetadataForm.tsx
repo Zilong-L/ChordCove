@@ -1,19 +1,8 @@
+import {  useSelector } from "react-redux";
+import { RootState } from "@stores/store";
 
-interface ReadOnlyMetadataFormProps {
-  title: string;
-  composer: string;
-  singer: string;
-  uploader?: string;
-  coverImage: string | null;
-}
-
-export default function ReadOnlyMetadataForm({
-  title,
-  composer,
-  singer,
-  uploader,
-  coverImage,
-}: ReadOnlyMetadataFormProps) {
+export default function ReadOnlyMetadataForm() {
+  const { title, composer, singer, uploader, coverImage } = useSelector((state: RootState) => state.sheetMetadata);
   return (
     <div className="space-y-4 bg-gradient-to-b from-[#121212] to-[#212121] p-4 rounded-lg">
       <div>

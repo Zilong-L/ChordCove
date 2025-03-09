@@ -1,26 +1,12 @@
 import React, { useRef } from 'react';
+import { useDispatch, useSelector } from "react-redux";
+import { setSheetMetadata } from "@stores/sheetMetadataSlice";
+import { RootState } from "@stores/store";
 
-interface MetadataFormProps {
-  title: string;
-  setTitle: (value: string) => void;
-  composer: string;
-  setComposer: (value: string) => void;
-  singer: string;
-  setSinger: (value: string) => void;
-  coverImage: string | null;
-  setCoverImage: (value: string | null) => void;
-}
-
-export default function MetadataForm({
-  title,
-  setTitle,
-  composer,
-  setComposer,
-  singer,
-  setSinger,
-  coverImage,
-  setCoverImage,
-}: MetadataFormProps) {
+export default function MetadataForm() {
+  const sheetMetadata = useSelector((state: RootState) => state.sheetMetadata);
+  const { title, composer, singer, coverImage } = sheetMetadata;
+  const dispatch = useDispatch();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -28,7 +14,7 @@ export default function MetadataForm({
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setCoverImage(reader.result as string);
+        dispatch(setSheetMetadata({...sheetMetadata, coverImage: reader.result as string }));
       };
       reader.readAsDataURL(file);
     }
@@ -38,7 +24,7 @@ export default function MetadataForm({
     <div className="space-y-4 bg-gradient-to-t from-[#121212] to-[#212121] p-4 rounded-lg">
       <div>
         <div 
-          className="aspect-square w-full bg-gray-800 rounded-lg flex items-center justify-center cursor-pointer relative overflow-hidden mb-4"
+          className="aspect-square w-full  border-4 border-[#1f1f1f] shadow-md rounded-lg flex items-center justify-center cursor-pointer relative overflow-hidden mb-4"
           onClick={() => fileInputRef.current?.click()}
         >
           {coverImage ? (
@@ -80,7 +66,7 @@ export default function MetadataForm({
         <input
           type="text"
           value={title}
-          onChange={(e) => setTitle(e.target.value)}
+          onChange={(e) => dispatch(setSheetMetadata({...sheetMetadata, title: e.target.value }))}
           className="w-full p-2 bg-transparent border border-gray-700 rounded text-gray-100"
         />
       </div>
@@ -90,7 +76,7 @@ export default function MetadataForm({
         <input
           type="text"
           value={composer}
-          onChange={(e) => setComposer(e.target.value)}
+          onChange={(e) => dispatch(setSheetMetadata({...sheetMetadata, composer: e.target.value }))}
           className="w-full p-2 bg-transparent border border-gray-700 rounded text-gray-100"
         />
       </div>
@@ -100,7 +86,7 @@ export default function MetadataForm({
         <input
           type="text"
           value={singer}
-          onChange={(e) => setSinger(e.target.value)}
+          onChange={(e) => dispatch(setSheetMetadata({...sheetMetadata, singer: e.target.value }))}
           className="w-full p-2 bg-transparent border border-gray-700 rounded text-gray-100"
         />
       </div>

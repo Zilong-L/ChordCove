@@ -1,4 +1,4 @@
-// Editor.tsx
+// dnd
 import {
   DndContext,
   closestCenter,
@@ -6,12 +6,15 @@ import {
   PointerSensor
 } from "@dnd-kit/core";
 import { SortableContext, arrayMove } from "@dnd-kit/sortable";
-import { useSelector, useDispatch } from "react-redux";
-import { addBar, reorderBars,updateBars } from "../../stores/scoreSlice";
-import { updateLastInputNote, updateInputDuration,clearEditingSlot,setEditingSlot, toggleDotted } from "../../stores/editingSlice";
-import { RootState } from "../../stores/store";
-import { SortableBar } from "./SortableBar";
 
+// redux states
+import { useSelector, useDispatch } from "react-redux";
+import { addBar, reorderBars, updateBars } from "../../stores/scoreSlice";
+import { updateLastInputNote, updateInputDuration, clearEditingSlot, setEditingSlot, toggleDotted } from "../../stores/editingSlice";
+import { RootState } from "../../stores/store";
+import { insertScore } from "./modifyScore";
+
+// icons
 import { PlusIcon } from "@heroicons/react/20/solid";
 import WholeNote from "@assets/musicnotes/Whole";
 import HalfNote from "@assets/musicnotes/Half";
@@ -23,8 +26,11 @@ import Dotted from "@assets/musicnotes/Dotted";
 
 // Import react-hotkeys-hook and your theory helpers
 import { useHotkeys } from "react-hotkeys-hook";
-import {  getNoteInKey, findCloestNote, keyMap } from "@utils/theory/Note";
-import { insertScore } from "./modifyScore";
+import { getNoteInKey, findCloestNote, keyMap } from "@utils/theory/Note";
+
+// Components
+import { SortableBar } from "./SortableBar";
+import KeySelector from "./KeySelector";
 const noteIcons = {
   1: WholeNote,
   2: HalfNote,
@@ -33,55 +39,45 @@ const noteIcons = {
   16: SixteenthNote,
   32: ThirtySecondNote,
 };
-
 export default function Editor() {
   const dispatch = useDispatch();
 
-  // Get Redux state
   const score = useSelector((state: RootState) => state.score);
-  
-  const rotatedScale = getNoteInKey(score.key);
+  const sheetMetadata = useSelector((state: RootState) => state.sheetMetadata);
   const editingStore = useSelector((state: RootState) => state.editing);
+  const rotatedScale = getNoteInKey(score.key);
   const { allowedNoteTime, insertNoteTime } = editingStore;
   const bars = score.bars;
 
-  // Local state to track the most recent note input (for octave placement)
-
-  // (For now, hardcode the current key; later you can manage this in Redux or local state)
-
-  // --- Bind hotkeys using react-hotkeys-hook ---
   useHotkeys(
     Object.entries(keyMap).join(","),
     (event, handler) => {
       event.preventDefault();
-      // The pressed key (e.g. "1" or "ctrl+1") is available in handler.key
       let pressedKey = handler.keys![0];
-      if(handler.ctrl&&handler.alt){
-        pressedKey = "ctrl+alt+"+pressedKey;
+      if (handler.ctrl && handler.alt) {
+        pressedKey = "ctrl+alt+" + pressedKey;
       }
       const degreeIndex = keyMap[pressedKey];
 
-
       const targetNoteLetter = rotatedScale[degreeIndex];
-      let {barNumber,slotBeat,allowedDurations,isdotted,insertedDuration,lastInputNote} = editingStore;
-      // Determine the closest note (with octave) relative to the last input
+      let { barNumber, slotBeat, allowedDurations, isdotted, insertedDuration, lastInputNote } = editingStore;
+
       const finalNote = findCloestNote(lastInputNote, targetNoteLetter);
       if (finalNote) {
         dispatch(updateLastInputNote(finalNote));
-        
-        if(isdotted){
-          insertedDuration = insertedDuration*1.5;
+
+        if (isdotted) {
+          insertedDuration = insertedDuration * 1.5;
         }
 
-        const {newBars,nextBarNumber,nextBeat} = insertScore(score,barNumber!,slotBeat!,finalNote,insertedDuration,allowedDurations);
-        dispatch(updateBars({newBars}));
+        const { newBars, nextBarNumber, nextBeat } = insertScore(score, barNumber!, slotBeat!, finalNote, insertedDuration, allowedDurations);
+        dispatch(updateBars({ newBars }));
         dispatch(clearEditingSlot());
-        dispatch(setEditingSlot({barNumber:nextBarNumber,slotBeat:nextBeat}))
+        dispatch(setEditingSlot({ barNumber: nextBarNumber, slotBeat: nextBeat }));
       }
     }
   );
 
-  // --- DnD and Bar operations ---
   function handleAppend() {
     dispatch(addBar());
   }
@@ -108,11 +104,10 @@ export default function Editor() {
   });
 
   return (
-    <div className="bg-gradient-to-b from-[#212121] to-[#121212] min-h-[400px] ">
-      <h2 className="text-2xl text-white">{score.tempo}bpm</h2>
-      <h2 className="text-2xl text-white">{score.timeSignature}</h2>
-      <div className="flex flex-wrap">
-        {allowedNoteTime.map((duration   ) => (
+
+    <div className="flex flex-col xl:flex-row gap-6 xl:items-start">
+      <div className="flex flex-row xl:flex-col shrink xl:order-2 lex-wrap justify-center gap-4 mb-6">
+        {allowedNoteTime.map((duration) => (
           <button
             key={duration}
             onClick={() =>
@@ -123,39 +118,58 @@ export default function Editor() {
                 })
               )
             }
-            style={{
-              backgroundColor:
-                insertNoteTime === duration ? "#4a5568" : "#2d3748",
-            }}
+            className={`p-2 rounded ${insertNoteTime === duration ? "bg-[#1f1f1f]" : ""
+              }`}
           >
             {noteIcons[duration]({ className: "w-12 h-12 text-white" })}
           </button>
         ))}
         <button onClick={() => dispatch(toggleDotted())}>
-          {Dotted({ className: `w-12 h-12 text-white ${editingStore.isdotted?"bg-gray-200":""}` })}
+          {Dotted({
+            className: `w-12 h-12 text-white ${editingStore.isdotted ? "bg-gray-200" : ""}`,
+          })}
         </button>
       </div>
-      <DndContext
-        collisionDetection={closestCenter}
-        onDragEnd={handleDragEnd}
-        sensors={[sensor]}
-      >
-        <SortableContext items={bars.map((bar) => bar.id)}>
-          <ul className="w-[1280px] grid grid-cols-4 px-24 py-4 content-start gap-4">
-            {bars.map((bar) => (
-              <li key={bar.id} className={`${bar.slots.length>8?"col-span-2":""}`}>
-                <SortableBar bar={bar} />
-              </li>
-            ))}
-            <div
-              className="z-1 group min-h-[4rem] relative hover:bg-[#232323]"
-              onClick={handleAppend}
-            >
-              <PlusIcon className="w-6 h-6 text-white hidden group-hover:block absolute right-4 top-[50%] -translate-y-[50%]" />
-            </div>
-          </ul>
-        </SortableContext>
-      </DndContext>
+
+
+      {/* 乐谱渲染 */}
+      <div className="bg-gradient-to-b from-[#212121] to-[#121212] min-h-screen px-12 py-8 grow">
+        {/* 顶部信息栏 */}
+        <h2 className="text-3xl font-bold text-center mb-2 min-h-16">{sheetMetadata.title}</h2>
+        <div className="flex justify-between items-center text-white mb-6">
+          <div className="text-lg">
+            <KeySelector />
+            <p className="grid-flow-row grid grid-cols-[80px_50px]"><p>Tempo:</p><p className="px-2 ">{score.tempo}</p> </p>
+          </div>
+          <div className="text-right">
+            <p>Uploader: {sheetMetadata.uploader}</p>
+            <p>Singer: {sheetMetadata.singer}</p>
+            <p>Composer: {sheetMetadata.composer}</p>
+          </div>
+        </div>
+
+
+
+        {/* 乐谱区域 */}
+        <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd} sensors={[sensor]}>
+          <SortableContext items={bars.map((bar) => bar.id)}>
+            <ul className="grid grid-cols-2 md:grid-cols-4 px-6 py-4 gap-4  rounded-lg">
+              {bars.map((bar) => (
+                <li key={bar.id} className={`${bar.slots.length > 8 ? "col-span-2" : ""}`}>
+                  <SortableBar bar={bar} />
+                </li>
+              ))}
+              <div
+                className="z-1 group min-h-[100px] flex items-center justify-center hover:bg-[#1f1f1f] cursor-pointer rounded-lg"
+                onClick={handleAppend}
+              >
+                <PlusIcon className="w-6 h-6 text-white hidden group-hover:block" />
+              </div>
+            </ul>
+          </SortableContext>
+        </DndContext>
+      </div>
+
     </div>
   );
 }

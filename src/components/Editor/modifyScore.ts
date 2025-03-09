@@ -45,20 +45,18 @@ function insertScore(score: Score, barNumber: number, slotBeat: number, note: st
             beat: 0,
             duration: score.beatsPerBar,
             note: "C4",
-            chord: "",
-            lyric: "",
+            chord: "\u00A0",
+            lyric: "\u00A0",
             sustain: false
           }
         ]
       })
     }
-    console.log('setting sustain to false', currentBarNumber, currentBeat)
-    console.log(currentBar)
   }
   
 }
   bars[currentBarNumber].slots.find(slot => slot.beat === currentBeat)!.sustain = false
-
+  
   return { newBars: bars, nextBarNumber: currentBarNumber + 1, nextBeat: currentBeat }
 }
 
@@ -72,8 +70,8 @@ function splitSlot(slot: Slot, insertedNote: string, insertedDuration: number, a
         beat: slot.beat,
         duration: slot.duration,
         note: insertedNote,
-        chord: "",
-        lyric: "",
+        chord: "\u00A0",
+        lyric: "\u00A0",
         sustain: sustain
       }],
       remainingDuration: insertedDuration - slot.duration

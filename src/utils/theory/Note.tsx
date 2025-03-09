@@ -53,4 +53,14 @@ const keyMap :Record<string, number>= {
     'ctrl+alt+5': 8,
     'ctrl+alt+6': 10
   };
-export {calculateDegree,getNoteInKey,findCloestNote,keyMap};
+
+function shiftNote (note:string,currentKey:string,targetKey:string) {
+    const currentNote = Note.get(note).midi;
+    const currentKeyMidi = Note.get(currentKey).midi;
+    const targetKeyMidi = Note.get(targetKey).midi;
+    if(currentNote === null || currentKeyMidi === null || targetKeyMidi === null) return ;
+    const distance = targetKeyMidi - currentKeyMidi;
+    return Note.fromMidi(currentNote + distance);
+}
+
+export {calculateDegree,getNoteInKey,findCloestNote,keyMap,shiftNote};

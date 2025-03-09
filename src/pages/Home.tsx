@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Sheet } from '../types/sheet';
+import { SheetMetaData } from '../types/sheet';
 
 function Home() {
   const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState<Sheet[]>([]);
+  const [searchResults, setSearchResults] = useState<SheetMetaData[]>([]);
   const navigate = useNavigate();
 
   const handleSearch = async () => {
