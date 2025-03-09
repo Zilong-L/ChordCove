@@ -70,7 +70,7 @@ export default function Bar({
         <div
             ref={setNodeRef}
             style={style}
-            className="relative flex items-center min-h-[4rem] pt-[2rem] p-2 rounded-md  group"
+            className={"relative flex items-center min-h-[4rem] pt-[2rem] p-2 rounded-md  group " + (plainLyrics.length>10?"col-span-2":"")}
             onClick={() => {
                 setEditingIndex(index);
                 setTempValue(item.text);

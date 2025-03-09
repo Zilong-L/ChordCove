@@ -105,7 +105,7 @@ export default function Editor() {
 
   return (
 
-    <div className="flex flex-col xl:flex-row gap-6 xl:items-start">
+    <div className="flex flex-col xl:flex-row gap-6 xl:items-start  text-gray-200">
       <div className="flex flex-row xl:flex-col shrink xl:order-2 lex-wrap justify-center gap-4 mb-6">
         {allowedNoteTime.map((duration) => (
           <button
@@ -121,12 +121,12 @@ export default function Editor() {
             className={`p-2 rounded ${insertNoteTime === duration ? "bg-[#1f1f1f]" : ""
               }`}
           >
-            {noteIcons[duration]({ className: "w-12 h-12 text-white" })}
+            {noteIcons[duration]({ className: "w-12 h-12 " })}
           </button>
         ))}
         <button onClick={() => dispatch(toggleDotted())}>
           {Dotted({
-            className: `w-12 h-12 text-white ${editingStore.isdotted ? "bg-gray-200" : ""}`,
+            className: `w-12 h-12  ${editingStore.isdotted ? "bg-gray-200" : ""}`,
           })}
         </button>
       </div>
@@ -136,15 +136,15 @@ export default function Editor() {
       <div className="bg-gradient-to-b from-[#212121] to-[#121212] min-h-screen px-12 py-8 grow">
         {/* 顶部信息栏 */}
         <h2 className="text-3xl font-bold text-center mb-2 min-h-16">{sheetMetadata.title}</h2>
-        <div className="flex justify-between items-center text-white mb-6">
+        <div className="flex justify-between items-center  mb-6">
           <div className="text-lg">
             <KeySelector />
             <p className="grid-flow-row grid grid-cols-[80px_50px]"><p>Tempo:</p><p className="px-2 ">{score.tempo}</p> </p>
           </div>
-          <div className="text-right">
-            <p>Uploader: {sheetMetadata.uploader}</p>
-            <p>Singer: {sheetMetadata.singer}</p>
-            <p>Composer: {sheetMetadata.composer}</p>
+          <div className="text-left grid grid-cols-[100px_100px]">
+            <p >Singer:</p><p> {sheetMetadata.singer}</p>
+            <p >Upload:</p><p> {sheetMetadata.uploader}</p>
+            <p >Composer:</p><p> {sheetMetadata.composer}</p>
           </div>
         </div>
 
@@ -160,10 +160,10 @@ export default function Editor() {
                 </li>
               ))}
               <div
-                className="z-1 group min-h-[100px] flex items-center justify-center hover:bg-[#1f1f1f] cursor-pointer rounded-lg"
+                className="z-1 group min-h-[100px] flex items-center justify-center transition-color duration-500 hover:bg-[#1f1f1f] cursor-pointer rounded-lg"
                 onClick={handleAppend}
               >
-                <PlusIcon className="w-6 h-6 text-white hidden group-hover:block" />
+                <PlusIcon className="w-6 h-6 opacity-0 group-hover:opacity-75 opacity transition-opacity duration-500  text-gray-400" />
               </div>
             </ul>
           </SortableContext>

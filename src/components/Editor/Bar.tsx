@@ -37,9 +37,8 @@ export default function Bar({ bar }: BarProps) {
   return (
     <div
       style={{ gridTemplateColumns: `repeat(${totalColumns}, 1fr)` }}
-      className="relative group grid items-end min-h-[4rem] p-2  text-xl border-gray-300"
+      className="relative group grid items-end min-h-[4rem]  text-xl border-gray-300"
     >
-      {<h3 className="absolute top-0 left-[-5%] text-sm hidden group-hover:block">{bar.barNumber}</h3>}
       {slots.map((slot) => {
         const { beat, note, chord, lyric, duration } = slot;
         // Convert beat and duration into grid units.
@@ -67,7 +66,7 @@ export default function Bar({ bar }: BarProps) {
       })}
 
       <button
-        className="absolute top-[20%] right-[0%] -translate-y-[50%] hidden group-hover:block"
+        className="absolute bottom-[5%] right-[2%]  text-gray-500 hover:text-gray-200  hidden group-hover:block"
         onClick={() => onDelete(bar.id)}
       >
         <TrashIcon className="w-5 h-5" />

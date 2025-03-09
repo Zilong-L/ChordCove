@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@stores/store";
-
+import { PlusIcon } from "@heroicons/react/20/solid";
 
 import {
   DndContext,
@@ -20,15 +20,14 @@ import {
 export type ChordData = { chord: string; position: number };
 
 import Bar, { LineItem } from "./Bar";
+import { setContent } from "@stores/simpleScoreSlice";
 
 export default function SheetRenderer() {
   const sheetMetadata = useSelector((state: RootState) => state.sheetMetadata);
   const simpleScore = useSelector((state: RootState) => state.simpleScore);
+  const dispatch = useDispatch();
+  const lyrics = simpleScore.content;
 
-  const [lyrics, setLyrics] = useState<string>(`[G]春风又[C]绿江南岸
-[Am]明月何[D]时照我还
-[G]想你[Em]时你在[C]天涯海角
-[Am]望你[D]时你在[G]天上`);
   const [lineItems, setLineItems] = useState<LineItem[]>(() => {
     const arr = lyrics.split("\n");
     return [
@@ -61,7 +60,7 @@ export default function SheetRenderer() {
 
     const filtered = newArr
       .map((it) => it.text);
-    setLyrics(filtered.join("\n"));
+    dispatch(setContent((filtered.join("\n"))));
   };
 
   const handleDelete = (index: number) => {
@@ -70,7 +69,7 @@ export default function SheetRenderer() {
     setLineItems(newArr);
     const filtered = newArr
       .map((it) => it.text);
-    setLyrics(filtered.join("\n"));
+    dispatch(setContent((filtered.join("\n"))));
     if (editingIndex === index) {
       setEditingIndex(null);
       setTempValue("");
@@ -83,7 +82,7 @@ export default function SheetRenderer() {
     setLineItems(newArr);
     const filtered = newArr
       .map((it) => it.text);
-    setLyrics(filtered.join("\n"));
+    dispatch(setContent((filtered.join("\n"))));
     setEditingIndex(newArr.length - 1);
     setTempValue("");
   };
@@ -95,7 +94,7 @@ export default function SheetRenderer() {
       setLineItems(newArr);
       const filtered = newArr
         .map((it) => it.text);
-      setLyrics(filtered.join("\n"));
+      dispatch(setContent((filtered.join("\n"))));
     }
     setEditingIndex(null);
   };
@@ -108,10 +107,10 @@ export default function SheetRenderer() {
           <p>Key: {simpleScore.key}</p>
           <p className="grid-flow-row grid grid-cols-[80px_50px]"><p>Tempo:</p><p className="px-2 ">{simpleScore.tempo}</p> </p>
         </div>
-        <div className="text-right">
-          <p>Uploader: {sheetMetadata.uploader}</p>
-          <p>Singer: {sheetMetadata.singer}</p>
-          <p>Composer: {sheetMetadata.composer}</p>
+        <div className="text-left grid grid-cols-[100px_100px]">
+          <p >Singer:</p><p> {sheetMetadata.singer}</p>
+          <p >Upload:</p><p> {sheetMetadata.uploader}</p>
+          <p >Composer:</p><p> {sheetMetadata.composer}</p>
         </div>
       </div>
       <div className="grid grid-cols-2 md:grid-cols-4  content-start gap-2">
@@ -144,28 +143,10 @@ export default function SheetRenderer() {
           </SortableContext>
         </DndContext>
         <div
-          className="relative flex items-center  p-2 rounded-md hover:cursor-pointer group"
+          className="z-1 group min-h-[4rem] flex items-center justify-center transition-color duration-500 hover:bg-[#1f1f1f] cursor-pointer rounded-lg"
           onClick={handleAppend}
         >
-          <div className="flex min-h-[3rem] w-full justify-start items-center">
-            <span className="text-gray-400">点击添加新行</span>
-          </div>
-          <div className="hidden group-hover:block absolute right-4 top-[50%] -translate-y-[50%] text-gray-400 hover:text-gray-200 hover:cursor-pointer">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={1.5}
-              stroke="currentColor"
-              className="w-6 h-6"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M12 4.5v15m7.5-7.5h-15"
-              />
-            </svg>
-          </div>
+          <PlusIcon className="w-6 h-6 opacity-0 group-hover:opacity-75 opacity transition-opacity duration-500  text-gray-400" />
         </div>
       </div>
     </div>

@@ -1,16 +1,17 @@
 import { useState } from "react";
-import SheetRenderer from "../components/SimpleEditor/SheetRenderer";
+import SimpleSheetEditor from "../components/SimpleEditor/SimpleSheetEditor";
 import MetadataForm from "../components/MetadataForm";
 
 import { useSelector } from "react-redux";
 import { RootState } from "../stores/store";
+import { useDispatch } from "react-redux";
+import { setContent } from "@stores/simpleScoreSlice";
 export default function SheetEditor() {
-    const [lyrics, setLyrics] = useState(`[G]春风又[C]绿江南岸
-[Am]明月何[D]时照我还
-[G]想你[Em]时你在[C]天涯海角
-[Am]望你[D]时你在[G]天上`);
     const [uploading, setUploading] = useState(false);
     const [message, setMessage] = useState("");
+
+    const simpleScore = useSelector((state: RootState) => state.simpleScore);
+    const dispatch = useDispatch();
 
 
     const sheetMetadata = useSelector((state: RootState) => state.sheetMetadata);
@@ -30,7 +31,7 @@ export default function SheetEditor() {
             composer,
             singer,
             uploader: "anonymous",
-            lyrics,
+            lyrics: simpleScore.content,
             coverImage
         };
 
@@ -57,26 +58,28 @@ export default function SheetEditor() {
     return (
         <div className="max-w-[90rem] mx-auto px-4 ">
             <div className="flex flex-col lg:flex-row gap-6">
-                <div className="order-2 lg:order-[-1] lg:w-1/4">
-                    <MetadataForm/>
-                </div>
-
-                <div className="lg:w-3/4">
-                    <SheetRenderer lyrics={lyrics} setLyrics={setLyrics} />
-
-                    <textarea
-                        value={lyrics}
-                        onChange={(e) => setLyrics(e.target.value)}
-                        className="w-full mt-4 h-32 p-2 bg-transparent border border-gray-700 rounded mb-4 text-gray-100"
-                    />
-
+                <div className="order-2 lg:order-[-1] lg:w-1/4 flex flex-col">
+                    <MetadataForm />
                     <button
                         onClick={handleUpload}
                         disabled={uploading}
-                        className="w-full bg-gray-700 text-gray-100 py-2 rounded hover:bg-gray-600 transition disabled:bg-gray-800"
+                        className="w-[90%]  text-gray-100 py-2 rounded hover:bg-gray-700 transition bg-[#1f1f1f] justify-self-center shadow-[#1f1f1f] shadow-inner mx-auto"
+
                     >
                         {uploading ? "上传中..." : "上传乐谱"}
                     </button>
+                </div>
+
+                <div className="lg:w-3/4 flex flex-col">
+                    <SimpleSheetEditor />
+
+                    <textarea
+                        value={simpleScore.content}
+                        onChange={(e) => dispatch(setContent(e.target.value))}
+                        className="w-[90%] mx-auto mt-4 h-32 resize-none p-2 bg-transparent border border-gray-700 rounded mb-4 text-gray-100 outline-none"
+                    />
+
+
                     {message && <p className="mt-2 text-center text-gray-400">{message}</p>}
                 </div>
             </div>
