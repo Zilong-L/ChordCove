@@ -2,7 +2,7 @@ import {  useSelector } from "react-redux";
 import { RootState } from "@stores/store";
 
 export default function ReadOnlyMetadataForm() {
-  const { title, composer, singer, uploader, "image-url":coverImage } = useSelector((state: RootState) => state.sheetMetadata);
+  const { title, composer, singer, uploader, coverImage } = useSelector((state: RootState) => state.sheetMetadata);
   console.log(coverImage)
   return (
     <div className="space-y-4 bg-gradient-to-b from-[#121212] to-[#212121] p-4 rounded-lg">
@@ -13,7 +13,7 @@ export default function ReadOnlyMetadataForm() {
         >
           {coverImage ? (
             <img 
-              src={'https://'+coverImage} 
+              src={coverImage} 
               alt={`Cover for ${title}`}
               className="w-full h-full object-cover"
             />

@@ -59,7 +59,7 @@ export default function FullSheetEditorPage() {
         <div className="xl:max-w-[90rem] mx-auto px-2 md:px-8">
             <div className="flex flex-col xl:flex-row gap-6  xl:items-start">
                 <div className="order-2 xl:order-[-1] xl:w-1/4 flex flex-col ">
-                    <MetadataForm/>
+                    <MetadataForm uploading={uploading} setUploading={setUploading}/>
                     <button
                         onClick={handleUpload}
                         disabled={uploading}

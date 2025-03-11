@@ -20,7 +20,6 @@ export interface  SheetMetaData  {
   singer: string;
   uploader: string;
   coverImage: string;
-  'image-url'?:string;
 }
 
 

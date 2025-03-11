@@ -1,11 +1,18 @@
 import { useEffect, useState } from "react";
 import AlbumCard from "@components/basic/AlbumCard";
 import { SheetMetaData } from "@/types/sheet";
+const API_BACKEND_DEV = "http://localhost:8787";
+const API_BACKEND = "https://chordcove-backend.875159954.workers.dev";
+
+
+// 如果是在本地开发环境，使用 API_BACKEND_DEV，否则使用 API_BACKEND
+const API_BASE_URL = window.location.hostname === "localhost" ? API_BACKEND_DEV : API_BACKEND;
+
 export default function HomePage() {
     const [sheets, setSheets] = useState< SheetMetaData[]|null>(null);
 
     useEffect(() => {
-        fetch("http://localhost:8787/api/recent-sheets")
+        fetch(`${API_BASE_URL}/api/recent-sheets`)
             .then((res) => res.json())
             .then((data) => setSheets(data))
             .catch((err) => console.error("Error fetching sheets:", err));

@@ -2,14 +2,24 @@ import React, { useRef } from 'react';
 import { useDispatch, useSelector } from "react-redux";
 import { setSheetMetadata } from "@stores/sheetMetadataSlice";
 import { RootState } from "@stores/store";
+const API_BACKEND_DEV = "http://localhost:8787";
+const API_BACKEND = "https://chordcove-backend.875159954.workers.dev";
 
-export default function MetadataForm() {
+
+// 如果是在本地开发环境，使用 API_BACKEND_DEV，否则使用 API_BACKEND
+const API_BASE_URL = window.location.hostname === "localhost" ? API_BACKEND_DEV : API_BACKEND;
+
+interface MetadataFormProps {
+  uploading: boolean;
+  setUploading: React.Dispatch<React.SetStateAction<boolean>>;
+}
+export default function MetadataForm({uploading, setUploading}:MetadataFormProps){
   const sheetMetadata = useSelector((state: RootState) => state.sheetMetadata);
   const { title, composer, singer, coverImage } = sheetMetadata;
   const dispatch = useDispatch();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
       const reader = new FileReader();
@@ -18,6 +28,19 @@ export default function MetadataForm() {
       };
       reader.readAsDataURL(file);
     }
+    if(!file) return;
+    setUploading(true);
+    const formData = new FormData();
+    formData.append("file", file);
+    const result = await fetch(API_BASE_URL+"/api/upload-image", {
+      method: "POST",
+      body: formData,
+    })
+    const resultJson = await result.json()
+    if(resultJson.coverImage){
+      dispatch(setSheetMetadata({...sheetMetadata, coverImage: resultJson.coverImage}));
+    }
+    setUploading(false);
   };
 
   return (
@@ -53,6 +76,7 @@ export default function MetadataForm() {
           )}
           <input
             ref={fileInputRef}
+            disabled={uploading}
             type="file"
             accept="image/*"
             onChange={handleImageUpload}

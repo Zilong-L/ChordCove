@@ -32,7 +32,7 @@ import { getNoteInKey, findCloestNote, keyMap } from "@utils/theory/Note";
 // Components
 import { SortableBar } from "./SortableBar";
 import KeySelector from "./KeySelector";
-import React from "react";
+
 const noteIcons = {
   1: WholeNote,
   2: HalfNote,
@@ -43,7 +43,7 @@ const noteIcons = {
 };
 
 
-const modeToIcon = {
+const modeToIcon:any = {
   "chord": HomeIcon,
   "lyric": DocumentTextIcon,
   "extrainfo": ChatBubbleBottomCenterIcon,
@@ -118,21 +118,24 @@ export default function Editor() {
 
     <div className="flex flex-col xl:flex-row gap-6 xl:items-start  text-gray-200 relative ">
       <div className="xl:absolute flex flex-row xl:flex-col shrink xl:order-2 lex-wrap justify-center gap-4 mb-6 -right-[3rem]">
-        { editingStore.allowedEditingModes.map((mode) => (
-         <button
-           key={mode}
-           data-tooltip={mode}
-           onClick={() =>
-             dispatch(
-               setEditingMode( mode)
-             )
-           }
-           className={`p-2  relative rounded ${editingStore.editingMode === mode ? "bg-[#1f1f1f]" : ""
-             }`}
-         >
-           {React.createElement(modeToIcon[mode], { className: "w-6 h-6" })}
-         </button>
-       ))
+        { editingStore.allowedEditingModes.map((mode) => {
+          const Component = modeToIcon[mode];
+          return (
+            <button
+              key={mode}
+              data-tooltip={mode}
+              onClick={() =>
+                dispatch(
+                  setEditingMode( mode)
+                )
+              }
+              className={`p-2  relative rounded ${editingStore.editingMode === mode ? "bg-[#1f1f1f]" : ""
+                }`}
+            >
+              <Component className= "w-6 h-6" />
+            </button>
+          )
+        })
        }
         {editingStore.editingMode == 'melody' && allowedNoteTime.map((duration) => (
           <button

@@ -26,7 +26,7 @@ export default function AlbumCard({ sheet }: { sheet?: SheetMetaData }) {
             >
             <div className=" px-4 py-2 absolute bottom-6 group-hover:translate-y-[15%]  right-4 bg-green-800 transition-transform opacity-0 duration-1000 group-hover:opacity-100 hover:bg-green-700 rounded-md">学这首！</div>
             <img
-                src={sheet["image-url"] ? `https://${sheet["image-url"]}` : "https://via.placeholder.com/150"}
+                src={sheet.coverImage ? sheet.coverImage : "https://via.placeholder.com/150"}
                 alt={sheet.title}
                 className="w-full  aspect-square object-cover"
             />

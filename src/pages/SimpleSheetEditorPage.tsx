@@ -1,13 +1,12 @@
-import { useEffect, useState } from "react";
+import {  useState } from "react";
 import SimpleSheetEditor from "../components/SimpleEditor/SimpleSheetEditor";
 import MetadataForm from "../components/basic/MetadataForm";
 
 import { useSelector } from "react-redux";
 import { RootState } from "../stores/store";
 import { useDispatch } from "react-redux";
-import { setContent ,resetSimpleScore} from "@stores/simpleScoreSlice";
-import { resetSheetMetadata, setSheetMetadata } from "@stores/sheetMetadataSlice";
-import { useLocation } from "react-router-dom";
+import { setContent } from "@stores/simpleScoreSlice";
+import {  setSheetMetadata } from "@stores/sheetMetadataSlice";
 
 const API_BACKEND_DEV = "http://localhost:8787";
 const API_BACKEND = "https://chordcove-backend.875159954.workers.dev";
@@ -16,13 +15,8 @@ const API_BACKEND = "https://chordcove-backend.875159954.workers.dev";
 const API_BASE_URL = window.location.hostname === "localhost" ? API_BACKEND_DEV : API_BACKEND;
 
 export default function SheetEditor() {
-    const paths = useLocation().pathname.split("/");
-    useEffect(()=>{
-        if(paths[paths.length-1]==="create"){
-            dispatch(resetSimpleScore())
-            dispatch(resetSheetMetadata())
-        }
-    },[])
+    
+
     const [uploading, setUploading] = useState(false);
     const [message, setMessage] = useState("");
 
@@ -99,7 +93,7 @@ export default function SheetEditor() {
         <div className="xl:max-w-[90rem] mx-auto px-2 md:px-8 ">
             <div className="flex flex-col lg:flex-row gap-6">
                 <div className="order-2 lg:order-[-1] lg:w-1/4 flex flex-col">
-                    <MetadataForm />
+                    <MetadataForm uploading={uploading} setUploading={setUploading}/>
                     {!sheetMetadata.id?<button
                         onClick={handleUpload}
                         disabled={uploading}

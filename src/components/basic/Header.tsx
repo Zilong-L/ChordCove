@@ -1,8 +1,10 @@
 import { Link, useLocation } from 'react-router-dom';
-
+import { resetSheetMetadata } from '@stores/sheetMetadataSlice';
+import { resetSimpleScore } from '@stores/simpleScoreSlice';
+import { useDispatch } from 'react-redux';
 export default function Header() {
   const location = useLocation();
-
+  const dispatch = useDispatch();
   return (
     <header className="bg-transparent p-4 ">
       <div className="max-w-[90%] flex items-center justify-between">
@@ -20,6 +22,11 @@ export default function Header() {
           </Link>
           <Link 
             to="/create" 
+
+            onClick={()=>{
+              dispatch(resetSimpleScore())
+              dispatch(resetSheetMetadata())
+            }}
             className={`text-gray-400 hover:text-gray-100 transition ${
               location.pathname === '/create' ? 'text-gray-100' : ''
             }`}

@@ -2,7 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from './pages/Home';
 import SimpleSheetDetailsPage from './pages/SimpleSheetDetailsPage';
 import SimpleSheetEditorPage from './pages/SimpleSheetEditorPage';
-import Header from './components/Header';
+import Header from './components/basic/Header';
 import Demo from './pages/Demo';
 import FullSheetEditorPage from './pages/FullSheetEditorPage';
 import './App.css'
