@@ -102,10 +102,10 @@ export default function SheetRenderer() {
   return (
     <div className="bg-gradient-to-b from-[#212121] to-[#121212] rounded-md py-12 px-8 xl:px-24  min-h-[700px]">
       <h2 className="text-3xl font-bold text-center mb-2 min-h-16">{sheetMetadata.title}</h2>
-      <div className="flex justify-between items-center text-white mb-6">
+      <div className="flex justify-between items-center text-gray-100 mb-6">
         <div className="text-lg">
-          <p>Key: {simpleScore.key}</p>
-          <p className="grid-flow-row grid grid-cols-[80px_50px]"><p>Tempo:</p><p className="px-2 ">{simpleScore.tempo}</p> </p>
+          <div className="grid-flow-row grid grid-cols-[80px_50px]"><p>Key:</p><p className="px-2 ">{simpleScore.key}</p></div>
+          <div className="grid-flow-row grid grid-cols-[80px_50px]"><p>Tempo:</p><p className="px-2 ">{simpleScore.tempo}</p> </div>
         </div>
         <div className="text-left grid grid-cols-[100px_100px]">
           <p >Singer:</p><p> {sheetMetadata.singer}</p>

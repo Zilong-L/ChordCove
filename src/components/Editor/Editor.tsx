@@ -10,20 +10,21 @@ import { SortableContext, arrayMove } from "@dnd-kit/sortable";
 // redux states
 import { useSelector, useDispatch } from "react-redux";
 import { addBar, reorderBars, updateBars } from "../../stores/scoreSlice";
-import { updateLastInputNote, updateInputDuration, clearEditingSlot, setEditingSlot, toggleDotted } from "../../stores/editingSlice";
+import { updateLastInputNote, updateInputDuration, clearEditingSlot, setEditingSlot, toggleDotted, setEditingMode } from "../../stores/editingSlice";
 import { RootState } from "../../stores/store";
 import { insertScore } from "./modifyScore";
 
-// icons
-import { PlusIcon } from "@heroicons/react/20/solid";
+// note icons
 import WholeNote from "@assets/musicnotes/Whole";
 import HalfNote from "@assets/musicnotes/Half";
 import QuarterNote from "@assets/musicnotes/Quarter";
 import EighthNote from "@assets/musicnotes/Eighth";
 import SixteenthNote from "@assets/musicnotes/Sixteenth";
 import ThirtySecondNote from "@assets/musicnotes/Thirtysecond";
-import Dotted from "@assets/musicnotes/Dotted";
 
+// editing mode icons
+import Dotted from "@assets/musicnotes/Dotted";
+import { PlusIcon, DocumentTextIcon, MusicalNoteIcon, ChatBubbleBottomCenterIcon, HomeIcon } from "@heroicons/react/20/solid";
 // Import react-hotkeys-hook and your theory helpers
 import { useHotkeys } from "react-hotkeys-hook";
 import { getNoteInKey, findCloestNote, keyMap } from "@utils/theory/Note";
@@ -31,6 +32,7 @@ import { getNoteInKey, findCloestNote, keyMap } from "@utils/theory/Note";
 // Components
 import { SortableBar } from "./SortableBar";
 import KeySelector from "./KeySelector";
+import React from "react";
 const noteIcons = {
   1: WholeNote,
   2: HalfNote,
@@ -39,6 +41,14 @@ const noteIcons = {
   16: SixteenthNote,
   32: ThirtySecondNote,
 };
+
+
+const modeToIcon = {
+  "chord": HomeIcon,
+  "lyric": DocumentTextIcon,
+  "extrainfo": ChatBubbleBottomCenterIcon,
+  "melody": MusicalNoteIcon
+}
 export default function Editor() {
   const dispatch = useDispatch();
 
@@ -60,7 +70,8 @@ export default function Editor() {
       const degreeIndex = keyMap[pressedKey];
 
       const targetNoteLetter = rotatedScale[degreeIndex];
-      let { barNumber, slotBeat, allowedDurations, isdotted, insertedDuration, lastInputNote } = editingStore;
+      let { barNumber, slotBeat, allowedDurations, isdotted, insertedDuration, lastInputNote,editingMode } = editingStore;
+      if(editingMode !== 'melody') return;
 
       const finalNote = findCloestNote(lastInputNote, targetNoteLetter);
       if (finalNote) {
@@ -105,11 +116,28 @@ export default function Editor() {
 
   return (
 
-    <div className="flex flex-col xl:flex-row gap-6 xl:items-start  text-gray-200">
-      <div className="flex flex-row xl:flex-col shrink xl:order-2 lex-wrap justify-center gap-4 mb-6">
-        {allowedNoteTime.map((duration) => (
+    <div className="flex flex-col xl:flex-row gap-6 xl:items-start  text-gray-200 relative ">
+      <div className="xl:absolute flex flex-row xl:flex-col shrink xl:order-2 lex-wrap justify-center gap-4 mb-6 -right-[3rem]">
+        { editingStore.allowedEditingModes.map((mode) => (
+         <button
+           key={mode}
+           data-tooltip={mode}
+           onClick={() =>
+             dispatch(
+               setEditingMode( mode)
+             )
+           }
+           className={`p-2  relative rounded ${editingStore.editingMode === mode ? "bg-[#1f1f1f]" : ""
+             }`}
+         >
+           {React.createElement(modeToIcon[mode], { className: "w-6 h-6" })}
+         </button>
+       ))
+       }
+        {editingStore.editingMode == 'melody' && allowedNoteTime.map((duration) => (
           <button
             key={duration}
+            data-tooltip={duration}
             onClick={() =>
               dispatch(
                 updateInputDuration({
@@ -121,25 +149,32 @@ export default function Editor() {
             className={`p-2 rounded ${insertNoteTime === duration ? "bg-[#1f1f1f]" : ""
               }`}
           >
-            {noteIcons[duration]({ className: "w-12 h-12 " })}
+            {noteIcons[duration]({ className: "w-6 h-6 " })}
           </button>
-        ))}
-        <button onClick={() => dispatch(toggleDotted())}>
-          {Dotted({
-            className: `w-12 h-12  ${editingStore.isdotted ? "bg-gray-200" : ""}`,
+        )
+      )}
+      {editingStore.editingMode == 'melody' &&    <button 
+        data-tooltip="Dotted"
+      onClick={() => dispatch(toggleDotted())}
+        className={` p-2 rounded ${editingStore.isdotted ? "bg-[#1f1f1f]" : ""}`}
+        >
+          {
+          Dotted({
+            className: ` w-6  h-6   }`,
           })}
         </button>
+        }
       </div>
 
 
       {/* 乐谱渲染 */}
-      <div className="bg-gradient-to-b from-[#212121] to-[#121212] min-h-screen px-12 py-8 grow">
+      <div className="bg-gradient-to-b w-full from-[#212121] to-[#121212] rounded-md py-12 px-8 xl:px-24  min-h-[700px]">
         {/* 顶部信息栏 */}
         <h2 className="text-3xl font-bold text-center mb-2 min-h-16">{sheetMetadata.title}</h2>
         <div className="flex justify-between items-center  mb-6">
           <div className="text-lg">
             <KeySelector />
-            <p className="grid-flow-row grid grid-cols-[80px_50px]"><p>Tempo:</p><p className="px-2 ">{score.tempo}</p> </p>
+            <div className="grid-flow-row grid grid-cols-[80px_50px]"><p>Tempo:</p><p className="px-2 ">{score.tempo}</p> </div>
           </div>
           <div className="text-left grid grid-cols-[100px_100px]">
             <p >Singer:</p><p> {sheetMetadata.singer}</p>

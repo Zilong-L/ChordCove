@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from './pages/Home';
 import SheetDetails from './pages/SheetDetailsPage';
-import SheetEditor from './pages/SheetEditorPage';
+import SheetEditor from './pages/SimpleSheetEditorPage';
 import Header from './components/Header';
 import Demo from './pages/Demo';
 import FullSheetEditorPage from './pages/FullSheetEditorPage';

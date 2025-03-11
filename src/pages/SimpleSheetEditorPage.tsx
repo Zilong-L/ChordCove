@@ -6,6 +6,13 @@ import { useSelector } from "react-redux";
 import { RootState } from "../stores/store";
 import { useDispatch } from "react-redux";
 import { setContent } from "@stores/simpleScoreSlice";
+
+const API_BACKEND_DEV = "http://localhost:8787";
+const API_BACKEND = "https://chordcove-backend.875159954.workers.dev";
+
+// 如果是在本地开发环境，使用 API_BACKEND_DEV，否则使用 API_BACKEND
+const API_BASE_URL = window.location.hostname === "localhost" ? API_BACKEND_DEV : API_BACKEND;
+
 export default function SheetEditor() {
     const [uploading, setUploading] = useState(false);
     const [message, setMessage] = useState("");
@@ -16,7 +23,6 @@ export default function SheetEditor() {
 
     const sheetMetadata = useSelector((state: RootState) => state.sheetMetadata);
     const { title, composer, singer, coverImage } = sheetMetadata;
-
     const handleUpload = async () => {
         if (!title.trim()) {
             setMessage("请填写曲名");
@@ -36,7 +42,7 @@ export default function SheetEditor() {
         };
 
         try {
-            const res = await fetch("https://chordcove.875159954.workers.dev/api/upload", {
+            const res = await fetch(API_BASE_URL+"/api/upload", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(body),
@@ -56,7 +62,7 @@ export default function SheetEditor() {
     };
 
     return (
-        <div className="max-w-[90rem] mx-auto px-4 ">
+        <div className="xl:max-w-[90rem] mx-auto px-2 md:px-8 ">
             <div className="flex flex-col lg:flex-row gap-6">
                 <div className="order-2 lg:order-[-1] lg:w-1/4 flex flex-col">
                     <MetadataForm />

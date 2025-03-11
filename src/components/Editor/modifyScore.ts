@@ -115,4 +115,32 @@ function splitSlot(slot: Slot, insertedNote: string, insertedDuration: number, a
   return { newSlots, remainingDuration: 0 };
 }
 
+export function editInfo(score: Score, barNumber: number, beat: number, property: "chord" | "lyric" | "extrainfo", value: string) {
+  // 找到目标小节
+  let bar = score.bars[barNumber - 1]; 
+  if (!bar) return score; // 如果没有这个小节，返回原始乐谱
+
+  // 找到目标节拍
+  let slot = bar.slots.find(slot => slot.beat === beat);
+  if (!slot) return score; // 如果没有这个拍子，返回原始乐谱
+
+  // 修改相应的属性
+  switch (property) {
+    case "chord":
+      slot.chord = value;
+      break;
+    case "lyric":
+      slot.lyric = value;
+      break;
+    case "extrainfo":
+      slot.extraInfo = value;
+      break;
+    default:
+      return score; // 如果属性无效，返回原始乐谱
+  }
+
+  // 返回修改后的乐谱，保持其他部分不变
+  return { ...score, bars: [...score.bars.slice(0, barNumber - 1), bar, ...score.bars.slice(barNumber)] };
+}
+
 export { insertScore, splitSlot }

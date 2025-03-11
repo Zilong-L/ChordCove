@@ -57,13 +57,13 @@ export default function FullSheetEditorPage() {
 
     return (
         <div className="xl:max-w-[90rem] mx-auto px-2 md:px-8">
-            <div className="flex flex-col xl:flex-row gap-6 items-center xl:items-start">
-                <div className="lg:w-1/4 order-3 xl:order-[-1] grid ">
+            <div className="flex flex-col xl:flex-row gap-6  xl:items-start">
+                <div className="order-2 xl:order-[-1] xl:w-1/4 flex flex-col ">
                     <MetadataForm/>
                     <button
                         onClick={handleUpload}
                         disabled={uploading}
-                        className="w-[90%]  text-gray-100 py-2 rounded hover:bg-gray-700 transition bg-[#1f1f1f] justify-self-center shadow-[#1f1f1f] shadow-inner"
+                        className="w-[90%]  text-gray-100 py-2 rounded hover:bg-gray-700 transition bg-[#1f1f1f] justify-self-center shadow-[#1f1f1f] shadow-inner mx-auto"
                     >
                         {uploading ? "上传中..." : "上传乐谱"}
                     </button>

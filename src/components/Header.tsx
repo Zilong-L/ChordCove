@@ -4,8 +4,8 @@ export default function Header() {
   const location = useLocation();
 
   return (
-    <header className="bg-transparent p-4 mb-4">
-      <div className="max-w-[90rem] mx-auto flex items-center justify-between">
+    <header className="bg-transparent p-4 ">
+      <div className="max-w-[90%] flex items-center justify-between">
         <Link to="/" className="text-xl font-bold text-gray-100">
           ChordCove
         </Link>

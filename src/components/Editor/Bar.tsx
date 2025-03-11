@@ -36,6 +36,7 @@ export default function Bar({ bar }: BarProps) {
 
   return (
     <div
+      data-barNumber={bar.barNumber}
       style={{ gridTemplateColumns: `repeat(${totalColumns}, 1fr)` }}
       className="relative group grid items-end min-h-[4rem]  text-xl border-gray-300"
     >
@@ -51,6 +52,7 @@ export default function Bar({ bar }: BarProps) {
         return (
           <div
             key={beat}
+
             className="flex  items-center justify-center   cursor-pointer"
             style={{ gridColumn: `${gridStart} / span ${gridSpan}` }}
             onClick={() => handleSlotClick(slot)}

@@ -1,6 +1,6 @@
 // store/scoreSlice.ts
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import type { BarData,  SimpleScore } from "../types/sheet";
+import type {   SimpleScore } from "../types/sheet";
 
 
 // 🎼 初始状态
