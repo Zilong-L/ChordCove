@@ -20,6 +20,7 @@ export interface  SheetMetaData  {
   singer: string;
   uploader: string;
   coverImage: string;
+  'image-url'?:string;
 }
 
 
@@ -30,6 +31,7 @@ export type Slot = {
   chord: string;    // 可选，和弦
   lyric: string;    // 可选，歌词
   sustain: boolean;
+  extraInfo?: string; // 可选，额外信息
 
 };
 
