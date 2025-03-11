@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import AlbumCard from "@components/basic/AlbumCard";
 import { SheetMetaData } from "@/types/sheet";
 export default function HomePage() {
-    const [sheets, setSheets] = useState< SheetMetaData[]>([]);
+    const [sheets, setSheets] = useState< SheetMetaData[]|null>(null);
 
     useEffect(() => {
         fetch("http://localhost:8787/api/recent-sheets")
@@ -27,10 +27,10 @@ export default function HomePage() {
             <main className="w-4/5 p-6 overflow-scroll overflow-x-hidden">
                 <h1 className="text-3xl font-bold mb-6 hover:underline hover:cursor-pointer">    Recent Uploads</h1>
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 2xl:grid-cols-6 gap-4">
-                    {!sheets.length && Array.from({ length: 3 }).map((_, i) => (
+                    {!sheets && Array.from({ length: 3 }).map((_, i) => (
                         <AlbumCard key={i} />
                     ))}
-                    {sheets.map((sheet) => (
+                    {sheets!==null&&sheets.map((sheet) => (
                         <AlbumCard key={sheet.id} sheet={sheet} />
                     ))}
                 </div>

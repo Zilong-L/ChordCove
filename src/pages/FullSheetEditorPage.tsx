@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-import MetadataForm from "../components/MetadataForm";
+import MetadataForm from "../components/basic/MetadataForm";
 import Editor from "@components/Editor/Editor";
 
 // redux states

@@ -31,9 +31,14 @@ const simpleScoreSlice = createSlice({
     setContent: (state, action: PayloadAction<string>) => {
         state.content = action.payload;
     },
-
+    setSimpleScore: (_, action: PayloadAction<SimpleScore>) => {
+      return action.payload;
+    },
+    resetSimpleScore: () => {
+      return initialState;
+    }
   },
 });
 
-export const { setTempo, setTimeSignature,setKey ,setContent} = simpleScoreSlice.actions;
+export const { setTempo, setTimeSignature,setKey ,setContent,setSimpleScore,resetSimpleScore} = simpleScoreSlice.actions;
 export default simpleScoreSlice.reducer;

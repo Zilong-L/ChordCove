@@ -18,8 +18,11 @@ const sheetMetadataSlice = createSlice({
     setSheetMetadata(_, action: PayloadAction<SheetMetaData>) {
       return action.payload;
     },
+    resetSheetMetadata: () => {
+      return initialState;
+    }
   },
 });
 
-export const { setSheetMetadata } = sheetMetadataSlice.actions;
+export const { setSheetMetadata,resetSheetMetadata } = sheetMetadataSlice.actions;
 export default sheetMetadataSlice.reducer;

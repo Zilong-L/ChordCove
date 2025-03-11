@@ -1,11 +1,13 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import SimpleSheetEditor from "../components/SimpleEditor/SimpleSheetEditor";
-import MetadataForm from "../components/MetadataForm";
+import MetadataForm from "../components/basic/MetadataForm";
 
 import { useSelector } from "react-redux";
 import { RootState } from "../stores/store";
 import { useDispatch } from "react-redux";
-import { setContent } from "@stores/simpleScoreSlice";
+import { setContent ,resetSimpleScore} from "@stores/simpleScoreSlice";
+import { resetSheetMetadata, setSheetMetadata } from "@stores/sheetMetadataSlice";
+import { useLocation } from "react-router-dom";
 
 const API_BACKEND_DEV = "http://localhost:8787";
 const API_BACKEND = "https://chordcove-backend.875159954.workers.dev";
@@ -14,17 +16,52 @@ const API_BACKEND = "https://chordcove-backend.875159954.workers.dev";
 const API_BASE_URL = window.location.hostname === "localhost" ? API_BACKEND_DEV : API_BACKEND;
 
 export default function SheetEditor() {
+    const paths = useLocation().pathname.split("/");
+    useEffect(()=>{
+        if(paths[paths.length-1]==="create"){
+            dispatch(resetSimpleScore())
+            dispatch(resetSheetMetadata())
+        }
+    },[])
     const [uploading, setUploading] = useState(false);
     const [message, setMessage] = useState("");
 
     const simpleScore = useSelector((state: RootState) => state.simpleScore);
+    const sheetMetadata = useSelector((state: RootState) => state.sheetMetadata);
+
     const dispatch = useDispatch();
 
 
-    const sheetMetadata = useSelector((state: RootState) => state.sheetMetadata);
-    const { title, composer, singer, coverImage } = sheetMetadata;
+    const handleSave = async () => {
+        setUploading(true);
+        setMessage("");
+
+        const body = {
+            sheetMetadata,
+            scoreData: simpleScore,
+        };
+
+        try {
+            const res = await fetch(API_BASE_URL + "/api/edit", {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(body),
+            });
+
+            if (res.ok) {
+                await res.json();
+                setMessage(`保存成功！`);
+            } else {
+                setMessage("上传失败，请重试");
+            }
+        } catch (error) {
+            setMessage("网络错误，请稍后再试");
+        }
+
+        setUploading(false);
+    }
     const handleUpload = async () => {
-        if (!title.trim()) {
+        if (!sheetMetadata.title.trim()) {
             setMessage("请填写曲名");
             return;
         }
@@ -33,12 +70,8 @@ export default function SheetEditor() {
         setMessage("");
 
         const body = {
-            title,
-            composer,
-            singer,
-            uploader: "anonymous",
-            lyrics: simpleScore.content,
-            coverImage
+            sheetMetadata,
+            scoreData: simpleScore,
         };
 
         try {
@@ -51,6 +84,7 @@ export default function SheetEditor() {
             if (res.ok) {
                 const { id } = await res.json();
                 setMessage(`上传成功！乐谱 ID: ${id}`);
+                dispatch(setSheetMetadata({...sheetMetadata,id}))
             } else {
                 setMessage("上传失败，请重试");
             }
@@ -66,14 +100,22 @@ export default function SheetEditor() {
             <div className="flex flex-col lg:flex-row gap-6">
                 <div className="order-2 lg:order-[-1] lg:w-1/4 flex flex-col">
                     <MetadataForm />
-                    <button
+                    {!sheetMetadata.id?<button
                         onClick={handleUpload}
                         disabled={uploading}
                         className="w-[90%]  text-gray-100 py-2 rounded hover:bg-gray-700 transition bg-[#1f1f1f] justify-self-center shadow-[#1f1f1f] shadow-inner mx-auto"
 
                     >
                         {uploading ? "上传中..." : "上传乐谱"}
-                    </button>
+                    </button>:
+                    <button
+                        onClick={handleSave}
+                        disabled={uploading}
+                        className="w-[90%]  text-gray-100 py-2 rounded hover:bg-gray-700 transition bg-[#1f1f1f] justify-self-center shadow-[#1f1f1f] shadow-inner mx-auto"
+
+                    >
+                        {uploading ? "保存中..." : "保存修改"}
+                    </button>}
                 </div>
 
                 <div className="lg:w-3/4 flex flex-col">
