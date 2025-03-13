@@ -57,13 +57,13 @@ export default function SheetDisplay() {
 
   if (sheetMissing) {
     return (
-      <div className="bg-gradient-to-b from-[#212121] to-[#121212] rounded-md py-12 px-8 xl:px-24  min-h-[700px]">
+      <div className="bg-gradient-to-b from-[#212121] to-[#121212] rounded-md py-12 px-8 xl:px-24  min-h-[80%]">
         {sheetMissing && <h1 className="text-3xl text-center text-white">Sheet Not Found</h1>}
       </div>
     );
   }
   return (
-    <div className="bg-gradient-to-b from-[#212121] to-[#121212] rounded-md py-12 px-8 xl:px-24  min-h-[700px]">
+    <div className="bg-gradient-to-b from-[#212121] to-[#121212] rounded-md py-12 px-8 xl:px-24  min-h-[80%]">
       <h2 className="text-3xl font-bold text-center mb-2 min-h-16">{sheetMetadata.title}</h2>
       <div className="flex justify-between items-center text-gray-100 mb-6">
         <div className="text-lg">

@@ -6,7 +6,7 @@ export default function Header() {
   const location = useLocation();
   const dispatch = useDispatch();
   return (
-    <header className="bg-transparent p-4 ">
+    <header className="bg-transparent p-4 h-16 ">
       <div className="max-w-[90%] flex items-center justify-between">
         <Link to="/" className="text-xl font-bold text-gray-100">
           ChordCove

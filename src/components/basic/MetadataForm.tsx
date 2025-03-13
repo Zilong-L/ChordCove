@@ -1,25 +1,33 @@
 import React, { useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from "react-redux";
 import { setSheetMetadata } from "@stores/sheetMetadataSlice";
 import { RootState } from "@stores/store";
+
 const API_BACKEND_DEV = "http://localhost:8787";
 const API_BACKEND = "https://chordcove-backend.875159954.workers.dev";
-
-
-// 如果是在本地开发环境，使用 API_BACKEND_DEV，否则使用 API_BACKEND
 const API_BASE_URL = window.location.hostname === "localhost" ? API_BACKEND_DEV : API_BACKEND;
 
 interface MetadataFormProps {
   uploading: boolean;
   setUploading: React.Dispatch<React.SetStateAction<boolean>>;
 }
+
 export default function MetadataForm({uploading, setUploading}:MetadataFormProps){
   const sheetMetadata = useSelector((state: RootState) => state.sheetMetadata);
+  const auth = useSelector((state: RootState) => state.auth);
   const { title, composer, singer, coverImage } = sheetMetadata;
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (!auth.isAuthenticated) {
+      alert("请先登录");
+      navigate("/login");
+      return;
+    }
+
     const file = event.target.files?.[0];
     if (file) {
       const reader = new FileReader();
@@ -32,13 +40,28 @@ export default function MetadataForm({uploading, setUploading}:MetadataFormProps
     setUploading(true);
     const formData = new FormData();
     formData.append("file", file);
-    const result = await fetch(API_BASE_URL+"/api/upload-image", {
-      method: "POST",
-      body: formData,
-    })
-    const resultJson = await result.json()
-    if(resultJson.coverImage){
-      dispatch(setSheetMetadata({...sheetMetadata, coverImage: resultJson.coverImage}));
+    try {
+      const result = await fetch(API_BASE_URL+"/api/upload-image", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${auth.token}`
+        },
+        body: formData,
+      });
+      
+      if (result.ok) {
+        const resultJson = await result.json();
+        if(resultJson.coverImage){
+          dispatch(setSheetMetadata({...sheetMetadata, coverImage: resultJson.coverImage}));
+        }
+      } else if (result.status === 401) {
+        alert("登录已过期，请重新登录");
+        navigate("/login");
+      } else {
+        alert("上传失败，请重试");
+      }
+    } catch (error) {
+      alert("网络错误，请稍后再试");
     }
     setUploading(false);
   };

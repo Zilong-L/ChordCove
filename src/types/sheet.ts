@@ -1,12 +1,3 @@
-export interface StringSheet {
-    id: string;
-    title: string;
-    composer: string;
-    singer: string;
-    uploader: string;
-    content: string;
-  }
-
 export interface SimpleScore{
   tempo: number;
   key: string;
@@ -19,6 +10,7 @@ export interface  SheetMetaData  {
   composer: string;
   singer: string;
   uploader: string;
+  uploaderId: number;
   coverImage: string;
 }
 

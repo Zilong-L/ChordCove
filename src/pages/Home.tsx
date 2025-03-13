@@ -19,7 +19,7 @@ export default function HomePage() {
     }, []);
 
     return (
-        <div className="flex h-[92vh]  bg-gradient-to-b from-[#313131] to-[#121212] text-white ">
+        <div className="flex h-[calc(100vh-4rem)]  bg-gradient-to-b from-[#313131] to-[#121212] text-white ">
             {/* 左侧栏（占 20% 宽度） */}
             <aside className="w-1/5 p-4 border-r border-gray-700">
                 <h2 className="text-xl font-bold mb-4">Navigation</h2>

@@ -32,6 +32,7 @@ import { getNoteInKey, findCloestNote, keyMap } from "@utils/theory/Note";
 // Components
 import { SortableBar } from "./SortableBar";
 import KeySelector from "./KeySelector";
+import { useEffect, useState } from "react";
 
 const noteIcons = {
   1: WholeNote,
@@ -43,7 +44,7 @@ const noteIcons = {
 };
 
 
-const modeToIcon:any = {
+const modeToIcon: any = {
   "chord": HomeIcon,
   "lyric": DocumentTextIcon,
   "extrainfo": ChatBubbleBottomCenterIcon,
@@ -58,7 +59,28 @@ export default function Editor() {
   const rotatedScale = getNoteInKey(score.key);
   const { allowedNoteTime, insertNoteTime } = editingStore;
   const bars = score.bars;
-
+  const [flatSlots, setFlatSlots] = useState<Array<{ bar: number, beat: number }>>([]);
+  const [flatSlotsIdx, setFlatSlotsIdx] = useState(0);
+  useEffect(() => {
+    const flatSlots = [];
+    for (const bar of bars) {
+      for (const slot of bar.slots) {
+        flatSlots.push({ bar: bar.barNumber, beat: slot.beat });
+      }
+    }
+    setFlatSlots(flatSlots);
+    console.log(flatSlots);
+  },[score.bars])
+  useEffect(() => {
+    for (let i = 0; i < flatSlots.length; i++) {
+      const slot = flatSlots[i];
+      if (slot.bar === editingStore.barNumber && slot.beat === editingStore.slotBeat) {
+        console.log(i)
+        setFlatSlotsIdx(i);
+        break;
+      }
+    }
+  }, [flatSlots, editingStore.barNumber, editingStore.slotBeat])
   useHotkeys(
     Object.entries(keyMap).join(","),
     (event, handler) => {
@@ -70,8 +92,8 @@ export default function Editor() {
       const degreeIndex = keyMap[pressedKey];
 
       const targetNoteLetter = rotatedScale[degreeIndex];
-      let { barNumber, slotBeat, allowedDurations, isdotted, insertedDuration, lastInputNote,editingMode } = editingStore;
-      if(editingMode !== 'melody') return;
+      let { barNumber, slotBeat, allowedDurations, isdotted, insertedDuration, lastInputNote, editingMode } = editingStore;
+      if (editingMode !== 'melody') return;
 
       const finalNote = findCloestNote(lastInputNote, targetNoteLetter);
       if (finalNote) {
@@ -118,7 +140,7 @@ export default function Editor() {
 
     <div className="flex flex-col xl:flex-row gap-6 xl:items-start  text-gray-200 relative ">
       <div className="xl:absolute flex flex-row xl:flex-col shrink xl:order-2 lex-wrap justify-center gap-4 mb-6 -right-[3rem]">
-        { editingStore.allowedEditingModes.map((mode) => {
+        {editingStore.allowedEditingModes.map((mode) => {
           const Component = modeToIcon[mode];
           return (
             <button
@@ -126,17 +148,17 @@ export default function Editor() {
               data-tooltip={mode}
               onClick={() =>
                 dispatch(
-                  setEditingMode( mode)
+                  setEditingMode(mode)
                 )
               }
               className={`p-2  relative rounded ${editingStore.editingMode === mode ? "bg-[#1f1f1f]" : ""
                 }`}
             >
-              <Component className= "w-6 h-6" />
+              <Component className="w-6 h-6" />
             </button>
           )
         })
-       }
+        }
         {editingStore.editingMode == 'melody' && allowedNoteTime.map((duration) => (
           <button
             key={duration}
@@ -155,16 +177,16 @@ export default function Editor() {
             {noteIcons[duration]({ className: "w-6 h-6 " })}
           </button>
         )
-      )}
-      {editingStore.editingMode == 'melody' &&    <button 
-        data-tooltip="Dotted"
-      onClick={() => dispatch(toggleDotted())}
-        className={` p-2 rounded ${editingStore.isdotted ? "bg-[#1f1f1f]" : ""}`}
+        )}
+        {editingStore.editingMode == 'melody' && <button
+          data-tooltip="Dotted"
+          onClick={() => dispatch(toggleDotted())}
+          className={` p-2 rounded ${editingStore.isdotted ? "bg-[#1f1f1f]" : ""}`}
         >
           {
-          Dotted({
-            className: ` w-6  h-6   }`,
-          })}
+            Dotted({
+              className: ` w-6  h-6   }`,
+            })}
         </button>
         }
       </div>

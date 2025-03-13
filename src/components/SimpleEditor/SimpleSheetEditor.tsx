@@ -25,6 +25,7 @@ import { setContent } from "@stores/simpleScoreSlice";
 export default function SheetRenderer() {
   const sheetMetadata = useSelector((state: RootState) => state.sheetMetadata);
   const simpleScore = useSelector((state: RootState) => state.simpleScore);
+  console.log(sheetMetadata)
   const dispatch = useDispatch();
   const lyrics = simpleScore.content;
 

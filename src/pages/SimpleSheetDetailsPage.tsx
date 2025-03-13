@@ -8,7 +8,7 @@ import { PencilIcon } from "@heroicons/react/20/solid";
 export default function SheetEditor() {
 
     return (
-        <div className="xl:max-w-[90rem] mx-auto px-2 md:px-8 ">
+        <div className="h-[calc(100vh-4rem)] overflow-ys-scroll overflow-x-hidden xl:max-w-[90rem] mx-auto px-2 md:px-8 ">
             <div className="flex flex-col lg:flex-row gap-6">
                 <div className="order-2 lg:order-[-1] lg:w-1/4 flex flex-col">
                     <ReadOnlyMetadataForm />

@@ -5,7 +5,7 @@ export default function ReadOnlyMetadataForm() {
   const { title, composer, singer, uploader, coverImage } = useSelector((state: RootState) => state.sheetMetadata);
   console.log(coverImage)
   return (
-    <div className="space-y-4 bg-gradient-to-b from-[#121212] to-[#212121] p-4 rounded-lg">
+    <div className="space-y-4 bg-gradient-to-t from-[#121212] to-[#212121] p-4 rounded-lg">
       <div>
         <div 
           className="aspect-square w-full bg-gray-800 rounded-lg flex items-center justify-center relative overflow-hidden mb-4"

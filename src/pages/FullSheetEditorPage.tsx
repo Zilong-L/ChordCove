@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import MetadataForm from "../components/basic/MetadataForm";
 import Editor from "@components/Editor/Editor";
@@ -7,17 +8,27 @@ import Editor from "@components/Editor/Editor";
 import { useSelector } from "react-redux";
 import { RootState } from "@stores/store";
 
+const API_BACKEND_DEV = "http://localhost:8787";
+const API_BACKEND = "https://chordcove-backend.875159954.workers.dev";
+const API_BASE_URL = window.location.hostname === "localhost" ? API_BACKEND_DEV : API_BACKEND;
+
 export default function FullSheetEditorPage() {
     const [uploading, setUploading] = useState(false);
     const [message, setMessage] = useState("");
-    
+    const navigate = useNavigate();
     
     const sheetMetadata = useSelector((state: RootState) => state.sheetMetadata);
     const { title, composer, singer, coverImage } = sheetMetadata;
     const score = useSelector((state: RootState) => state.score);
-
+    const auth = useSelector((state: RootState) => state.auth);
 
     const handleUpload = async () => {
+        if (!auth.isAuthenticated) {
+            setMessage("请先登录");
+            navigate("/login");
+            return;
+        }
+
         if (!title.trim()) {
             setMessage("请填写曲名");
             return;
@@ -31,20 +42,26 @@ export default function FullSheetEditorPage() {
             composer,
             singer,
             uploader: "anonymous",
-            score:score,
+            score: score,
             coverImage
         };
 
         try {
-            const res = await fetch("https://chordcove.875159954.workers.dev/api/upload", {
+            const res = await fetch(API_BASE_URL + "/api/upload", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: { 
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${auth.token}`
+                },
                 body: JSON.stringify(body),
             });
 
             if (res.ok) {
                 const { id } = await res.json();
                 setMessage(`上传成功！乐谱 ID: ${id}`);
+            } else if (res.status === 401) {
+                setMessage("登录已过期，请重新登录");
+                navigate("/login");
             } else {
                 setMessage("上传失败，请重试");
             }

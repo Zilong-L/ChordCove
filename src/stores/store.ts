@@ -4,12 +4,15 @@ import scoreReducer from "./scoreSlice";
 import editingReducer from "./editingSlice";  // Import the editing slice
 import sheetMetadataReducer from "./sheetMetadataSlice";
 import simpleScoreReducer from "./simpleScoreSlice";
+import authReducer from "./authSlice";
+
 const store = configureStore({
   reducer: {
     score: scoreReducer,
     simpleScore: simpleScoreReducer,
     editing: editingReducer, // Add the editing reducer here
     sheetMetadata: sheetMetadataReducer,
+    auth: authReducer
   },
 });
 

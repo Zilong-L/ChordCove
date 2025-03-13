@@ -36,7 +36,7 @@ export default function Bar({ bar }: BarProps) {
 
   return (
     <div
-      data-barNumber={bar.barNumber}
+      data-bar-number={bar.barNumber}
       style={{ gridTemplateColumns: `repeat(${totalColumns}, 1fr)` }}
       className="relative group grid items-end min-h-[4rem]  text-xl border-gray-300"
     >

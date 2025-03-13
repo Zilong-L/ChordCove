@@ -28,8 +28,8 @@ button[data-tooltip]:hover::before {
     z-index: 1000;
     opacity: 100%;
 }
-div[data-barNumber]:hover::before{
-    content : attr(data-barNumber);
+div[data-bar-number]:hover::before{
+    content : attr(data-bar-number);
     position: absolute;
     background-color: #333;
     color: #f8e5e5;
@@ -44,7 +44,7 @@ div[data-barNumber]:hover::before{
     transition: all 0.3s;
 
 }
-div[data-barNumber]:hover::after{
+div[data-bar-number]:hover::after{
     content : "";
     position: absolute;
     background-color: #333;
