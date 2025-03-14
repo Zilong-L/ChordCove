@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { setToken } from '@stores/authSlice';
 import { fetchApi } from '@utils/api';
@@ -23,7 +23,6 @@ export default function LoginPage() {
     setError('');
 
     try {
-      // Using the new fetchApi utility to handle the .data property in the response
       const data = await fetchApi<LoginResponse>(`${API_BASE_URL}/api/login`, {
         method: 'POST',
         headers: {
@@ -32,13 +31,10 @@ export default function LoginPage() {
         body: JSON.stringify({ email, password }),
       });
       
-      // Store the token in Redux
       dispatch(setToken(data.accessToken));
-
-      // Redirect to home page
       navigate('/');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      setError(err instanceof Error ? err.message : '发生错误');
     } finally {
       setLoading(false);
     }
@@ -46,21 +42,18 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-[calc(100vh-4rem)] flex flex-col bg-dark text-white">
-      {/* Center the login form exactly as in your screenshot */}
       <div className="flex-grow flex items-center justify-center">
         <div className="flex flex-col items-center">
-          {/* Sign in text moved outside the card */}
-          <h2 className="text-2xl font-bold mb-6 bg-gradient-to-b from-[#878787] to-[#616161] text-transparent bg-clip-text ">
-            Sign in
+          <h2 className="text-2xl font-bold mb-6 bg-gradient-to-b from-[#878787] to-[#616161] text-transparent bg-clip-text">
+            登录
           </h2>
           
-          <div className="w-full max-w-md p-8 rounded-lg bg-[#212121]">
+          <div className="w-[448px] p-8 rounded-lg bg-[#212121]">
             <form onSubmit={handleSubmit}>
               <div className="space-y-4">
                 <div>
-                  {/* Label above input instead of placeholder */}
                   <label htmlFor="email" className="block text-sm font-medium mb-2">
-                    Email address
+                    邮箱地址
                   </label>
                   <input
                     type="email"
@@ -68,13 +61,12 @@ export default function LoginPage() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
-                    className="w-64 p-3 rounded bg-[#191919] focus:outline-none"
+                    className="w-full p-3 rounded bg-[#191919] focus:outline-none"
                   />
                 </div>
                 <div>
-                  {/* Label above input instead of placeholder */}
                   <label htmlFor="password" className="block text-sm font-medium mb-2">
-                    Password
+                    密码
                   </label>
                   <input
                     type="password"
@@ -82,7 +74,7 @@ export default function LoginPage() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
-                    className="w-64 p-3 rounded bg-[#191919] focus:outline-none"
+                    className="w-full p-3 rounded bg-[#191919] focus:outline-none"
                   />
                 </div>
                 {error && (
@@ -93,10 +85,16 @@ export default function LoginPage() {
                   disabled={loading}
                   className="w-full py-3 mt-4 bg-[#dfdfdf] hover:bg-[#efefef] text-black rounded font-medium transition-colors"
                 >
-                  {loading ? 'Signing in...' : 'Sign in'}
+                  {loading ? '登录中...' : '登录'}
                 </button>
               </div>
             </form>
+            <div className="mt-4 text-center text-sm text-gray-400">
+              没有账号？{' '}
+              <Link to="/register" className="text-white hover:underline">
+                创建账号
+              </Link>
+            </div>
           </div>
         </div>
       </div>

@@ -58,7 +58,6 @@ const editingSlice = createSlice({
       state.insertedDuration = action.payload.baseBeat / action.payload.newInputTime;
     },
     clearEditingSlot(state) {
-      console.log('logs')
       state.barNumber = null;
       state.slotBeat = null;
       state.noteInput = "";

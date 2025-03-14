@@ -7,6 +7,7 @@ import Header from '@components/basic/Header';
 import Demo from '@pages/Demo';
 import FullSheetEditorPage from '@pages/FullSheetEditorPage';
 import LoginPage from '@pages/LoginPage';
+import RegisterPage from '@pages/RegisterPage';
 import ProtectedRoute from '@components/auth/ProtectedRoute';
 import './App.css'
 
@@ -19,6 +20,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
             <Route
               path="/create"
               element={
