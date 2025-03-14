@@ -69,8 +69,8 @@ export default function Editor() {
       }
     }
     setFlatSlots(flatSlots);
-    console.log(flatSlots);
-  },[score.bars])
+    console.log(flatSlots,flatSlotsIdx);
+  },[bars,flatSlotsIdx])
   useEffect(() => {
     for (let i = 0; i < flatSlots.length; i++) {
       const slot = flatSlots[i];

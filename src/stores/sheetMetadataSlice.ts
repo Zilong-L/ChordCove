@@ -8,6 +8,7 @@ const initialState: SheetMetaData = {
   composer: "",
   singer: "",
   uploader: "",
+  uploaderId : -1,
   coverImage: "",
 }
 

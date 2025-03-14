@@ -3,7 +3,6 @@ import { RootState } from "@stores/store";
 
 export default function ReadOnlyMetadataForm() {
   const { title, composer, singer, uploader, coverImage } = useSelector((state: RootState) => state.sheetMetadata);
-  console.log(coverImage)
   return (
     <div className="space-y-4 bg-gradient-to-t from-[#121212] to-[#212121] p-4 rounded-lg">
       <div>
