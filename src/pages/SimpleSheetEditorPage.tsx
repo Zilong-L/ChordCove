@@ -8,6 +8,8 @@ import { RootState } from "../stores/store";
 import { useDispatch } from "react-redux";
 import { setContent } from "@stores/simpleScoreSlice";
 import { setSheetMetadata } from "@stores/sheetMetadataSlice";
+import { fetchApi } from '@utils/api';
+import { SheetMetaData } from '@/types/sheet';
 
 const API_BACKEND_DEV = "http://localhost:8787";
 const API_BACKEND = "https://chordcove-backend.875159954.workers.dev";
@@ -39,7 +41,7 @@ export default function SheetEditor() {
         };
 
         try {
-            const res = await fetch(API_BASE_URL + "/api/edit", {
+            const data = await fetchApi<SheetMetaData>(`${API_BASE_URL}/api/edit`, {
                 method: "PUT",
                 headers: { 
                     "Content-Type": "application/json",
@@ -48,10 +50,9 @@ export default function SheetEditor() {
                 body: JSON.stringify(body),
             });
 
-            if (res.ok) {
-                await res.json();
+            if (data) {
                 setMessage(`保存成功！`);
-            } else if (res.status === 401) {
+            } else if (data === false) {
                 setMessage("登录已过期，请重新登录");
                 navigate("/login");
             } else {
@@ -85,7 +86,7 @@ export default function SheetEditor() {
         };
 
         try {
-            const res = await fetch(API_BASE_URL + "/api/upload", {
+            const data = await fetchApi<SheetMetaData>(`${API_BASE_URL}/api/upload`, {
                 method: "POST",
                 headers: { 
                     "Content-Type": "application/json",
@@ -94,11 +95,10 @@ export default function SheetEditor() {
                 body: JSON.stringify(body),
             });
 
-            if (res.ok) {
-                const { id } = await res.json();
-                setMessage(`上传成功！乐谱 ID: ${id}`);
-                dispatch(setSheetMetadata({...sheetMetadata, id}));
-            } else if (res.status === 401) {
+            if (data) {
+                setMessage(`上传成功！乐谱 ID: ${data.id}`);
+                dispatch(setSheetMetadata({...sheetMetadata, id: data.id}));
+            } else if (data === false) {
                 setMessage("登录已过期，请重新登录");
                 navigate("/login");
             } else {

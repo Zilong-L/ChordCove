@@ -25,11 +25,18 @@ export default function AlbumCard({ sheet }: { sheet?: SheetMetaData }) {
               }}
             >
             <div className=" px-4 py-2 absolute bottom-6 group-hover:translate-y-[15%]  right-4 bg-green-800 transition-transform opacity-0 duration-1000 group-hover:opacity-100 hover:bg-green-700 rounded-md">学这首！</div>
-            <img
-                src={sheet.coverImage ? sheet.coverImage : "https://via.placeholder.com/150"}
+            {sheet.coverImage ? <img
+                src={sheet.coverImage}
                 alt={sheet.title}
                 className="w-full  aspect-square object-cover"
-            />
+            /> : <div className="w-full  aspect-square object-cover bg-transparent">
+                <div className="w-full h-full flex items-center justify-center">
+                    <div className="w-full h-full bg-[#212121] flex justify-center items-center">
+                        <p className="text-gray-400 text-sm">暂无</p>
+                    </div>
+                    
+                </div>
+                </div>}
             <div className="p-4">
                 <h3 className="text-lg font-semibold">{sheet.title}</h3>
                 <p className="text-sm text-gray-400">{sheet.singer || "Unknown Singer"}</p>

@@ -8,6 +8,9 @@ import Editor from "@components/Editor/Editor";
 import { useSelector } from "react-redux";
 import { RootState } from "@stores/store";
 
+import { fetchApi } from '@utils/api';
+import { SheetMetaData } from '@/types/sheet';
+
 const API_BACKEND_DEV = "http://localhost:8787";
 const API_BACKEND = "https://chordcove-backend.875159954.workers.dev";
 const API_BASE_URL = window.location.hostname === "localhost" ? API_BACKEND_DEV : API_BACKEND;
@@ -47,7 +50,7 @@ export default function FullSheetEditorPage() {
         };
 
         try {
-            const res = await fetch(API_BASE_URL + "/api/upload", {
+            const data = await fetchApi<SheetMetaData>(API_BASE_URL + "/api/upload", {
                 method: "POST",
                 headers: { 
                     "Content-Type": "application/json",
@@ -56,10 +59,9 @@ export default function FullSheetEditorPage() {
                 body: JSON.stringify(body),
             });
 
-            if (res.ok) {
-                const { id } = await res.json();
-                setMessage(`上传成功！乐谱 ID: ${id}`);
-            } else if (res.status === 401) {
+            if (data) {
+                setMessage(`上传成功！乐谱 ID: ${data.id}`);
+            } else if (data === null) {
                 setMessage("登录已过期，请重新登录");
                 navigate("/login");
             } else {

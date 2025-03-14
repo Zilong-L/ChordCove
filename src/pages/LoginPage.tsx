@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { setToken } from '@stores/authSlice';
+import { fetchApi } from '@utils/api';
+import { LoginResponse } from '@/types/api';
 
 const API_BACKEND_DEV = "http://localhost:8787";
 const API_BACKEND = "https://chordcove-backend.875159954.workers.dev";
@@ -21,20 +23,15 @@ export default function LoginPage() {
     setError('');
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/login`, {
+      // Using the new fetchApi utility to handle the .data property in the response
+      const data = await fetchApi<LoginResponse>(`${API_BASE_URL}/api/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ email, password }),
       });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Login failed');
-      }
-      console.log(data)
+      
       // Store the token in Redux
       dispatch(setToken(data.accessToken));
 
@@ -48,61 +45,60 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="h-[calc(100vh-4rem)] flex items-center justify-center bg-dark ">
-      <div className="max-w-md w-full space-y-8 p-8 bg-gray-900 rounded-lg shadow-lg">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-dark">
-            Sign in to ChordCove
+    <div className="min-h-[calc(100vh-4rem)] flex flex-col bg-dark text-white">
+      {/* Center the login form exactly as in your screenshot */}
+      <div className="flex-grow flex items-center justify-center">
+        <div className="flex flex-col items-center">
+          {/* Sign in text moved outside the card */}
+          <h2 className="text-2xl font-bold mb-6 bg-gradient-to-b from-[#878787] to-[#616161] text-transparent bg-clip-text ">
+            Sign in
           </h2>
+          
+          <div className="w-full max-w-md p-8 rounded-lg bg-[#212121]">
+            <form onSubmit={handleSubmit}>
+              <div className="space-y-4">
+                <div>
+                  {/* Label above input instead of placeholder */}
+                  <label htmlFor="email" className="block text-sm font-medium mb-2">
+                    Email address
+                  </label>
+                  <input
+                    type="email"
+                    id="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    className="w-64 p-3 rounded bg-[#191919] focus:outline-none"
+                  />
+                </div>
+                <div>
+                  {/* Label above input instead of placeholder */}
+                  <label htmlFor="password" className="block text-sm font-medium mb-2">
+                    Password
+                  </label>
+                  <input
+                    type="password"
+                    id="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    className="w-64 p-3 rounded bg-[#191919] focus:outline-none"
+                  />
+                </div>
+                {error && (
+                  <div className="text-red-500 text-sm text-center mt-2">{error}</div>
+                )}
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full py-3 mt-4 bg-[#dfdfdf] hover:bg-[#efefef] text-black rounded font-medium transition-colors"
+                >
+                  {loading ? 'Signing in...' : 'Sign in'}
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <div className="rounded-md shadow-sm -space-y-px">
-            <div>
-              <label htmlFor="email" className="sr-only">
-                Email address
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-700 placeholder-gray-500 text-dark rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm bg-gray-800"
-                placeholder="Email address"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-            </div>
-            <div>
-              <label htmlFor="password" className="sr-only">
-                Password
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-700 placeholder-gray-500 text-dark rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm bg-gray-800"
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-            </div>
-          </div>
-
-          {error && (
-            <div className="text-red-500 text-sm text-center">{error}</div>
-          )}
-
-          <div>
-            <button
-              type="submit"
-              disabled={loading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
-            >
-              {loading ? 'Signing in...' : 'Sign in'}
-            </button>
-          </div>
-        </form>
       </div>
     </div>
   );

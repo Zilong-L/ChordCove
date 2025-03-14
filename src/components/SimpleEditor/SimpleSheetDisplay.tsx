@@ -2,9 +2,11 @@ import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@stores/store";
 import { setSheetMetadata } from "@stores/sheetMetadataSlice";
 import { setSimpleScore } from "@stores/simpleScoreSlice";
+import { fetchApi } from "@utils/api";
+import { SheetMetaData } from "@/types/sheet";
 
 import { useLocation } from "react-router-dom";
-import { useEffect,useState } from "react";
+import { useEffect, useState } from "react";
 export type ChordData = { chord: string; position: number };
 const API_BACKEND_DEV = "http://localhost:8787";
 const API_BACKEND = "https://chordcove-backend.875159954.workers.dev";
@@ -18,7 +20,7 @@ const R2_BASE_URL = window.location.hostname === "localhost" ? R2_BACKEND_DEV : 
 function parseLine(line: string) {
   const regex = /\[([^\]]+)\]/g;
   let lyricsOnly = "";
-  let chords: ChordData[] = [];
+  const chords: ChordData[] = [];
   let lastIndex = 0;
   let match;
 
@@ -42,12 +44,13 @@ export default function SheetDisplay() {
   useEffect(() => {
     (async () => {
       try {
-        const sheetMetadata = await fetch(`${API_BASE_URL}/api/get-sheet-metadata/${sheetId}`).then((res) => res.json());
+        const sheetMetadata = await fetchApi<SheetMetaData>(`${API_BASE_URL}/api/get-sheet-metadata/${sheetId}`);
         dispatch(setSheetMetadata(sheetMetadata));
         const sheetData = await fetch(`${R2_BASE_URL}/sheets/${sheetMetadata.id}.json`).then((res) => res.json());
         dispatch(setSimpleScore(sheetData));
       }
-      catch (e) {
+      catch (error) {
+        console.error("Error fetching sheet:", error);
         setSheetMissing(true);
       }
     })();

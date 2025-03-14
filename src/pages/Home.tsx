@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import AlbumCard from "@components/basic/AlbumCard";
 import { SheetMetaData } from "@/types/sheet";
+import { fetchApi } from "@utils/api";
+
 const API_BACKEND_DEV = "http://localhost:8787";
 const API_BACKEND = "https://chordcove-backend.875159954.workers.dev";
 
@@ -12,9 +14,9 @@ export default function HomePage() {
     const [sheets, setSheets] = useState< SheetMetaData[]|null>(null);
 
     useEffect(() => {
-        fetch(`${API_BASE_URL}/api/recent-sheets`)
-            .then((res) => res.json())
-            .then((data) => setSheets(data))
+        // Using the new fetchApi utility to handle the .data property in the response
+        fetchApi<SheetMetaData[]>(`${API_BASE_URL}/api/recent-sheets`)
+            .then(data => setSheets(data))
             .catch((err) => console.error("Error fetching sheets:", err));
     }, []);
 
