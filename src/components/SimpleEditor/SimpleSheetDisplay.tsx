@@ -66,7 +66,7 @@ export default function SheetDisplay() {
     );
   }
   return (
-    <div className="bg-gradient-to-b from-[#212121] to-[#121212] rounded-md py-12 px-8 xl:px-24  min-h-[80%]">
+    <div className="overflow-scroll bg-gradient-to-b from-[#212121] to-[#121212] rounded-md py-12 px-8 xl:px-24  min-h-[80%]">
       <h2 className="text-3xl font-bold text-center mb-2 min-h-16">{sheetMetadata.title}</h2>
       <div className="flex justify-between items-center text-gray-100 mb-6">
         <div className="text-lg">
@@ -85,7 +85,7 @@ export default function SheetDisplay() {
           return (
             <div
               key={idx}
-              className="relative flex items-center min-h-[4rem] pt-[2rem] p-2 rounded-md"
+              className={`relative flex items-center min-h-[4rem] pt-[2rem] p-2 rounded-md ${plainLyrics.length > 10 ? "col-span-2" : ""}`}
             >
               <div className="flex-grow">
                 <div className="flex">

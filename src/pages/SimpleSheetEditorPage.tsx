@@ -135,8 +135,11 @@ export default function SheetEditor() {
                     }
                 </div>
 
-                <div className="lg:w-3/4 flex flex-col">
-                    <SimpleSheetEditor />
+                <div className="lg:w-3/4 flex flex-col h-[90vh]">
+                    <div className="flex h-full overflow-y-scroll">
+
+                        <SimpleSheetEditor />
+                    </div>
 
                     <textarea
                         value={simpleScore.content}
