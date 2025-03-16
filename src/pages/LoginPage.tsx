@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import { setToken } from '@stores/authSlice';
+import { setTokens } from '@stores/authSlice';
 import { fetchApi } from '@utils/api';
 import { LoginResponse } from '@/types/api';
 
@@ -31,7 +31,10 @@ export default function LoginPage() {
         body: JSON.stringify({ email, password }),
       });
       
-      dispatch(setToken(data.accessToken));
+      dispatch(setTokens({
+        accessToken: data.accessToken,
+        refreshToken: data.refreshToken
+      }));
       navigate('/');
     } catch (err) {
       setError(err instanceof Error ? err.message : '发生错误');
