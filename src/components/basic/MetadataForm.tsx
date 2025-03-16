@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from "react-redux";
 import { setSheetMetadata } from "@stores/sheetMetadataSlice";
@@ -20,15 +20,15 @@ export default function MetadataForm({uploading, setUploading}:MetadataFormProps
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isDragging, setIsDragging] = useState(false);
 
-  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (file: File) => {
     if (!auth.isAuthenticated) {
       alert("请先登录");
       navigate("/login");
       return;
     }
 
-    const file = event.target.files?.[0];
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -61,22 +61,61 @@ export default function MetadataForm({uploading, setUploading}:MetadataFormProps
         alert("上传失败，请重试");
       }
     } catch (error) {
+      console.error('Image upload failed:', error);
       alert("网络错误，请稍后再试");
     }
     setUploading(false);
+  };
+
+  const handleFileInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      handleImageUpload(file);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+
+    const file = e.dataTransfer.files[0];
+    if (file && file.type.startsWith('image/')) {
+      handleImageUpload(file);
+    } else {
+      alert('请上传图片文件');
+    }
   };
 
   return (
     <div className="space-y-4 bg-gradient-to-t from-[#121212] to-[#212121] p-4 rounded-lg">
       <div>
         <div 
-          className="aspect-square w-full  border-4 border-[#1f1f1f] shadow-md rounded-lg flex items-center justify-center cursor-pointer relative overflow-hidden mb-4"
+          className={`aspect-square w-full border-4 ${isDragging ? 'border-blue-500 bg-blue-500/10' : 'border-[#1f1f1f]'} shadow-md rounded-lg flex items-center justify-center cursor-pointer relative overflow-hidden mb-4 transition-colors duration-200`}
           onClick={() => fileInputRef.current?.click()}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
+          onDragEnter={handleDragOver}
+          role="button"
+          aria-label="上传封面图片"
         >
           {coverImage ? (
             <img 
               src={coverImage} 
-              alt="Cover" 
+              alt="封面图片" 
               className="w-full h-full object-cover"
             />
           ) : (
@@ -86,6 +125,7 @@ export default function MetadataForm({uploading, setUploading}:MetadataFormProps
                 fill="none" 
                 stroke="currentColor" 
                 viewBox="0 0 24 24"
+                aria-hidden="true"
               >
                 <path 
                   strokeLinecap="round" 
@@ -94,7 +134,7 @@ export default function MetadataForm({uploading, setUploading}:MetadataFormProps
                   d="M12 6v6m0 0v6m0-6h6m-6 0H6"
                 />
               </svg>
-              <span>点击上传封面</span>
+              <span>{isDragging ? '释放以上传图片' : '点击或拖拽上传封面'}</span>
             </div>
           )}
           <input
@@ -102,39 +142,50 @@ export default function MetadataForm({uploading, setUploading}:MetadataFormProps
             disabled={uploading}
             type="file"
             accept="image/*"
-            onChange={handleImageUpload}
+            onChange={handleFileInputChange}
             className="hidden"
+            aria-label="上传封面图片"
+            title="上传封面图片"
           />
         </div>
       </div>
 
       <div>
-        <label className="block text-gray-400 mb-1">曲名</label>
+        <label htmlFor="title" className="block text-gray-400 mb-1">曲名</label>
         <input
+          id="title"
           type="text"
           value={title}
           onChange={(e) => dispatch(setSheetMetadata({...sheetMetadata, title: e.target.value }))}
           className="w-full p-2 bg-transparent border border-gray-700 rounded text-gray-100"
+          placeholder="请输入曲名"
+          title="曲名"
         />
       </div>
 
       <div>
-        <label className="block text-gray-400 mb-1">作曲者</label>
+        <label htmlFor="composer" className="block text-gray-400 mb-1">作曲者</label>
         <input
+          id="composer"
           type="text"
           value={composer}
           onChange={(e) => dispatch(setSheetMetadata({...sheetMetadata, composer: e.target.value }))}
           className="w-full p-2 bg-transparent border border-gray-700 rounded text-gray-100"
+          placeholder="请输入作曲者"
+          title="作曲者"
         />
       </div>
 
       <div>
-        <label className="block text-gray-400 mb-1">演唱者</label>
+        <label htmlFor="singer" className="block text-gray-400 mb-1">演唱者</label>
         <input
+          id="singer"
           type="text"
           value={singer}
           onChange={(e) => dispatch(setSheetMetadata({...sheetMetadata, singer: e.target.value }))}
           className="w-full p-2 bg-transparent border border-gray-700 rounded text-gray-100"
+          placeholder="请输入演唱者"
+          title="演唱者"
         />
       </div>
     </div>
