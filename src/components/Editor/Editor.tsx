@@ -1,5 +1,5 @@
 // dnd
-import { DndContext, closestCenter, useSensor, PointerSensor } from "@dnd-kit/core";
+import { DndContext, closestCenter, useSensor, PointerSensor, DragEndEvent } from "@dnd-kit/core";
 import { SortableContext, arrayMove } from "@dnd-kit/sortable";
 
 // redux states
@@ -40,7 +40,7 @@ import { getNoteInKey, findCloestNote, keyMap } from "@utils/theory/Note";
 // Components
 import { SortableBar } from "./SortableBar";
 import KeySelector from "./KeySelector";
-import { useEffect, useState } from "react";
+import { useEffect, useState, ComponentType } from "react";
 
 const noteIcons = {
   1: WholeNote,
@@ -51,7 +51,7 @@ const noteIcons = {
   32: ThirtySecondNote,
 };
 
-const modeToIcon: any = {
+const modeToIcon: Record<string, ComponentType<{ className?: string }>> = {
   chord: HomeIcon,
   lyric: DocumentTextIcon,
   extrainfo: ChatBubbleBottomCenterIcon,
@@ -97,7 +97,7 @@ export default function Editor() {
     const degreeIndex = keyMap[pressedKey];
 
     const targetNoteLetter = rotatedScale[degreeIndex];
-    let {
+    const {
       barNumber,
       slotBeat,
       allowedDurations,
@@ -134,7 +134,7 @@ export default function Editor() {
     dispatch(addBar());
   }
 
-  const handleDragEnd = (event: any) => {
+  const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     if (!over || active.id === over.id) return;
 

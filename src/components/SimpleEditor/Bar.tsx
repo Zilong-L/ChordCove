@@ -7,7 +7,7 @@ export type ChordData = { chord: string; position: number };
 function parseLine(line: string) {
   const regex = /\[([^\]]+)\]/g;
   let lyricsOnly = "";
-  let chords: ChordData[] = [];
+  const chords: ChordData[] = [];
   let lastIndex = 0;
   let match;
 

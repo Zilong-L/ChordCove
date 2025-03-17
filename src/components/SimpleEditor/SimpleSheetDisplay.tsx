@@ -57,6 +57,7 @@ export default function SheetDisplay() {
         setSheetMissing(true);
       }
     })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const lines = simpleScore.content?.split("\n");

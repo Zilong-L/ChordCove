@@ -11,13 +11,13 @@ function insertScore(
   console.log("inserting", note, "at", barNumber, slotBeat);
   if (note === "") return { newBars: score.bars, nextBarNumber: barNumber, nextBeat: slotBeat };
   let [currentBarNumber, currentBeat] = [barNumber - 1, slotBeat];
-  let bars = structuredClone(score.bars);
+  const bars = structuredClone(score.bars);
   let sustain = false;
   let remainingDuration = duration;
   // const startBar = currentBarNumber;
   let startSlot: Slot | null = null;
   while (remainingDuration > 0) {
-    let currentBar = bars[currentBarNumber].slots;
+    const currentBar = bars[currentBarNumber].slots;
     console.log("processing bar", currentBarNumber, "beat", currentBeat);
     const slot = currentBar.find((slot) => slot.beat === currentBeat);
     const result = splitSlot(slot!, note, remainingDuration, allowedDurations, sustain);
@@ -94,7 +94,7 @@ function splitSlot(
   }
 
   let gap = slot.duration - insertedDuration;
-  let restDurations = [];
+  const restDurations = [];
 
   while (gap > 0) {
     const d = allowedDurations.find((val) => val <= gap);
@@ -105,7 +105,7 @@ function splitSlot(
 
   restDurations.reverse();
 
-  let newSlots: Slot[] = [
+  const newSlots: Slot[] = [
     {
       beat: slot.beat,
       duration: insertedDuration,
@@ -117,7 +117,7 @@ function splitSlot(
   ];
 
   let currentBeat = slot.beat + insertedDuration;
-  for (let d of restDurations) {
+  for (const d of restDurations) {
     newSlots.push({
       beat: currentBeat,
       duration: d,
@@ -140,11 +140,11 @@ export function editInfo(
   value: string
 ) {
   // 找到目标小节
-  let bar = score.bars[barNumber - 1];
+  const bar = score.bars[barNumber - 1];
   if (!bar) return score; // 如果没有这个小节，返回原始乐谱
 
   // 找到目标节拍
-  let slot = bar.slots.find((slot) => slot.beat === beat);
+  const slot = bar.slots.find((slot) => slot.beat === beat);
   if (!slot) return score; // 如果没有这个拍子，返回原始乐谱
 
   // 修改相应的属性

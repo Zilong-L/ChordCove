@@ -208,6 +208,7 @@ export default function SheetRenderer() {
         setSheetMissing(true);
       }
     })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   if (sheetMissing) {
     return (
