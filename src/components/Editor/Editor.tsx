@@ -202,9 +202,9 @@ export default function Editor() {
             <div className="grid-flow-row grid grid-cols-[80px_50px]"><p>Tempo:</p><p className="px-2 ">{score.tempo}</p> </div>
           </div>
           <div className="text-left grid grid-cols-[100px_100px]">
-            <p >Singer:</p><p> {sheetMetadata.singer}</p>
+            <p >Singer:</p><p> {sheetMetadata.singers?.join(", ")}</p>
             <p >Upload:</p><p> {sheetMetadata.uploader}</p>
-            <p >Composer:</p><p> {sheetMetadata.composer}</p>
+            <p >Composer:</p><p> {sheetMetadata.composers?.join(", ") }</p>
           </div>
         </div>
 

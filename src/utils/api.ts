@@ -53,8 +53,8 @@ async function refreshAccessToken(): Promise<string | null> {
       throw new Error(jsonResponse.error || 'Failed to refresh token');
     }
     
-    store.dispatch(setAccessToken(jsonResponse.data.accessToken));
-    return jsonResponse.data.accessToken;
+    store.dispatch(setAccessToken(jsonResponse.data?.accessToken || ""));
+    return jsonResponse.data?.accessToken || null;
   } catch {
     store.dispatch(logout());
     return null;

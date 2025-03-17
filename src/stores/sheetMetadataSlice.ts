@@ -5,8 +5,8 @@ import type { SheetMetaData } from "../types/sheet";
 const initialState: SheetMetaData = {
   id:"",
   title: "",
-  composer: "",
-  singer: "",
+  composers: [],
+  singers: [],
   uploader: "",
   uploaderId : -1,
   coverImage: "",

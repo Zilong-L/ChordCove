@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import AlbumCard from "@components/basic/AlbumCard";
+import ArtistRow from "@components/basic/ArtistRow";
 import { SheetMetaData } from "@/types/sheet";
 import { fetchApi } from "@utils/api";
 
@@ -35,7 +36,7 @@ export default function HomePage() {
             {/* 右侧栏（占 80% 宽度） */}
             <main className="w-4/5 p-6 overflow-scroll overflow-x-hidden">
                 <h1 className="text-3xl font-bold mb-6 hover:underline hover:cursor-pointer">    Recent Uploads</h1>
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 2xl:grid-cols-6 gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 2xl:grid-cols-6 gap-4 mb-8">
                     {!sheets && Array.from({ length: 3 }).map((_, i) => (
                         <AlbumCard key={i} />
                     ))}
@@ -43,6 +44,8 @@ export default function HomePage() {
                         <AlbumCard key={sheet.id} sheet={sheet} />
                     ))}
                 </div>
+
+                <ArtistRow />
             </main>
         </div>
     );

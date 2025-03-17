@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import Home from '@pages/Home';
 import SimpleSheetDetailsPage from '@pages/SimpleSheetDetailsPage';
 import SimpleSheetEditorPage from '@pages/SimpleSheetEditorPage';
+import ArtistPage from '@pages/ArtistPage';
 import Header from '@components/basic/Header';
 import Demo from '@pages/Demo';
 import FullSheetEditorPage from '@pages/FullSheetEditorPage';
@@ -20,6 +21,7 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
+            <Route path="/artist/:id" element={<ArtistPage />} />
             <Route
               path="/create"
               element={
