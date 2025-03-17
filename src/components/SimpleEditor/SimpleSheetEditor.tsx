@@ -30,7 +30,8 @@ export default function SheetRenderer() {
   const sheetMetadata = useSelector((state: RootState) => state.sheetMetadata);
   const simpleScore = useSelector((state: RootState) => state.simpleScore);
   const [sheetMissing, setSheetMissing] = useState(false);
-  const sheetId = useLocation().pathname.split("/").pop();
+  const location = useLocation();
+  const sheetId = location.pathname.split("/").pop();
   console.log(sheetMetadata)
   const dispatch = useDispatch();
   const lyrics = simpleScore.content;
@@ -106,6 +107,9 @@ export default function SheetRenderer() {
     setEditingIndex(null);
   };
   useEffect(() => {
+    if(location.pathname.includes("create")) {
+      return;
+    }
     (async () => {
       try {
         const sheetMetadata = await fetchApi<SheetMetaData>(`${API_BASE_URL}/api/get-sheet-metadata/${sheetId}`);
@@ -118,7 +122,7 @@ export default function SheetRenderer() {
         setSheetMissing(true);
       }
     })();
-  }, [])    
+    }, [])    
   if(sheetMissing) {
     return <div className="w-full bg-gradient-to-b from-[#212121] to-[#121212] rounded-md py-12 px-8 xl:px-24  min-h-[700px]">
       <h2 className="text-3xl font-bold text-center mb-2 min-h-16">Sheet not found</h2>
