@@ -2,7 +2,7 @@ import {  useSelector } from "react-redux";
 import { RootState } from "@stores/store";
 
 export default function ReadOnlyMetadataForm() {
-  const { title, composer, singer, uploader, coverImage } = useSelector((state: RootState) => state.sheetMetadata);
+  const { title, composers, singers, uploader, coverImage } = useSelector((state: RootState) => state.sheetMetadata);
   return (
     <div className="space-y-4 bg-gradient-to-t from-[#121212] to-[#212121] p-4 rounded-lg">
       <div>
@@ -53,7 +53,7 @@ export default function ReadOnlyMetadataForm() {
           className="w-full p-2 bg-transparent border border-gray-700 rounded text-gray-100 min-h-[2.5rem]"
           aria-label="Composer"
         >
-          {composer || '未提供'}
+          {composers?.map(composer => composer.name).join(", ") || '未提供'}
         </div>
       </div>
 
@@ -63,7 +63,7 @@ export default function ReadOnlyMetadataForm() {
           className="w-full p-2 bg-transparent border border-gray-700 rounded text-gray-100 min-h-[2.5rem]"
           aria-label="Singer"
         >
-          {singer || '未提供'}
+          {singers?.map(singer => singer.name).join(", ") || '未提供'}
         </div>
       </div>
 

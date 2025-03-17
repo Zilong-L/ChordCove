@@ -39,7 +39,7 @@ export default function AlbumCard({ sheet }: { sheet?: SheetMetaData }) {
                 </div>}
             <div className="p-4">
                 <h3 className="text-lg font-semibold">{sheet.title}</h3>
-                <p className="text-sm text-gray-400">{sheet.singer || "Unknown Singer"}</p>
+                <p className="text-sm text-gray-400">{sheet.singers?.map(singer => singer.name).join(", ")   || "Unknown Singer"}</p>
             </div>
         </motion.div>
     );

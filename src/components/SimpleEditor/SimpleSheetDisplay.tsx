@@ -74,9 +74,9 @@ export default function SheetDisplay() {
           <div className="grid-flow-row grid grid-cols-[80px_50px]"><p>Tempo:</p><p className="px-2 ">{simpleScore.tempo}</p> </div>
         </div>
         <div className="text-left grid grid-cols-[100px_100px]">
-          <p >Singer:</p><p> {sheetMetadata.singer}</p>
+          <p >Singer:</p><p> {sheetMetadata.singers?.map(singer => singer.name).join(", ") || "Unknown Singer"}</p>
           <p >Upload:</p><p> {sheetMetadata.uploader}</p>
-          <p >Composer:</p><p> {sheetMetadata.composer}</p>
+          <p >Composer:</p><p> {sheetMetadata.composers?.map(composer => composer.name).join(", ") || "Unknown Composer"}</p>
         </div>
       </div>
       <div className="grid grid-cols-2 md:grid-cols-4  content-start gap-2">

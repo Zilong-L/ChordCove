@@ -1,8 +1,9 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, KeyboardEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from "react-redux";
 import { setSheetMetadata } from "@stores/sheetMetadataSlice";
 import { RootState } from "@stores/store";
+import { XMarkIcon } from '@heroicons/react/20/solid';
 
 const API_BACKEND_DEV = "http://localhost:8787";
 const API_BACKEND = "https://chordcove-backend.875159954.workers.dev";
@@ -16,11 +17,13 @@ interface MetadataFormProps {
 export default function MetadataForm({uploading, setUploading}:MetadataFormProps){
   const sheetMetadata = useSelector((state: RootState) => state.sheetMetadata);
   const auth = useSelector((state: RootState) => state.auth);
-  const { title, composer, singer, coverImage } = sheetMetadata;
+  const { title, composers, singers, coverImage } = sheetMetadata;
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [singerInput, setSingerInput] = useState("");
+  const [composerInput, setComposerInput] = useState("");
 
   const handleImageUpload = async (file: File) => {
     if (!auth.isAuthenticated) {
@@ -99,6 +102,43 @@ export default function MetadataForm({uploading, setUploading}:MetadataFormProps
     }
   };
 
+  const handleKeyDown = (
+    e: KeyboardEvent<HTMLInputElement>,
+    type: 'singers' | 'composers',
+    inputValue: string,
+    setInputValue: (value: string) => void
+  ) => {
+    if (e.key === 'Enter' || e.key === ',') {
+      e.preventDefault();
+      const value = inputValue.trim();
+      if (value) {
+        const currentArray = type === 'singers' ? singers || [] : composers || [];
+        const newArtist = { name: value, role: type === 'singers' ? 'SINGER' : 'COMPOSER', id: 0 };
+        dispatch(setSheetMetadata({
+          ...sheetMetadata,
+          [type]: [...currentArray, newArtist]
+        }));
+        setInputValue('');
+      }
+    } else if (e.key === 'Backspace' && !inputValue) {
+      const currentArray = type === 'singers' ? singers || [] : composers || [];
+      if (currentArray.length > 0) {
+        dispatch(setSheetMetadata({
+          ...sheetMetadata,
+          [type]: currentArray.slice(0, -1)
+        }));
+      }
+    }
+  };
+
+  const removeArtist = (index: number, type: 'singers' | 'composers') => {
+    const currentArray = type === 'singers' ? singers || [] : composers || [];
+    dispatch(setSheetMetadata({
+      ...sheetMetadata,
+      [type]: currentArray.filter((_, i) => i !== index)
+    }));
+  };
+
   return (
     <div className="space-y-4 bg-gradient-to-t from-[#121212] to-[#212121] p-4 rounded-lg">
       <div>
@@ -165,28 +205,54 @@ export default function MetadataForm({uploading, setUploading}:MetadataFormProps
 
       <div>
         <label htmlFor="composer" className="block text-gray-400 mb-1">作曲者</label>
-        <input
-          id="composer"
-          type="text"
-          value={composer}
-          onChange={(e) => dispatch(setSheetMetadata({...sheetMetadata, composer: e.target.value }))}
-          className="w-full p-2 bg-transparent border border-gray-700 rounded text-gray-100"
-          placeholder="请输入作曲者"
-          title="作曲者"
-        />
+        <div className="flex flex-wrap gap-2 p-2 bg-transparent border border-gray-700 rounded">
+          {composers?.map((composer, index) => (
+            <div key={index} className="flex items-center bg-gray-700 rounded px-2 py-1">
+              <span className="text-gray-100">{composer.name}</span>
+              <button
+                onClick={() => removeArtist(index, 'composers')}
+                className="ml-1 text-gray-400 hover:text-gray-200"
+                aria-label={`移除作曲者 ${composer.name}`}
+              >
+                <XMarkIcon className="w-4 h-4" />
+              </button>
+            </div>
+          ))}
+          <input
+            type="text"
+            value={composerInput}
+            onChange={(e) => setComposerInput(e.target.value)}
+            onKeyDown={(e) => handleKeyDown(e, 'composers', composerInput, setComposerInput)}
+            className="flex-1 min-w-[100px] bg-transparent text-gray-100 outline-none"
+            placeholder={composers?.length ? "" : "请输入作曲者，按回车或逗号添加"}
+          />
+        </div>
       </div>
 
       <div>
         <label htmlFor="singer" className="block text-gray-400 mb-1">演唱者</label>
-        <input
-          id="singer"
-          type="text"
-          value={singer}
-          onChange={(e) => dispatch(setSheetMetadata({...sheetMetadata, singer: e.target.value }))}
-          className="w-full p-2 bg-transparent border border-gray-700 rounded text-gray-100"
-          placeholder="请输入演唱者"
-          title="演唱者"
-        />
+        <div className="flex flex-wrap gap-2 p-2 bg-transparent border border-gray-700 rounded">
+          {singers?.map((singer, index) => (
+            <div key={index} className="flex items-center bg-gray-700 rounded px-2 py-1">
+              <span className="text-gray-100">{singer.name}</span>
+              <button
+                onClick={() => removeArtist(index, 'singers')}
+                className="ml-1 text-gray-400 hover:text-gray-200"
+                aria-label={`移除演唱者 ${singer.name}`}
+              >
+                <XMarkIcon className="w-4 h-4" />
+              </button>
+            </div>
+          ))}
+          <input
+            type="text"
+            value={singerInput}
+            onChange={(e) => setSingerInput(e.target.value)}
+            onKeyDown={(e) => handleKeyDown(e, 'singers', singerInput, setSingerInput)}
+            className="flex-1 min-w-[100px] bg-transparent text-gray-100 outline-none"
+            placeholder={singers?.length ? "" : "请输入演唱者，按回车或逗号添加"}
+          />
+        </div>
       </div>
     </div>
   );

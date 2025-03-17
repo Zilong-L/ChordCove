@@ -21,7 +21,7 @@ export default function FullSheetEditorPage() {
     const navigate = useNavigate();
     
     const sheetMetadata = useSelector((state: RootState) => state.sheetMetadata);
-    const { title, composer, singer, coverImage } = sheetMetadata;
+    const { title } = sheetMetadata;
     const score = useSelector((state: RootState) => state.score);
     const auth = useSelector((state: RootState) => state.auth);
 
@@ -41,12 +41,8 @@ export default function FullSheetEditorPage() {
         setMessage("");
 
         const body = {
-            title,
-            composer,
-            singer,
-            uploader: "anonymous",
-            score: score,
-            coverImage
+            sheetMetadata,
+            scoreData: score,
         };
 
         try {
@@ -67,7 +63,8 @@ export default function FullSheetEditorPage() {
             } else {
                 setMessage("上传失败，请重试");
             }
-        } catch (error) {
+        } catch (err) {
+            console.error('Upload error:', err);
             setMessage("网络错误，请稍后再试");
         }
 

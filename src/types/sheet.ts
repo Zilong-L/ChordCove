@@ -7,11 +7,19 @@ export interface SimpleScore{
 export interface  SheetMetaData  {
   id: string;
   title: string;
-  composer: string;
-  singer: string;
   uploader: string;
   uploaderId: number;
   coverImage: string;
+  singers?: Array<{
+    id: number;
+    name: string;
+    role: string;
+  }>;
+  composers?: Array<{
+    id: number;
+    name: string;
+    role: string;
+  }>;
 }
 
 
