@@ -102,10 +102,10 @@ export default function Editor() {
       slotBeat,
       allowedDurations,
       isdotted,
-      insertedDuration,
       lastInputNote,
       editingMode,
     } = editingStore;
+    let insertedDuration = editingStore.insertedDuration;
     if (editingMode !== "melody") return;
 
     const finalNote = findCloestNote(lastInputNote, targetNoteLetter);
