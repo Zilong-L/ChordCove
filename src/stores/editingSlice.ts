@@ -1,16 +1,15 @@
 // editingSlice.ts
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-
 interface EditingSlotState {
-  barNumber: number | null;      // ID of the bar being edited
-  slotBeat: number | null;       // The beat (start) of the slot being edited
-  lastInputNote: string;         // The note text input by the user
-  noteInput: string;             // The note text input by the user
-  insertedDuration: number;      // Duration of the note being inserted
+  barNumber: number | null; // ID of the bar being edited
+  slotBeat: number | null; // The beat (start) of the slot being edited
+  lastInputNote: string; // The note text input by the user
+  noteInput: string; // The note text input by the user
+  insertedDuration: number; // Duration of the note being inserted
   insertNoteTime: number;
-  allowedNoteTime: [1,2,4,8,16]; // Allowed note durations
-  allowedDurations: number[];    // List of allowed durations for splitting the slot (sorted descending ideally)
+  allowedNoteTime: [1, 2, 4, 8, 16]; // Allowed note durations
+  allowedDurations: number[]; // List of allowed durations for splitting the slot (sorted descending ideally)
   isdotted: boolean;
   editingMode: string; // New state for tracking editing mode
   allowedEditingModes: string[]; // Allowed editing modes
@@ -21,13 +20,13 @@ const initialState: EditingSlotState = {
   slotBeat: 0,
   lastInputNote: "",
   noteInput: "",
-  insertedDuration: 1,        // default value; update when setting the editing slot
+  insertedDuration: 1, // default value; update when setting the editing slot
   insertNoteTime: 4,
-  allowedNoteTime: [1, 2, 4, 8, 16],        // default value; update when setting the editing slot
-  allowedDurations: [4, 2, 1, 0.5, 0.25],  // example allowed durations (in quarter-note units)
+  allowedNoteTime: [1, 2, 4, 8, 16], // default value; update when setting the editing slot
+  allowedDurations: [4, 2, 1, 0.5, 0.25], // example allowed durations (in quarter-note units)
   isdotted: false,
-  editingMode: "melody" ,        // Default mode is "chord"
-  allowedEditingModes: ["chord", "lyric", "extrainfo", "melody"]
+  editingMode: "melody", // Default mode is "chord"
+  allowedEditingModes: ["chord", "lyric", "extrainfo", "melody"],
 };
 
 const editingSlice = createSlice({
@@ -50,7 +49,7 @@ const editingSlice = createSlice({
     updateLastInputNote(state, action: PayloadAction<string>) {
       state.lastInputNote = action.payload;
     },
-    updateInputDuration(state, action: PayloadAction<{ newInputTime: number, baseBeat: number }>) {
+    updateInputDuration(state, action: PayloadAction<{ newInputTime: number; baseBeat: number }>) {
       if (state.isdotted && action.payload.newInputTime === 16) {
         state.isdotted = false;
       }
@@ -71,8 +70,8 @@ const editingSlice = createSlice({
     },
     setEditingMode(state, action: PayloadAction<string>) {
       state.editingMode = action.payload;
-    }
-  }
+    },
+  },
 });
 
 export const {
@@ -82,7 +81,7 @@ export const {
   updateInputDuration,
   updateLastInputNote,
   toggleDotted,
-  setEditingMode
+  setEditingMode,
 } = editingSlice.actions;
 
 export default editingSlice.reducer;

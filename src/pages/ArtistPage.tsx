@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import AlbumCard from "@components/basic/AlbumCard";
-import { fetchApi,API_BASE_URL } from "@utils/api";
+import { fetchApi, API_BASE_URL } from "@utils/api";
 import { SheetMetaData } from "@/types/sheet";
 
 interface Artist {
@@ -37,15 +37,15 @@ export default function ArtistPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-[#313131] to-[#121212] text-white p-8">
-        <div className="max-w-7xl mx-auto">
+      <div className="min-h-screen bg-gradient-to-b from-[#313131] to-[#121212] p-8 text-white">
+        <div className="mx-auto max-w-7xl">
           <div className="animate-pulse">
-            <div className="h-32 w-32 bg-gray-700 rounded-full mb-4"></div>
-            <div className="h-8 w-64 bg-gray-700 rounded mb-4"></div>
-            <div className="h-4 w-96 bg-gray-700 rounded mb-8"></div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+            <div className="mb-4 h-32 w-32 rounded-full bg-gray-700"></div>
+            <div className="mb-4 h-8 w-64 rounded bg-gray-700"></div>
+            <div className="mb-8 h-4 w-96 rounded bg-gray-700"></div>
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
               {[...Array(5)].map((_, i) => (
-                <div key={i} className="h-48 bg-gray-700 rounded"></div>
+                <div key={i} className="h-48 rounded bg-gray-700"></div>
               ))}
             </div>
           </div>
@@ -56,9 +56,9 @@ export default function ArtistPage() {
 
   if (error || !artist) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-[#313131] to-[#121212] text-white p-8">
-        <div className="max-w-7xl mx-auto text-center">
-          <h1 className="text-2xl font-bold mb-4">Error</h1>
+      <div className="min-h-screen bg-gradient-to-b from-[#313131] to-[#121212] p-8 text-white">
+        <div className="mx-auto max-w-7xl text-center">
+          <h1 className="mb-4 text-2xl font-bold">Error</h1>
           <p>{error || "Artist not found"}</p>
         </div>
       </div>
@@ -66,31 +66,29 @@ export default function ArtistPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#313131] to-[#121212] text-white p-8">
-      <div className="max-w-7xl mx-auto">
-        <div className="flex items-center gap-6 mb-8">
+    <div className="min-h-screen bg-gradient-to-b from-[#313131] to-[#121212] p-8 text-white">
+      <div className="mx-auto max-w-7xl">
+        <div className="mb-8 flex items-center gap-6">
           {artist.image ? (
             <img
               src={artist.image}
               alt={artist.name}
-              className="w-32 h-32 rounded-full object-cover"
+              className="h-32 w-32 rounded-full object-cover"
             />
           ) : (
-            <div className="w-32 h-32 rounded-full bg-gray-700 flex items-center justify-center">
+            <div className="flex h-32 w-32 items-center justify-center rounded-full bg-gray-700">
               <span className="text-4xl">{artist.name[0]}</span>
             </div>
           )}
           <div>
-            <h1 className="text-4xl font-bold mb-2">{artist.name}</h1>
-            {artist.description && (
-              <p className="text-gray-300">{artist.description}</p>
-            )}
+            <h1 className="mb-2 text-4xl font-bold">{artist.name}</h1>
+            {artist.description && <p className="text-gray-300">{artist.description}</p>}
           </div>
         </div>
 
         <div className="mb-8">
-          <h2 className="text-2xl font-bold mb-4">Sheets</h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+          <h2 className="mb-4 text-2xl font-bold">Sheets</h2>
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
             {artist.sheets.map((sheet) => (
               <AlbumCard key={sheet.id} sheet={sheet} />
             ))}
@@ -99,4 +97,4 @@ export default function ArtistPage() {
       </div>
     </div>
   );
-} 
+}

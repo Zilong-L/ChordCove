@@ -10,8 +10,8 @@ import { useEffect, useState } from "react";
 export type ChordData = { chord: string; position: number };
 const API_BACKEND_DEV = "http://localhost:8787";
 const API_BACKEND = "https://chordcove-backend.875159954.workers.dev";
-const R2_BACKEND_DEV = "https://pub-c7e649783b8e4779a0bd3717e8fa77e4.r2.dev"
-const R2_BACKEND = "https://r2.barnman.cc"
+const R2_BACKEND_DEV = "https://pub-c7e649783b8e4779a0bd3717e8fa77e4.r2.dev";
+const R2_BACKEND = "https://r2.barnman.cc";
 
 // 如果是在本地开发环境，使用 API_BACKEND_DEV，否则使用 API_BACKEND
 const API_BASE_URL = window.location.hostname === "localhost" ? API_BACKEND_DEV : API_BACKEND;
@@ -38,54 +38,73 @@ export default function SheetDisplay() {
   const sheetId = useLocation().pathname.split("/").pop();
   const simpleScore = useSelector((state: RootState) => state.simpleScore);
   const sheetMetadata = useSelector((state: RootState) => state.sheetMetadata);
-  console.log(simpleScore)
+  console.log(simpleScore);
   const dispatch = useDispatch();
   const [sheetMissing, setSheetMissing] = useState(false);
   useEffect(() => {
     (async () => {
       try {
-        const sheetMetadata = await fetchApi<SheetMetaData>(`${API_BASE_URL}/api/get-sheet-metadata/${sheetId}`);
+        const sheetMetadata = await fetchApi<SheetMetaData>(
+          `${API_BASE_URL}/api/get-sheet-metadata/${sheetId}`
+        );
         dispatch(setSheetMetadata(sheetMetadata));
-        const sheetData = await fetch(`${R2_BASE_URL}/sheets/${sheetMetadata.id}.json`).then((res) => res.json());
+        const sheetData = await fetch(`${R2_BASE_URL}/sheets/${sheetMetadata.id}.json`).then(
+          (res) => res.json()
+        );
         dispatch(setSimpleScore(sheetData));
-      }
-      catch (error) {
+      } catch (error) {
         console.error("Error fetching sheet:", error);
         setSheetMissing(true);
       }
     })();
-  }, [])
+  }, []);
 
-  const lines = simpleScore.content?.split('\n');
+  const lines = simpleScore.content?.split("\n");
 
   if (sheetMissing) {
     return (
-      <div className="bg-gradient-to-b from-[#212121] to-[#121212] rounded-md py-12 px-8 xl:px-24  min-h-[80%]">
-        {sheetMissing && <h1 className="text-3xl text-center text-white">Sheet Not Found</h1>}
+      <div className="min-h-[80%] rounded-md bg-gradient-to-b from-[#212121] to-[#121212] px-8 py-12 xl:px-24">
+        {sheetMissing && <h1 className="text-center text-3xl text-white">Sheet Not Found</h1>}
       </div>
     );
   }
   return (
-    <div className="overflow-scroll bg-gradient-to-b from-[#212121] to-[#121212] rounded-md py-12 px-8 xl:px-24  min-h-[80%]">
-      <h2 className="text-3xl font-bold text-center mb-2 min-h-16">{sheetMetadata.title}</h2>
-      <div className="flex justify-between items-center text-gray-100 mb-6">
+    <div className="min-h-[80%] overflow-scroll rounded-md bg-gradient-to-b from-[#212121] to-[#121212] px-8 py-12 xl:px-24">
+      <h2 className="mb-2 min-h-16 text-center text-3xl font-bold">{sheetMetadata.title}</h2>
+      <div className="mb-6 flex items-center justify-between text-gray-100">
         <div className="text-lg">
-          <div className="grid-flow-row grid grid-cols-[80px_50px]"><p>Key:</p><p className="px-2 ">{simpleScore.key}</p></div>
-          <div className="grid-flow-row grid grid-cols-[80px_50px]"><p>Tempo:</p><p className="px-2 ">{simpleScore.tempo}</p> </div>
+          <div className="grid grid-flow-row grid-cols-[80px_50px]">
+            <p>Key:</p>
+            <p className="px-2">{simpleScore.key}</p>
+          </div>
+          <div className="grid grid-flow-row grid-cols-[80px_50px]">
+            <p>Tempo:</p>
+            <p className="px-2">{simpleScore.tempo}</p>{" "}
+          </div>
         </div>
-        <div className="text-left grid grid-cols-[100px_100px]">
-          <p >Singer:</p><p> {sheetMetadata.singers?.map(singer => singer.name).join(", ") || "Unknown Singer"}</p>
-          <p >Upload:</p><p> {sheetMetadata.uploader}</p>
-          <p >Composer:</p><p> {sheetMetadata.composers?.map(composer => composer.name).join(", ") || "Unknown Composer"}</p>
+        <div className="grid grid-cols-[100px_100px] text-left">
+          <p>Singer:</p>
+          <p>
+            {" "}
+            {sheetMetadata.singers?.map((singer) => singer.name).join(", ") || "Unknown Singer"}
+          </p>
+          <p>Upload:</p>
+          <p> {sheetMetadata.uploader}</p>
+          <p>Composer:</p>
+          <p>
+            {" "}
+            {sheetMetadata.composers?.map((composer) => composer.name).join(", ") ||
+              "Unknown Composer"}
+          </p>
         </div>
       </div>
-      <div className="grid grid-cols-2 md:grid-cols-4  content-start gap-2">
+      <div className="grid grid-cols-2 content-start gap-2 md:grid-cols-4">
         {lines.map((line, idx) => {
           const { lyrics: plainLyrics, chords } = parseLine(line);
           return (
             <div
               key={idx}
-              className={`relative flex items-center min-h-[4rem] pt-[2rem] p-2 rounded-md ${plainLyrics.length > 10 ? "col-span-2" : ""}`}
+              className={`relative flex min-h-[4rem] items-center rounded-md p-2 pt-[2rem] ${plainLyrics.length > 10 ? "col-span-2" : ""}`}
             >
               <div className="flex-grow">
                 <div className="flex">
@@ -94,7 +113,7 @@ export default function SheetDisplay() {
                     return (
                       <span key={charIndex} className="relative text-gray-100">
                         {chordData && (
-                          <div className="absolute top-[-1.5em] text-gray-300 font-bold">
+                          <div className="absolute top-[-1.5em] font-bold text-gray-300">
                             {chordData.chord}
                           </div>
                         )}
@@ -109,5 +128,5 @@ export default function SheetDisplay() {
         })}
       </div>
     </div>
-  )
+  );
 }

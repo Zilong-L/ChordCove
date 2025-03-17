@@ -1,20 +1,20 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { fetchApi } from '@utils/api';
+import React, { useState, useEffect } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { fetchApi } from "@utils/api";
 
 const API_BACKEND_DEV = "http://localhost:8787";
 const API_BACKEND = "https://chordcove-backend.875159954.workers.dev";
 const API_BASE_URL = window.location.hostname === "localhost" ? API_BACKEND_DEV : API_BACKEND;
 
 export default function RegisterPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [verificationCode, setVerificationCode] = useState('');
-  const [error, setError] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [verificationCode, setVerificationCode] = useState("");
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [step, setStep] = useState<'email' | 'verification' | 'success'>('email');
+  const [step, setStep] = useState<"email" | "verification" | "success">("email");
   const [countdown, setCountdown] = useState(0);
-  const [emailSentMessage, setEmailSentMessage] = useState('');
+  const [emailSentMessage, setEmailSentMessage] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -30,28 +30,28 @@ export default function RegisterPage() {
   const handleSendCode = async (e: React.FormEvent) => {
     e.preventDefault();
     if (countdown > 0) return;
-    
+
     setLoading(true);
-    setError('');
-    setEmailSentMessage('');
+    setError("");
+    setEmailSentMessage("");
 
     try {
       await fetchApi(`${API_BASE_URL}/api/register`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ email }),
       });
-      
-      setStep('verification');
+
+      setStep("verification");
       setCountdown(60);
-      setEmailSentMessage('验证码已发送到您的邮箱，请注意查收');
+      setEmailSentMessage("验证码已发送到您的邮箱，请注意查收");
     } catch (err) {
-      if (err instanceof Error && err.message.includes('Rate limit')) {
-        setError('请稍后再试');
+      if (err instanceof Error && err.message.includes("Rate limit")) {
+        setError("请稍后再试");
       } else {
-        setError(err instanceof Error ? err.message : '发生错误');
+        setError(err instanceof Error ? err.message : "发生错误");
       }
     } finally {
       setLoading(false);
@@ -61,52 +61,50 @@ export default function RegisterPage() {
   const handleVerification = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError('');
+    setError("");
 
     try {
       await fetchApi(`${API_BASE_URL}/api/validate-registration`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ email, code: verificationCode, password }),
       });
-      
+
       // Show success message instead of redirecting
-      setStep('success');
+      setStep("success");
     } catch (err) {
-      setError(err instanceof Error ? err.message : '发生错误');
+      setError(err instanceof Error ? err.message : "发生错误");
     } finally {
       setLoading(false);
     }
   };
 
-  if (step === 'success') {
+  if (step === "success") {
     return (
-      <div className="min-h-[calc(100vh-4rem)] flex flex-col bg-dark text-white">
-        <div className="flex-grow flex items-center justify-center">
+      <div className="flex min-h-[calc(100vh-4rem)] flex-col bg-dark text-white">
+        <div className="flex flex-grow items-center justify-center">
           <div className="flex flex-col items-center">
-            <div className="w-[448px] p-8 rounded-lg bg-[#212121] text-center">
-              <svg 
-                className="w-16 h-16 mx-auto mb-4 text-green-500" 
-                fill="none" 
-                stroke="currentColor" 
+            <div className="w-[448px] rounded-lg bg-[#212121] p-8 text-center">
+              <svg
+                className="mx-auto mb-4 h-16 w-16 text-green-500"
+                fill="none"
+                stroke="currentColor"
                 viewBox="0 0 24 24"
               >
-                <path 
-                  strokeLinecap="round" 
-                  strokeLinejoin="round" 
-                  strokeWidth={2} 
-                  d="M5 13l4 4L19 7" 
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M5 13l4 4L19 7"
                 />
               </svg>
-              <h2 className="text-2xl font-bold mb-4">注册成功！</h2>
-              <p className="text-gray-400 mb-6">
-                您的账号已创建成功，现在可以登录使用了
-              </p>
+              <h2 className="mb-4 text-2xl font-bold">注册成功！</h2>
+              <p className="mb-6 text-gray-400">您的账号已创建成功，现在可以登录使用了</p>
               <button
-                onClick={() => navigate('/login')}
-                className="w-full py-3 bg-[#dfdfdf] hover:bg-[#efefef] text-black rounded font-medium transition-colors"
+                onClick={() => navigate("/login")}
+                className="w-full rounded bg-[#dfdfdf] py-3 font-medium text-black transition-colors hover:bg-[#efefef]"
               >
                 前往登录
               </button>
@@ -118,19 +116,19 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] flex flex-col bg-dark text-white">
-      <div className="flex-grow flex items-center justify-center">
+    <div className="flex min-h-[calc(100vh-4rem)] flex-col bg-dark text-white">
+      <div className="flex flex-grow items-center justify-center">
         <div className="flex flex-col items-center">
-          <h2 className="text-2xl font-bold mb-6 bg-gradient-to-b from-[#878787] to-[#616161] text-transparent bg-clip-text">
+          <h2 className="mb-6 bg-gradient-to-b from-[#878787] to-[#616161] bg-clip-text text-2xl font-bold text-transparent">
             创建账号
           </h2>
-          
-          <div className="w-[448px] p-8 rounded-lg bg-[#212121]">
-            {step === 'email' ? (
+
+          <div className="w-[448px] rounded-lg bg-[#212121] p-8">
+            {step === "email" ? (
               <form onSubmit={handleSendCode}>
                 <div className="space-y-4">
                   <div>
-                    <label htmlFor="email" className="block text-sm font-medium mb-2">
+                    <label htmlFor="email" className="mb-2 block text-sm font-medium">
                       邮箱地址
                     </label>
                     <input
@@ -139,26 +137,24 @@ export default function RegisterPage() {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
-                      className="w-full p-3 rounded bg-[#191919] focus:outline-none"
+                      className="w-full rounded bg-[#191919] p-3 focus:outline-none"
                     />
                   </div>
-                  {error && (
-                    <div className="text-red-500 text-sm text-center mt-2">{error}</div>
-                  )}
+                  {error && <div className="mt-2 text-center text-sm text-red-500">{error}</div>}
                   <button
                     type="submit"
                     disabled={loading || countdown > 0}
-                    className={`w-full py-3 mt-4 ${
-                      loading || countdown > 0 
-                        ? 'bg-gray-500 cursor-not-allowed' 
-                        : 'bg-[#dfdfdf] hover:bg-[#efefef]'
-                    } text-black rounded font-medium transition-colors`}
+                    className={`mt-4 w-full py-3 ${
+                      loading || countdown > 0
+                        ? "cursor-not-allowed bg-gray-500"
+                        : "bg-[#dfdfdf] hover:bg-[#efefef]"
+                    } rounded font-medium text-black transition-colors`}
                   >
-                    {loading 
-                      ? '发送中...' 
-                      : countdown > 0 
-                        ? `${countdown}秒后可重新发送` 
-                        : '发送验证码'}
+                    {loading
+                      ? "发送中..."
+                      : countdown > 0
+                        ? `${countdown}秒后可重新发送`
+                        : "发送验证码"}
                   </button>
                 </div>
               </form>
@@ -166,12 +162,12 @@ export default function RegisterPage() {
               <form onSubmit={handleVerification}>
                 <div className="space-y-4">
                   {emailSentMessage && (
-                    <div className="text-green-500 text-sm text-center mb-4">
+                    <div className="mb-4 text-center text-sm text-green-500">
                       {emailSentMessage}
                     </div>
                   )}
                   <div>
-                    <label htmlFor="code" className="block text-sm font-medium mb-2">
+                    <label htmlFor="code" className="mb-2 block text-sm font-medium">
                       验证码
                     </label>
                     <div className="flex gap-4">
@@ -182,24 +178,24 @@ export default function RegisterPage() {
                         onChange={(e) => setVerificationCode(e.target.value)}
                         required
                         maxLength={6}
-                        className="flex-1 p-3 rounded bg-[#191919] focus:outline-none"
+                        className="flex-1 rounded bg-[#191919] p-3 focus:outline-none"
                       />
                       <button
                         type="button"
                         onClick={handleSendCode}
                         disabled={loading || countdown > 0}
                         className={`px-4 py-2 ${
-                          loading || countdown > 0 
-                            ? 'bg-gray-500 cursor-not-allowed' 
-                            : 'bg-[#dfdfdf] hover:bg-[#efefef]'
-                        } text-black rounded font-medium text-sm transition-colors whitespace-nowrap`}
+                          loading || countdown > 0
+                            ? "cursor-not-allowed bg-gray-500"
+                            : "bg-[#dfdfdf] hover:bg-[#efefef]"
+                        } whitespace-nowrap rounded text-sm font-medium text-black transition-colors`}
                       >
-                        {countdown > 0 ? `${countdown}s` : '重新发送'}
+                        {countdown > 0 ? `${countdown}s` : "重新发送"}
                       </button>
                     </div>
                   </div>
                   <div>
-                    <label htmlFor="password" className="block text-sm font-medium mb-2">
+                    <label htmlFor="password" className="mb-2 block text-sm font-medium">
                       密码
                     </label>
                     <input
@@ -208,27 +204,25 @@ export default function RegisterPage() {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
-                      className="w-full p-3 rounded bg-[#191919] focus:outline-none"
+                      className="w-full rounded bg-[#191919] p-3 focus:outline-none"
                     />
-                    <p className="text-xs text-gray-400 mt-1">
+                    <p className="mt-1 text-xs text-gray-400">
                       密码需要包含大小写字母和数字，至少8位
                     </p>
                   </div>
-                  {error && (
-                    <div className="text-red-500 text-sm text-center mt-2">{error}</div>
-                  )}
+                  {error && <div className="mt-2 text-center text-sm text-red-500">{error}</div>}
                   <button
                     type="submit"
                     disabled={loading}
-                    className="w-full py-3 mt-4 bg-[#dfdfdf] hover:bg-[#efefef] text-black rounded font-medium transition-colors"
+                    className="mt-4 w-full rounded bg-[#dfdfdf] py-3 font-medium text-black transition-colors hover:bg-[#efefef]"
                   >
-                    {loading ? '创建中...' : '创建账号'}
+                    {loading ? "创建中..." : "创建账号"}
                   </button>
                 </div>
               </form>
             )}
             <div className="mt-4 text-center text-sm text-gray-400">
-              已有账号？{' '}
+              已有账号？{" "}
               <Link to="/login" className="text-white hover:underline">
                 登录
               </Link>
@@ -238,4 +232,4 @@ export default function RegisterPage() {
       </div>
     </div>
   );
-} 
+}

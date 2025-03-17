@@ -5,30 +5,34 @@
 To maintain consistency across the codebase, follow these import path conventions:
 
 - Types: Use `@/types/...` for all type imports
+
   ```typescript
-  import { SheetMetaData } from '@/types/sheet';
-  import { ApiResponse } from '@/types/api';
+  import { SheetMetaData } from "@/types/sheet";
+  import { ApiResponse } from "@/types/api";
   ```
 
 - Components: Use `@components/...` for component imports (without the leading slash)
+
   ```typescript
-  import AlbumCard from '@components/basic/AlbumCard';
+  import AlbumCard from "@components/basic/AlbumCard";
   ```
 
 - Pages: Use `@pages/...` for page imports (without the leading slash)
+
   ```typescript
-  import HomePage from '@pages/Home';
+  import HomePage from "@pages/Home";
   ```
 
 - Stores/Redux: Use `@stores/...` for store imports (without the leading slash)
+
   ```typescript
-  import { RootState } from '@stores/store';
-  import { setToken } from '@stores/authSlice';
+  import { RootState } from "@stores/store";
+  import { setToken } from "@stores/authSlice";
   ```
 
 - Utilities: Use `@utils/...` for utility imports (without the leading slash)
   ```typescript
-  import { fetchApi } from '@utils/api';
+  import { fetchApi } from "@utils/api";
   ```
 
 ## API Response Structure Update
@@ -49,13 +53,14 @@ interface ApiResponse<T> {
 We've added utility functions to handle this new structure. Use the `fetchApi` function for all API calls:
 
 ```typescript
-import { fetchApi } from '@utils/api';
+import { fetchApi } from "@utils/api";
 
 // Example usage:
-const data = await fetchApi<YourDataType>('your-api-endpoint');
+const data = await fetchApi<YourDataType>("your-api-endpoint");
 ```
 
 The `fetchApi` function will:
+
 1. Make the API request
 2. Check if the response was successful
 3. Extract the data from the `.data` property

@@ -1,10 +1,10 @@
-export interface SimpleScore{
+export interface SimpleScore {
   tempo: number;
   key: string;
   timeSignature: string;
   content: string;
 }
-export interface  SheetMetaData  {
+export interface SheetMetaData {
   id: string;
   title: string;
   uploader: string;
@@ -22,16 +22,14 @@ export interface  SheetMetaData  {
   }>;
 }
 
-
 export type Slot = {
-  beat: number;     
-  duration: number; 
-  note: string;   // 可选，表示音高
-  chord: string;    // 可选，和弦
-  lyric: string;    // 可选，歌词
+  beat: number;
+  duration: number;
+  note: string; // 可选，表示音高
+  chord: string; // 可选，和弦
+  lyric: string; // 可选，歌词
   sustain: boolean;
   extraInfo?: string; // 可选，额外信息
-
 };
 
 export type BarData = {
@@ -40,13 +38,11 @@ export type BarData = {
   slots: Slot[];
 };
 
-
-
 export interface Score {
   tempo: number;
   key: string;
   timeSignature: string;
   bars: BarData[];
-  beatsPerBar:number,
-  baseBeat:number
+  beatsPerBar: number;
+  baseBeat: number;
 }

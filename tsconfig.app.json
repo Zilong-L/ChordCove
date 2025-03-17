@@ -14,7 +14,7 @@
       "@stores/*": ["src/stores/*"],
       "@utils/*": ["src/utils/*"],
       "@assets/*": ["src/assets/*"],
-      "@/*": ["src/*"],
+      "@/*": ["src/*"]
     },
 
     /* Bundler mode */
@@ -32,5 +32,5 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx"],
+  "include": ["src/**/*.ts", "src/**/*.tsx"]
 }

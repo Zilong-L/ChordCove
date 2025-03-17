@@ -1,16 +1,18 @@
 // dnd
-import {
-  DndContext,
-  closestCenter,
-  useSensor,
-  PointerSensor
-} from "@dnd-kit/core";
+import { DndContext, closestCenter, useSensor, PointerSensor } from "@dnd-kit/core";
 import { SortableContext, arrayMove } from "@dnd-kit/sortable";
 
 // redux states
 import { useSelector, useDispatch } from "react-redux";
 import { addBar, reorderBars, updateBars } from "../../stores/scoreSlice";
-import { updateLastInputNote, updateInputDuration, clearEditingSlot, setEditingSlot, toggleDotted, setEditingMode } from "../../stores/editingSlice";
+import {
+  updateLastInputNote,
+  updateInputDuration,
+  clearEditingSlot,
+  setEditingSlot,
+  toggleDotted,
+  setEditingMode,
+} from "../../stores/editingSlice";
 import { RootState } from "../../stores/store";
 import { insertScore } from "./modifyScore";
 
@@ -24,7 +26,13 @@ import ThirtySecondNote from "@assets/musicnotes/Thirtysecond";
 
 // editing mode icons
 import Dotted from "@assets/musicnotes/Dotted";
-import { PlusIcon, DocumentTextIcon, MusicalNoteIcon, ChatBubbleBottomCenterIcon, HomeIcon } from "@heroicons/react/20/solid";
+import {
+  PlusIcon,
+  DocumentTextIcon,
+  MusicalNoteIcon,
+  ChatBubbleBottomCenterIcon,
+  HomeIcon,
+} from "@heroicons/react/20/solid";
 // Import react-hotkeys-hook and your theory helpers
 import { useHotkeys } from "react-hotkeys-hook";
 import { getNoteInKey, findCloestNote, keyMap } from "@utils/theory/Note";
@@ -43,13 +51,12 @@ const noteIcons = {
   32: ThirtySecondNote,
 };
 
-
 const modeToIcon: any = {
-  "chord": HomeIcon,
-  "lyric": DocumentTextIcon,
-  "extrainfo": ChatBubbleBottomCenterIcon,
-  "melody": MusicalNoteIcon
-}
+  chord: HomeIcon,
+  lyric: DocumentTextIcon,
+  extrainfo: ChatBubbleBottomCenterIcon,
+  melody: MusicalNoteIcon,
+};
 export default function Editor() {
   const dispatch = useDispatch();
 
@@ -59,7 +66,7 @@ export default function Editor() {
   const rotatedScale = getNoteInKey(score.key);
   const { allowedNoteTime, insertNoteTime } = editingStore;
   const bars = score.bars;
-  const [flatSlots, setFlatSlots] = useState<Array<{ bar: number, beat: number }>>([]);
+  const [flatSlots, setFlatSlots] = useState<Array<{ bar: number; beat: number }>>([]);
   const [flatSlotsIdx, setFlatSlotsIdx] = useState(0);
   useEffect(() => {
     const flatSlots = [];
@@ -69,47 +76,59 @@ export default function Editor() {
       }
     }
     setFlatSlots(flatSlots);
-    console.log(flatSlots,flatSlotsIdx);
-  },[bars,flatSlotsIdx])
+    console.log(flatSlots, flatSlotsIdx);
+  }, [bars, flatSlotsIdx]);
   useEffect(() => {
     for (let i = 0; i < flatSlots.length; i++) {
       const slot = flatSlots[i];
       if (slot.bar === editingStore.barNumber && slot.beat === editingStore.slotBeat) {
-        console.log(i)
+        console.log(i);
         setFlatSlotsIdx(i);
         break;
       }
     }
-  }, [flatSlots, editingStore.barNumber, editingStore.slotBeat])
-  useHotkeys(
-    Object.entries(keyMap).join(","),
-    (event, handler) => {
-      event.preventDefault();
-      let pressedKey = handler.keys![0];
-      if (handler.ctrl && handler.alt) {
-        pressedKey = "ctrl+alt+" + pressedKey;
-      }
-      const degreeIndex = keyMap[pressedKey];
-
-      const targetNoteLetter = rotatedScale[degreeIndex];
-      let { barNumber, slotBeat, allowedDurations, isdotted, insertedDuration, lastInputNote, editingMode } = editingStore;
-      if (editingMode !== 'melody') return;
-
-      const finalNote = findCloestNote(lastInputNote, targetNoteLetter);
-      if (finalNote) {
-        dispatch(updateLastInputNote(finalNote));
-
-        if (isdotted) {
-          insertedDuration = insertedDuration * 1.5;
-        }
-
-        const { newBars, nextBarNumber, nextBeat } = insertScore(score, barNumber!, slotBeat!, finalNote, insertedDuration, allowedDurations);
-        dispatch(updateBars({ newBars }));
-        dispatch(clearEditingSlot());
-        dispatch(setEditingSlot({ barNumber: nextBarNumber, slotBeat: nextBeat }));
-      }
+  }, [flatSlots, editingStore.barNumber, editingStore.slotBeat]);
+  useHotkeys(Object.entries(keyMap).join(","), (event, handler) => {
+    event.preventDefault();
+    let pressedKey = handler.keys![0];
+    if (handler.ctrl && handler.alt) {
+      pressedKey = "ctrl+alt+" + pressedKey;
     }
-  );
+    const degreeIndex = keyMap[pressedKey];
+
+    const targetNoteLetter = rotatedScale[degreeIndex];
+    let {
+      barNumber,
+      slotBeat,
+      allowedDurations,
+      isdotted,
+      insertedDuration,
+      lastInputNote,
+      editingMode,
+    } = editingStore;
+    if (editingMode !== "melody") return;
+
+    const finalNote = findCloestNote(lastInputNote, targetNoteLetter);
+    if (finalNote) {
+      dispatch(updateLastInputNote(finalNote));
+
+      if (isdotted) {
+        insertedDuration = insertedDuration * 1.5;
+      }
+
+      const { newBars, nextBarNumber, nextBeat } = insertScore(
+        score,
+        barNumber!,
+        slotBeat!,
+        finalNote,
+        insertedDuration,
+        allowedDurations
+      );
+      dispatch(updateBars({ newBars }));
+      dispatch(clearEditingSlot());
+      dispatch(setEditingSlot({ barNumber: nextBarNumber, slotBeat: nextBeat }));
+    }
+  });
 
   function handleAppend() {
     dispatch(addBar());
@@ -137,99 +156,95 @@ export default function Editor() {
   });
 
   return (
-
-    <div className="flex flex-col xl:flex-row gap-6 xl:items-start  text-gray-200 relative ">
-      <div className="xl:absolute flex flex-row xl:flex-col shrink xl:order-2 lex-wrap justify-center gap-4 mb-6 -right-[3rem]">
+    <div className="relative flex flex-col gap-6 text-gray-200 xl:flex-row xl:items-start">
+      <div className="lex-wrap -right-[3rem] mb-6 flex shrink flex-row justify-center gap-4 xl:absolute xl:order-2 xl:flex-col">
         {editingStore.allowedEditingModes.map((mode) => {
           const Component = modeToIcon[mode];
           return (
             <button
               key={mode}
               data-tooltip={mode}
+              onClick={() => dispatch(setEditingMode(mode))}
+              className={`relative rounded p-2 ${
+                editingStore.editingMode === mode ? "bg-[#1f1f1f]" : ""
+              }`}
+            >
+              <Component className="h-6 w-6" />
+            </button>
+          );
+        })}
+        {editingStore.editingMode == "melody" &&
+          allowedNoteTime.map((duration) => (
+            <button
+              key={duration}
+              data-tooltip={duration}
               onClick={() =>
                 dispatch(
-                  setEditingMode(mode)
+                  updateInputDuration({
+                    newInputTime: duration,
+                    baseBeat: score.baseBeat,
+                  })
                 )
               }
-              className={`p-2  relative rounded ${editingStore.editingMode === mode ? "bg-[#1f1f1f]" : ""
-                }`}
+              className={`rounded p-2 ${insertNoteTime === duration ? "bg-[#1f1f1f]" : ""}`}
             >
-              <Component className="w-6 h-6" />
+              {noteIcons[duration]({ className: "w-6 h-6 " })}
             </button>
-          )
-        })
-        }
-        {editingStore.editingMode == 'melody' && allowedNoteTime.map((duration) => (
+          ))}
+        {editingStore.editingMode == "melody" && (
           <button
-            key={duration}
-            data-tooltip={duration}
-            onClick={() =>
-              dispatch(
-                updateInputDuration({
-                  newInputTime: duration,
-                  baseBeat: score.baseBeat,
-                })
-              )
-            }
-            className={`p-2 rounded ${insertNoteTime === duration ? "bg-[#1f1f1f]" : ""
-              }`}
+            data-tooltip="Dotted"
+            onClick={() => dispatch(toggleDotted())}
+            className={`rounded p-2 ${editingStore.isdotted ? "bg-[#1f1f1f]" : ""}`}
           >
-            {noteIcons[duration]({ className: "w-6 h-6 " })}
-          </button>
-        )
-        )}
-        {editingStore.editingMode == 'melody' && <button
-          data-tooltip="Dotted"
-          onClick={() => dispatch(toggleDotted())}
-          className={` p-2 rounded ${editingStore.isdotted ? "bg-[#1f1f1f]" : ""}`}
-        >
-          {
-            Dotted({
+            {Dotted({
               className: ` w-6  h-6   }`,
             })}
-        </button>
-        }
+          </button>
+        )}
       </div>
 
-
       {/* 乐谱渲染 */}
-      <div className="bg-gradient-to-b w-full from-[#212121] to-[#121212] rounded-md py-12 px-8 xl:px-24  min-h-[700px]">
+      <div className="min-h-[700px] w-full rounded-md bg-gradient-to-b from-[#212121] to-[#121212] px-8 py-12 xl:px-24">
         {/* 顶部信息栏 */}
-        <h2 className="text-3xl font-bold text-center mb-2 min-h-16">{sheetMetadata.title}</h2>
-        <div className="flex justify-between items-center  mb-6">
+        <h2 className="mb-2 min-h-16 text-center text-3xl font-bold">{sheetMetadata.title}</h2>
+        <div className="mb-6 flex items-center justify-between">
           <div className="text-lg">
             <KeySelector />
-            <div className="grid-flow-row grid grid-cols-[80px_50px]"><p>Tempo:</p><p className="px-2 ">{score.tempo}</p> </div>
+            <div className="grid grid-flow-row grid-cols-[80px_50px]">
+              <p>Tempo:</p>
+              <p className="px-2">{score.tempo}</p>{" "}
+            </div>
           </div>
-          <div className="text-left grid grid-cols-[100px_100px]">
-            <p >Singer:</p><p> {sheetMetadata.singers?.join(", ")}</p>
-            <p >Upload:</p><p> {sheetMetadata.uploader}</p>
-            <p >Composer:</p><p> {sheetMetadata.composers?.join(", ") }</p>
+          <div className="grid grid-cols-[100px_100px] text-left">
+            <p>Singer:</p>
+            <p> {sheetMetadata.singers?.join(", ")}</p>
+            <p>Upload:</p>
+            <p> {sheetMetadata.uploader}</p>
+            <p>Composer:</p>
+            <p> {sheetMetadata.composers?.join(", ")}</p>
           </div>
         </div>
-
-
 
         {/* 乐谱区域 */}
         <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd} sensors={[sensor]}>
           <SortableContext items={bars.map((bar) => bar.id)}>
-            <ul className="grid grid-cols-2 md:grid-cols-4 px-6 py-4 gap-4  rounded-lg">
+            <ul className="grid grid-cols-2 gap-4 rounded-lg px-6 py-4 md:grid-cols-4">
               {bars.map((bar) => (
                 <li key={bar.id} className={`${bar.slots.length > 8 ? "col-span-2" : ""}`}>
                   <SortableBar bar={bar} />
                 </li>
               ))}
               <div
-                className="z-1 group min-h-[100px] flex items-center justify-center transition-color duration-500 hover:bg-[#1f1f1f] cursor-pointer rounded-lg"
+                className="z-1 transition-color group flex min-h-[100px] cursor-pointer items-center justify-center rounded-lg duration-500 hover:bg-[#1f1f1f]"
                 onClick={handleAppend}
               >
-                <PlusIcon className="w-6 h-6 opacity-0 group-hover:opacity-75 opacity transition-opacity duration-500  text-gray-400" />
+                <PlusIcon className="opacity h-6 w-6 text-gray-400 opacity-0 transition-opacity duration-500 group-hover:opacity-75" />
               </div>
             </ul>
           </SortableContext>
         </DndContext>
       </div>
-
     </div>
   );
 }

@@ -3,14 +3,14 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import type { SheetMetaData } from "../types/sheet";
 
 const initialState: SheetMetaData = {
-  id:"",
+  id: "",
   title: "",
   composers: [],
   singers: [],
   uploader: "",
-  uploaderId : -1,
+  uploaderId: -1,
   coverImage: "",
-}
+};
 
 const sheetMetadataSlice = createSlice({
   name: "sheetMetadata",
@@ -21,9 +21,9 @@ const sheetMetadataSlice = createSlice({
     },
     resetSheetMetadata: () => {
       return initialState;
-    }
+    },
   },
 });
 
-export const { setSheetMetadata,resetSheetMetadata } = sheetMetadataSlice.actions;
+export const { setSheetMetadata, resetSheetMetadata } = sheetMetadataSlice.actions;
 export default sheetMetadataSlice.reducer;

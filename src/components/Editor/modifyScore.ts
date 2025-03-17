@@ -1,80 +1,95 @@
-import {  Score, Slot } from "@/types/sheet";
+import { Score, Slot } from "@/types/sheet";
 
-function insertScore(score: Score, barNumber: number, slotBeat: number, note: string, duration: number, allowedDurations: number[]) {
-  console.log('inserting', note, 'at', barNumber, slotBeat)
-  if (note === "") return { newBars: score.bars, nextBarNumber: barNumber, nextBeat: slotBeat }
-  let [currentBarNumber, currentBeat] = [barNumber - 1, slotBeat]
-  let bars = structuredClone(score.bars)
-  let sustain = false
-  let remainingDuration = duration
+function insertScore(
+  score: Score,
+  barNumber: number,
+  slotBeat: number,
+  note: string,
+  duration: number,
+  allowedDurations: number[]
+) {
+  console.log("inserting", note, "at", barNumber, slotBeat);
+  if (note === "") return { newBars: score.bars, nextBarNumber: barNumber, nextBeat: slotBeat };
+  let [currentBarNumber, currentBeat] = [barNumber - 1, slotBeat];
+  let bars = structuredClone(score.bars);
+  let sustain = false;
+  let remainingDuration = duration;
   // const startBar = currentBarNumber;
-  let startSlot :Slot|null= null;
+  let startSlot: Slot | null = null;
   while (remainingDuration > 0) {
-    let currentBar = bars[currentBarNumber].slots
-    console.log('processing bar', currentBarNumber, 'beat', currentBeat)
-    const slot = currentBar.find(slot => slot.beat === currentBeat)
-    const result = splitSlot(slot!, note, remainingDuration, allowedDurations, sustain)
-    const newSlots = result.newSlots
+    let currentBar = bars[currentBarNumber].slots;
+    console.log("processing bar", currentBarNumber, "beat", currentBeat);
+    const slot = currentBar.find((slot) => slot.beat === currentBeat);
+    const result = splitSlot(slot!, note, remainingDuration, allowedDurations, sustain);
+    const newSlots = result.newSlots;
 
     if (newSlots.length != 1) {
-      bars[currentBarNumber].slots = currentBar.map(_slot => slot === _slot ? newSlots : _slot).flat(1)
-    }
-    else {
+      bars[currentBarNumber].slots = currentBar
+        .map((_slot) => (slot === _slot ? newSlots : _slot))
+        .flat(1);
+    } else {
       if (startSlot == null) {
-        startSlot = newSlots[0] 
-        bars[currentBarNumber].slots = currentBar.map(_slot => slot === _slot ? startSlot! : _slot)
-      }else{
-        startSlot.duration += newSlots[0].duration
-        bars[currentBarNumber].slots = currentBar.filter(_slot => slot !== _slot)
+        startSlot = newSlots[0];
+        bars[currentBarNumber].slots = currentBar.map((_slot) =>
+          slot === _slot ? startSlot! : _slot
+        );
+      } else {
+        startSlot.duration += newSlots[0].duration;
+        bars[currentBarNumber].slots = currentBar.filter((_slot) => slot !== _slot);
       }
-      currentBeat = currentBeat + remainingDuration
-      remainingDuration = result.remainingDuration
-      currentBeat -= remainingDuration
+      currentBeat = currentBeat + remainingDuration;
+      remainingDuration = result.remainingDuration;
+      currentBeat -= remainingDuration;
       if (currentBeat >= score.beatsPerBar) {
-        currentBeat = currentBeat - score.beatsPerBar
-        currentBarNumber++
-        startSlot = null
-        sustain= true;
+        currentBeat = currentBeat - score.beatsPerBar;
+        currentBarNumber++;
+        startSlot = null;
+        sustain = true;
       }
       if (currentBarNumber >= bars.length) {
         // add a new bar
         bars.push({
           id: crypto.randomUUID(),
           barNumber: currentBarNumber + 1,
-          slots: [{
-            beat: 0,
-            duration: score.beatsPerBar,
-            note: "C4",
-            chord: "\u00A0",
-            lyric: "\u00A0",
-            sustain: false
-          }
-        ]
-      })
+          slots: [
+            {
+              beat: 0,
+              duration: score.beatsPerBar,
+              note: "C4",
+              chord: "\u00A0",
+              lyric: "\u00A0",
+              sustain: false,
+            },
+          ],
+        });
+      }
     }
   }
-  
-}
-  bars[currentBarNumber].slots.find(slot => slot.beat === currentBeat)!.sustain = false
-  
-  return { newBars: bars, nextBarNumber: currentBarNumber + 1, nextBeat: currentBeat }
+  bars[currentBarNumber].slots.find((slot) => slot.beat === currentBeat)!.sustain = false;
+
+  return { newBars: bars, nextBarNumber: currentBarNumber + 1, nextBeat: currentBeat };
 }
 
-
-
-
-function splitSlot(slot: Slot, insertedNote: string, insertedDuration: number, allowedDurations: number[], sustain: boolean): { newSlots: Slot[], remainingDuration: number } {
+function splitSlot(
+  slot: Slot,
+  insertedNote: string,
+  insertedDuration: number,
+  allowedDurations: number[],
+  sustain: boolean
+): { newSlots: Slot[]; remainingDuration: number } {
   if (insertedDuration >= slot.duration) {
     return {
-      newSlots: [{
-        beat: slot.beat,
-        duration: slot.duration,
-        note: insertedNote,
-        chord: "\u00A0",
-        lyric: "\u00A0",
-        sustain: sustain
-      }],
-      remainingDuration: insertedDuration - slot.duration
+      newSlots: [
+        {
+          beat: slot.beat,
+          duration: slot.duration,
+          note: insertedNote,
+          chord: "\u00A0",
+          lyric: "\u00A0",
+          sustain: sustain,
+        },
+      ],
+      remainingDuration: insertedDuration - slot.duration,
     };
   }
 
@@ -82,7 +97,7 @@ function splitSlot(slot: Slot, insertedNote: string, insertedDuration: number, a
   let restDurations = [];
 
   while (gap > 0) {
-    const d = allowedDurations.find(val => val <= gap);
+    const d = allowedDurations.find((val) => val <= gap);
     if (d === undefined) break;
     restDurations.push(d);
     gap -= d;
@@ -90,14 +105,16 @@ function splitSlot(slot: Slot, insertedNote: string, insertedDuration: number, a
 
   restDurations.reverse();
 
-  let newSlots: Slot[] = [{
-    beat: slot.beat,
-    duration: insertedDuration,
-    note: insertedNote,
-    chord: "",
-    lyric: "",
-    sustain: false
-  }];
+  let newSlots: Slot[] = [
+    {
+      beat: slot.beat,
+      duration: insertedDuration,
+      note: insertedNote,
+      chord: "",
+      lyric: "",
+      sustain: false,
+    },
+  ];
 
   let currentBeat = slot.beat + insertedDuration;
   for (let d of restDurations) {
@@ -115,13 +132,19 @@ function splitSlot(slot: Slot, insertedNote: string, insertedDuration: number, a
   return { newSlots, remainingDuration: 0 };
 }
 
-export function editInfo(score: Score, barNumber: number, beat: number, property: "chord" | "lyric" | "extrainfo", value: string) {
+export function editInfo(
+  score: Score,
+  barNumber: number,
+  beat: number,
+  property: "chord" | "lyric" | "extrainfo",
+  value: string
+) {
   // 找到目标小节
-  let bar = score.bars[barNumber - 1]; 
+  let bar = score.bars[barNumber - 1];
   if (!bar) return score; // 如果没有这个小节，返回原始乐谱
 
   // 找到目标节拍
-  let slot = bar.slots.find(slot => slot.beat === beat);
+  let slot = bar.slots.find((slot) => slot.beat === beat);
   if (!slot) return score; // 如果没有这个拍子，返回原始乐谱
 
   // 修改相应的属性
@@ -140,7 +163,10 @@ export function editInfo(score: Score, barNumber: number, beat: number, property
   }
 
   // 返回修改后的乐谱，保持其他部分不变
-  return { ...score, bars: [...score.bars.slice(0, barNumber - 1), bar, ...score.bars.slice(barNumber)] };
+  return {
+    ...score,
+    bars: [...score.bars.slice(0, barNumber - 1), bar, ...score.bars.slice(barNumber)],
+  };
 }
 
-export { insertScore, splitSlot }
+export { insertScore, splitSlot };
