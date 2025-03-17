@@ -4,10 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { setSheetMetadata } from "@stores/sheetMetadataSlice";
 import { RootState } from "@stores/store";
 import { XMarkIcon } from "@heroicons/react/20/solid";
-
-const API_BACKEND_DEV = "http://localhost:8787";
-const API_BACKEND = "https://chordcove-backend.875159954.workers.dev";
-const API_BASE_URL = window.location.hostname === "localhost" ? API_BACKEND_DEV : API_BACKEND;
+import { fetchApi, API_BASE_URL } from "@utils/api";
 
 interface MetadataFormProps {
   uploading: boolean;
@@ -44,28 +41,22 @@ export default function MetadataForm({ uploading, setUploading }: MetadataFormPr
     const formData = new FormData();
     formData.append("file", file);
     try {
-      const result = await fetch(API_BASE_URL + "/api/upload-image", {
+      const response = await fetchApi<{ coverImage: string }>(`${API_BASE_URL}/api/upload-image`, {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${auth.token}`,
-        },
         body: formData,
       });
 
-      if (result.ok) {
-        const resultJson = await result.json();
-        if (resultJson.coverImage) {
-          dispatch(setSheetMetadata({ ...sheetMetadata, coverImage: resultJson.coverImage }));
-        }
-      } else if (result.status === 401) {
+      if (response.coverImage) {
+        dispatch(setSheetMetadata({ ...sheetMetadata, coverImage: response.coverImage }));
+      }
+    } catch (error) {
+      console.error("Image upload failed:", error);
+      if ((error as Error).message === "Unauthorized") {
         alert("登录已过期，请重新登录");
         navigate("/login");
       } else {
         alert("上传失败，请重试");
       }
-    } catch (error) {
-      console.error("Image upload failed:", error);
-      alert("网络错误，请稍后再试");
     }
     setUploading(false);
   };
