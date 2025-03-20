@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import MetadataForm from "../components/basic/MetadataForm";
-import Editor from "@components/newEditor/newEditor";
+import Editor from "@components/Editor/Editor";
 
 // redux states
 import { useSelector } from "react-redux";

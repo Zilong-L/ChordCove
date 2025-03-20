@@ -1,8 +1,8 @@
 import type { Note } from "@stores/newScore/newScoreSlice";
 
 export interface BarNote extends Note {
-  originalBeat: number;  // Reference to the original note's beat
-  sustain: boolean;     // Whether this note is a continuation
+  originalBeat: number; // Reference to the original note's beat
+  sustain: boolean; // Whether this note is a continuation
 }
 
 export interface Bar {
@@ -14,11 +14,13 @@ export interface Bar {
 export function splitNotesIntoBars(notes: Note[], beatsPerBar: number = 4): Bar[] {
   if (notes.length === 0) {
     // Return a single empty bar if there are no notes
-    return [{
-      notes: [],
-      startBeat: 0,
-      barNumber: 1
-    }];
+    return [
+      {
+        notes: [],
+        startBeat: 0,
+        barNumber: 1,
+      },
+    ];
   }
 
   // Sort notes by beat and find the last beat to determine total bars needed
@@ -31,7 +33,7 @@ export function splitNotesIntoBars(notes: Note[], beatsPerBar: number = 4): Bar[
   const bars: Bar[] = Array.from({ length: totalBars }, (_, barIndex) => ({
     notes: [],
     startBeat: barIndex * beatsPerBar,
-    barNumber: barIndex + 1
+    barNumber: barIndex + 1,
   }));
 
   // Distribute notes into bars
@@ -42,13 +44,10 @@ export function splitNotesIntoBars(notes: Note[], beatsPerBar: number = 4): Bar[
 
     while (remainingDuration > 0) {
       const currentBarIndex = Math.floor(currentBeat / beatsPerBar);
-      
+
       // Calculate how much of the note fits in the current bar
       const currentBarEndBeat = (currentBarIndex + 1) * beatsPerBar;
-      const durationInCurrentBar = Math.min(
-        remainingDuration,
-        currentBarEndBeat - currentBeat
-      );
+      const durationInCurrentBar = Math.min(remainingDuration, currentBarEndBeat - currentBeat);
 
       // Create the note segment
       const barNote: BarNote = {
@@ -56,7 +55,7 @@ export function splitNotesIntoBars(notes: Note[], beatsPerBar: number = 4): Bar[
         duration: durationInCurrentBar,
         content: note.content,
         originalBeat: note.beat,
-        sustain: !isFirst
+        sustain: !isFirst,
       };
 
       // Add note to the appropriate bar
@@ -72,7 +71,7 @@ export function splitNotesIntoBars(notes: Note[], beatsPerBar: number = 4): Bar[
   }
 
   // Sort notes within each bar by beat
-  bars.forEach(bar => {
+  bars.forEach((bar) => {
     bar.notes.sort((a, b) => a.beat - b.beat);
   });
 
@@ -82,7 +81,12 @@ export function splitNotesIntoBars(notes: Note[], beatsPerBar: number = 4): Bar[
 // Basic durations in descending order for greedy algorithm
 const basicDuration = [1.5, 1, 0.75, 0.5, 0.375, 0.25, 0.1875, 0.125];
 
-function breakDownToBasicDurations(note: BarNote, startBeat: number, duration: number, isFirst: boolean): BarNote[] {
+function breakDownToBasicDurations(
+  note: BarNote,
+  startBeat: number,
+  duration: number,
+  isFirst: boolean
+): BarNote[] {
   const result: BarNote[] = [];
   let remainingDuration = duration;
   let currentBeat = startBeat;
@@ -90,13 +94,14 @@ function breakDownToBasicDurations(note: BarNote, startBeat: number, duration: n
 
   while (remainingDuration > 0) {
     // Find the largest basic duration that fits
-    const fitDuration = basicDuration.find(d => d <= remainingDuration) || basicDuration[basicDuration.length - 1];
-    
+    const fitDuration =
+      basicDuration.find((d) => d <= remainingDuration) || basicDuration[basicDuration.length - 1];
+
     result.push({
       ...note,
       beat: currentBeat,
       duration: fitDuration,
-      sustain: note.sustain || !isFirstNote
+      sustain: note.sustain || !isFirstNote,
     });
 
     remainingDuration = Number((remainingDuration - fitDuration).toFixed(4)); // Handle floating point precision
@@ -109,9 +114,9 @@ function breakDownToBasicDurations(note: BarNote, startBeat: number, duration: n
 
 export function breakDownNotesWithinBar(notes: BarNote[]): BarNote[] {
   const result: BarNote[] = [];
-  
+
   // Process each note
-  notes.forEach(note => {
+  notes.forEach((note) => {
     let remainingDuration = note.duration;
     let currentBeat = note.beat;
     let isFirst = true;
@@ -122,7 +127,7 @@ export function breakDownNotesWithinBar(notes: BarNote[]): BarNote[] {
         ...note,
         beat: currentBeat,
         duration: 1,
-        sustain: note.sustain || !isFirst
+        sustain: note.sustain || !isFirst,
       });
       remainingDuration = Number((remainingDuration - 1).toFixed(4));
       currentBeat += 1;
@@ -141,10 +146,10 @@ export function breakDownNotesWithinBar(notes: BarNote[]): BarNote[] {
 // TODO: Step 2 - Implement greedy function to handle durations < 2
 
 export interface NoteDisplay {
-  content: string;        // The note content (e.g., "1", "2", "3")
-  hasDot: boolean;       // Whether the note has a dot
+  content: string; // The note content (e.g., "1", "2", "3")
+  hasDot: boolean; // Whether the note has a dot
   underlineCount: number; // Number of underlines (0-3)
-  sustain: boolean;      // Whether it's a sustained note ("-")
+  sustain: boolean; // Whether it's a sustained note ("-")
 }
 
 export interface BarNoteWithDisplay extends BarNote {
@@ -154,10 +159,10 @@ export interface BarNoteWithDisplay extends BarNote {
 function getNoteDisplay(note: BarNote): NoteDisplay {
   if (note.sustain) {
     return {
-      content: '-',
+      content: "-",
       hasDot: false,
       underlineCount: 0,
-      sustain: true
+      sustain: true,
     };
   }
 
@@ -194,18 +199,17 @@ function getNoteDisplay(note: BarNote): NoteDisplay {
     content: note.content,
     hasDot,
     underlineCount,
-    sustain: false
+    sustain: false,
   };
 }
 
 export function processNotesWithDisplay(notes: BarNote[]): BarNoteWithDisplay[] {
   // First break down the notes into basic durations
   const brokenDownNotes = breakDownNotesWithinBar(notes);
-  
+
   // Then add display information
-  return brokenDownNotes.map(note => ({
+  return brokenDownNotes.map((note) => ({
     ...note,
-    display: getNoteDisplay(note)
+    display: getNoteDisplay(note),
   }));
 }
-
