@@ -1,7 +1,6 @@
-import { SampleLibrary } from '@utils/SampleLibrary';
+import { SampleLibrary } from './SampleLibrary';
 import * as Tone from 'tone';
 
-let answerGainNode = new Tone.Gain(0.5).toDestination();
 
 let globalChorous = new Tone.Chorus({
   frequency: 0.1,
@@ -22,9 +21,7 @@ function getSamplerInstance() {
   if (!globalSampler) {
     globalSampler = new SamplerManager();
   }
-  else {
-    return globalSampler;
-  }
+  return globalSampler;
 }
 
 // **创建新的 Sampler**

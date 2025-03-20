@@ -1,11 +1,10 @@
 import KeySelector from "./KeySelector";
-import { getNoteInKey, findCloestNote, keyMap, calculateDegree } from "@utils/theory/Note";
+import { getNoteInKey, findCloestNote, keyMap } from "@utils/theory/Note";
 import { useHotkeys } from "react-hotkeys-hook";
-import { Note as TonalNote } from "tonal";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@stores/store";
 import { setNote } from "@stores/newScore/newScoreSlice";
-import type { Note, NewScore } from "@stores/newScore/newScoreSlice";
+import type { NewScore } from "@stores/newScore/newScoreSlice";
 import {
   setSelectedDuration,
   toggleDotted,
@@ -16,34 +15,7 @@ import {
 import type { EditingSlotState } from "@stores/newScore/newEditingSlice";
 import EditorControlPanel, { durationValues, type NoteDuration } from "./EditorControlPanel";
 import BarView from "./BarView";
-
-// note icons
-
-// Helper function to get color based on MIDI value
-function getMidiColor(midi: number, keyMidi: number): string {
-  const distance = midi - keyMidi;
-  const BASE_HUE = 210; // Blue
-  const BASE_SATURATION = 75; // Vibrant but not too intense
-  const MAX_DISTANCE = 12; // One octave
-  const normalizedDistance =
-    Math.max(-MAX_DISTANCE, Math.min(MAX_DISTANCE, distance)) / MAX_DISTANCE;
-  const lightness = 50 + normalizedDistance * 30;
-  return `hsl(${BASE_HUE}, ${BASE_SATURATION}%, ${lightness}%)`;
-}
-
-// Helper function to format degree with octave indicator
-function formatDegree(note: string, keyNote: string): string {
-  const degree = calculateDegree(keyNote, note, "number");
-  if (!degree) return note;
-
-  const noteMidi = TonalNote.get(note).midi;
-  const keyMidi = TonalNote.get(keyNote + "4").midi;
-  if (noteMidi === null || keyMidi === null) return degree;
-
-  const octaveDiff = Math.floor((noteMidi - keyMidi) / 12);
-  if (octaveDiff === 0) return degree;
-  return octaveDiff > 0 ? degree + "•".repeat(octaveDiff) : degree + "₋".repeat(-octaveDiff);
-}
+import ScorePlayer from "./ScorePlayer";
 
 export default function SimpleEditor() {
   const dispatch = useDispatch();
@@ -134,12 +106,12 @@ export default function SimpleEditor() {
     event.preventDefault();
 
     const currentIndex = currentTrack.notes.findIndex((note) => note.beat === editingBeat);
- if (currentIndex < currentTrack.notes.length - 1) {
+    if (currentIndex < currentTrack.notes.length - 1) {
       const nextIndex = currentIndex + 1;
       if (nextIndex < currentTrack.notes.length) {
         dispatch(setEditingBeat(currentTrack.notes[nextIndex].beat));
       }
-    } 
+    }
   });
 
   useHotkeys("up", (event) => {
@@ -172,7 +144,7 @@ export default function SimpleEditor() {
   });
 
   return (
-    <div className="relative flex gap-6 text-gray-200 h-[calc(100vh-4rem)]">
+    <div className="relative flex h-[calc(100vh-4rem)] gap-6 text-gray-200">
       {/* Main Content */}
       <div className="flex-1">
         {/* Score Display */}
@@ -188,19 +160,18 @@ export default function SimpleEditor() {
               <span>Current Position:</span>
               <span>Beat {currentBeat}</span>
             </div>
+            <ScorePlayer />
           </div>
 
           {/* Bar View */}
-          <div className="mb-6 ">
+          <div className="mb-6">
             <h3 className="mb-2 text-lg font-semibold">Bar View</h3>
             <BarView />
           </div>
 
           {/* Linear View */}
 
-
           {/* Key Color Legend */}
-          
         </div>
       </div>
 
