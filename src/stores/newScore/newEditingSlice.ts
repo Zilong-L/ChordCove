@@ -9,16 +9,18 @@ export interface EditingSlotState {
   noteInput: string;
   allowedDurations: [1, 2, 4, 8, 16];
   isDotted: boolean;
+  showColors: boolean;
 }
 
 const initialState: EditingSlotState = {
   editingTrack: 0,
   editingBeat: 0,
   selectedDuration: 4,  // Default to quarter note
-  lastInputNote: "C4",  // Default value from SimpleEditor
+  lastInputNote: "C3",  // Default value from SimpleEditor
   noteInput: "",
   allowedDurations: [1, 2, 4, 8, 16],
   isDotted: false,
+  showColors: true,
 };
 
 const editingSlice = createSlice({
@@ -37,6 +39,9 @@ const editingSlice = createSlice({
     toggleDotted: (state) => {
       state.isDotted = !state.isDotted;
     },
+    toggleColors: (state) => {
+      state.showColors = !state.showColors;
+    },
     setLastInputNote: (state, action: PayloadAction<string>) => {
       state.lastInputNote = action.payload;
     },
@@ -54,6 +59,7 @@ export const {
   setEditingBeat,
   setSelectedDuration,
   toggleDotted,
+  toggleColors,
   setLastInputNote,
   setNoteInput,
   advanceEditingPosition

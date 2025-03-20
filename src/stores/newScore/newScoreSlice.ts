@@ -47,12 +47,9 @@ export function replaceOrInsertNote(notes: Note[], newNote: Note): Note[] {
     notesCopy[existingIndex] = newNote;
   } else if (newNote.duration < existingNote.duration) {
     // Split existing note into two parts
-    notesCopy[existingIndex] = newNote;
-    notesCopy.splice(existingIndex + 1, 0, {
-      beat: newNote.beat + newNote.duration,
-      duration: existingNote.duration - newNote.duration,
-      content: existingNote.content
-    });
+    notesCopy[existingIndex].duration -= newNote.duration;
+    notesCopy[existingIndex].beat += newNote.duration;
+    notesCopy.splice(existingIndex - 1, 0, newNote);
   } else {
     // Consume subsequent notes if needed
     let remainingDuration = newNote.duration;
@@ -67,11 +64,10 @@ export function replaceOrInsertNote(notes: Note[], newNote: Note): Note[] {
     // Handle partial consumption of the last note
     if (remainingDuration < 0) {
       const lastConsumedNote = notesCopy[currentIndex - 1];
-      const splitPoint = newNote.duration + remainingDuration;
       
       // Add remaining part of the last consumed note
       notesCopy.splice(currentIndex, 0, {
-        beat: newNote.beat + splitPoint,
+        beat: newNote.beat + newNote.duration,
         duration: -remainingDuration,
         content: lastConsumedNote.content
       });
@@ -86,10 +82,14 @@ export function replaceOrInsertNote(notes: Note[], newNote: Note): Note[] {
 
 const initialState: NewScore = {
   tempo: 120,
-  key: 'C',
+  key: 'C3',
   tracks: [
     {
-      notes: []
+      notes: [{
+        beat: 0,
+        duration: 4,
+        content: '0',
+      }]
     }
   ]
 };
@@ -128,6 +128,16 @@ const newScoreSlice = createSlice({
       if (trackIndex >= 0 && trackIndex < state.tracks.length) {
         state.tracks[trackIndex].notes = replaceOrInsertNote(state.tracks[trackIndex].notes, note);
       }
+      const lastnote = state.tracks[trackIndex].notes[state.tracks[trackIndex].notes.length-1]
+      console.log(lastnote,lastnote.beat,lastnote.duration,(lastnote.beat+lastnote.duration)%4===0)
+      if(lastnote.content!='0'){
+        state.tracks[trackIndex].notes.push({
+          beat: lastnote.beat+lastnote.duration,
+          duration: 4-(lastnote.beat+lastnote.duration)%4,
+          content: '0',
+        })
+      }
+      
     },
 
     // Clear operations

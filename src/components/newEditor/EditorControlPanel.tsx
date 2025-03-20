@@ -2,9 +2,12 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@stores/store";
 import { 
   setSelectedDuration, 
-  toggleDotted
+  toggleDotted,
+  toggleColors
 } from "@stores/newScore/newEditingSlice";
 import type { EditingSlotState } from "@stores/newScore/newEditingSlice";
+import type { SVGProps } from "react";
+import { SwatchIcon } from "@heroicons/react/24/outline";
 
 // note icons
 import WholeNote from "@assets/musicnotes/Whole";
@@ -16,68 +19,117 @@ import ThirtySecondNote from "@assets/musicnotes/Thirtysecond";
 import Dotted from "@assets/musicnotes/Dotted";
 
 // Types
-type NoteDuration = 1 | 2 | 4 | 8 | 16 | 32;
+export type NoteDuration = 1 | 2 | 4 | 8 | 16 | 32;
 
-// Duration values in beats
-const durationValues: Record<NoteDuration, number> = {
-  1: 4,    // whole note = 4 beats
-  2: 2,    // half note = 2 beats
-  4: 1,    // quarter note = 1 beat (basic unit)
-  8: 0.5,  // eighth note = 1/2 beat
+export const durationValues: Record<NoteDuration, number> = {
+  1: 4,   // whole note = 4 beats
+  2: 2,   // half note = 2 beats
+  4: 1,   // quarter note = 1 beat
+  8: 0.5, // eighth note = 1/2 beat
   16: 0.25, // sixteenth note = 1/4 beat
   32: 0.125 // thirty-second note = 1/8 beat
-} as const;
+};
 
-const noteIcons: Record<NoteDuration, typeof WholeNote> = {
-  1: WholeNote,    // whole note
-  2: HalfNote,     // half note
-  4: QuarterNote,  // quarter note
-  8: EighthNote,   // eighth note
-  16: SixteenthNote, // sixteenth note
-  32: ThirtySecondNote, // thirty-second note
-} as const;
+type IconComponent = React.FC<SVGProps<SVGSVGElement>>;
+
+const durationIcons: Record<NoteDuration, IconComponent> = {
+  1: WholeNote as IconComponent,
+  2: HalfNote as IconComponent,
+  4: QuarterNote as IconComponent,
+  8: EighthNote as IconComponent,
+  16: SixteenthNote as IconComponent,
+  32: ThirtySecondNote as IconComponent
+};
 
 export default function EditorControlPanel() {
   const dispatch = useDispatch();
-  
-  const { selectedDuration, isDotted } = useSelector(
-    (state: RootState) => state.newEditing as EditingSlotState
-  );
+  const { selectedDuration, isDotted, showColors } = useSelector((state: RootState) => state.newEditing as EditingSlotState);
 
   return (
-    <div className="flex flex-row gap-4 p-4 bg-[#1f1f1f] rounded">
-      {/* Note Duration Buttons */}
-      {(Object.entries(noteIcons) as [string, typeof WholeNote][]).map(([durationStr, Icon]) => {
-        const duration = Number(durationStr) as NoteDuration;
-        return (
-          <button
-            key={duration}
-            data-tooltip={`${duration === 1 ? 'Whole' : 
-                          duration === 2 ? 'Half' :
-                          duration === 4 ? 'Quarter' :
-                          duration === 8 ? 'Eighth' :
-                          duration === 16 ? 'Sixteenth' : 'Thirty-second'} note (${durationValues[duration]} beats)`}
-            aria-label={`Set note duration to ${duration}`}
-            onClick={() => dispatch(setSelectedDuration(duration))}
-            className={`rounded p-2 ${selectedDuration === duration ? "bg-[#2f2f2f]" : ""}`}
-          >
-            <Icon className="w-6 h-6" />
-          </button>
-        );
-      })}
+    <div className="space-y-4">
+      {/* Duration Selection */}
+      <div>
+        <div className="text-sm text-gray-400 mb-2">Note Duration</div>
+        <div className="grid grid-cols-3 gap-2">
+          {Object.entries(durationIcons).map(([duration, Icon]) => {
+            const durationNum = Number(duration) as NoteDuration;
+            const isSelected = selectedDuration === durationNum;
+            return (
+              <button
+                key={duration}
+                onClick={() => dispatch(setSelectedDuration(durationNum))}
+                className={`p-2 rounded flex items-center justify-center transition-colors ${
+                  isSelected 
+                    ? 'bg-blue-500 text-white' 
+                    : 'bg-[#2a2a2a] hover:bg-[#333333] text-gray-300'
+                }`}
+                title={`${durationValues[durationNum]} beat${durationValues[durationNum] !== 1 ? 's' : ''}`}
+              >
+                <Icon className="w-6 h-6" />
+              </button>
+            );
+          })}
+        </div>
+      </div>
 
-      {/* Dotted Note Toggle */}
-      <button
-        data-tooltip="Dotted (1.5x duration)"
-        aria-label="Toggle dotted note"
-        onClick={() => dispatch(toggleDotted())}
-        className={`rounded p-2 ${isDotted ? "bg-[#2f2f2f]" : ""}`}
-      >
-        <Dotted className="w-6 h-6" />
-      </button>
+      {/* Note Modifiers */}
+      <div>
+        <div className="text-sm text-gray-400 mb-2">Note Modifiers</div>
+        <div className="space-y-2">
+          <button
+            onClick={() => dispatch(toggleDotted())}
+            className={`p-2 rounded flex items-center justify-center w-full transition-colors ${
+              isDotted 
+                ? 'bg-blue-500 text-white' 
+                : 'bg-[#2a2a2a] hover:bg-[#333333] text-gray-300'
+            }`}
+            title="Toggle dotted note"
+          >
+            <Dotted className="w-6 h-6" />
+            <span className="ml-2">Dotted Note</span>
+          </button>
+
+          <button
+            onClick={() => dispatch(toggleColors())}
+            className={`p-2 rounded flex items-center justify-center w-full transition-colors ${
+              showColors 
+                ? 'bg-blue-500 text-white' 
+                : 'bg-[#2a2a2a] hover:bg-[#333333] text-gray-300'
+            }`}
+            title="Toggle note colors"
+          >
+            <SwatchIcon className="w-6 h-6" />
+            <span className="ml-2">Note Colors</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Keyboard Shortcuts Help */}
+      <div>
+        <div className="text-sm text-gray-400 mb-2">Keyboard Shortcuts</div>
+        <div className="space-y-2 text-sm bg-[#212121] p-3 rounded">
+          <div className="flex justify-between">
+            <span>Q W E R T Y</span>
+            <span className="text-gray-400">Duration</span>
+          </div>
+          <div className="flex justify-between">
+            <span>D</span>
+            <span className="text-gray-400">Toggle Dotted</span>
+          </div>
+          <div className="flex justify-between">
+            <span>← →</span>
+            <span className="text-gray-400">Navigate Notes</span>
+          </div>
+          <div className="flex justify-between">
+            <span>↑ ↓</span>
+            <span className="text-gray-400">Change Track</span>
+          </div>
+          <div className="flex justify-between">
+            <span>Delete/Backspace</span>
+            <span className="text-gray-400">Delete Note</span>
+          </div>
+        </div>
+      </div>
     </div>
   );
-}
-
-// Export these for use in other components
-export { durationValues, NoteDuration }; 
+} 

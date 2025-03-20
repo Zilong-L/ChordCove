@@ -72,7 +72,7 @@ export default function FullSheetEditorPage() {
   };
 
   return (
-    <div className="mx-auto px-2 md:px-8 xl:max-w-[90rem]">
+    <div className="mx-auto px-2 md:px-8 xl:max-w-[90vw]">
       <div className="flex flex-col gap-6 xl:flex-row xl:items-start">
         <div className="order-2 flex flex-col xl:order-[-1] xl:w-1/4">
           <MetadataForm uploading={uploading} setUploading={setUploading} />
