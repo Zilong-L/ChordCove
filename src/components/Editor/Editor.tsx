@@ -3,36 +3,39 @@ import { getNoteInKey, findCloestNote, keyMap } from "@utils/theory/Note";
 import { useHotkeys } from "react-hotkeys-hook";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@stores/store";
-import { setNote } from "@stores/newScore/newScoreSlice";
-import type { NewScore } from "@stores/newScore/newScoreSlice";
+import { setSlot } from "@stores/newScore/newScoreSlice";
+import type { Score, Slot } from "@stores/newScore/newScoreSlice";
 import {
   setSelectedDuration,
   toggleDotted,
   setLastInputNote,
   setEditingBeat,
-  setEditingTrack,
 } from "@stores/newScore/newEditingSlice";
 import type { EditingSlotState } from "@stores/newScore/newEditingSlice";
 import EditorControlPanel, { durationValues, type NoteDuration } from "./EditorControlPanel";
 import BarView from "./BarView";
 import ScorePlayer from "./ScorePlayer";
+import { useState, useCallback } from "react";
 
 export default function SimpleEditor() {
   const dispatch = useDispatch();
+  const [lyricsInput, setLyricsInput] = useState("");
 
   // Get states from Redux
-  const { editingTrack, editingBeat, selectedDuration, isDotted, lastInputNote } = useSelector(
+  const { editingBeat, selectedDuration, isDotted, lastInputNote, editingMode } = useSelector(
     (state: RootState) => state.newEditing as EditingSlotState
   );
 
-  const score = useSelector((state: RootState) => state.newScore as NewScore);
-  const currentTrack = score.tracks[editingTrack];
+  const score = useSelector((state: RootState) => state.newScore as Score);
+  const currentTrack = score.track;
 
   // Calculate current beat position
   const currentBeat = editingBeat;
 
   // Handle note input via keyboard with accidentals
   useHotkeys(Object.entries(keyMap).join(","), (event, handler) => {
+    if (editingMode !== "notes") return;
+
     event.preventDefault();
     let pressedKey = handler.keys![0];
     if (handler.ctrl && handler.alt) {
@@ -52,15 +55,23 @@ export default function SimpleEditor() {
     const baseDuration = durationValues[selectedDuration as NoteDuration];
     const duration = isDotted ? baseDuration * 1.5 : baseDuration;
 
+    // Get existing slot to preserve other properties
+    const existingSlot = currentTrack.slots.find((slot) => slot.beat === currentBeat) || {
+      beat: currentBeat,
+      duration,
+      notes: [],
+      chord: "",
+      lyrics: "",
+      comment: "",
+    };
+
     // Add new note using Redux actions
     dispatch(
-      setNote({
-        trackIndex: editingTrack,
-        note: {
-          beat: currentBeat,
-          duration,
-          content: finalNote,
-        },
+      setSlot({
+        ...existingSlot,
+        beat: currentBeat,
+        duration,
+        notes: [finalNote],
       })
     );
 
@@ -68,8 +79,46 @@ export default function SimpleEditor() {
     dispatch(setEditingBeat(currentBeat + duration));
   });
 
+  // Handle lyrics input
+  const handleLyricsInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setLyricsInput(e.target.value);
+  }, []);
+
+  const handleLyricsInputKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === "Enter" && lyricsInput.trim()) {
+        e.preventDefault();
+
+        // Get existing slot to preserve other properties
+        const existingSlot = currentTrack.slots.find((slot) => slot.beat === currentBeat) || {
+          beat: currentBeat,
+          duration: durationValues[4], // Default to quarter note duration
+          notes: [],
+          chord: "",
+          lyrics: "",
+          comment: "",
+        };
+
+        // Update the slot with new lyrics
+        dispatch(
+          setSlot({
+            ...existingSlot,
+            lyrics: lyricsInput.trim(),
+          })
+        );
+
+        // Clear input and move to next beat
+        setLyricsInput("");
+        dispatch(setEditingBeat(currentBeat + existingSlot.duration));
+      }
+    },
+    [currentBeat, currentTrack.slots, dispatch, lyricsInput]
+  );
+
   // Add keyboard shortcuts for durations
   useHotkeys("q,w,e,r,t,y", (event, handler) => {
+    if (editingMode !== "notes") return;
+
     event.preventDefault();
     const durationMap: Record<string, NoteDuration> = {
       q: 1, // whole note
@@ -85,60 +134,67 @@ export default function SimpleEditor() {
 
   // Add keyboard shortcut for dotted notes
   useHotkeys("d", () => {
+    if (editingMode !== "notes") return;
     dispatch(toggleDotted());
   });
 
   // Add keyboard shortcuts for navigation
   useHotkeys("left", (event) => {
     event.preventDefault();
-    const currentIndex = currentTrack.notes.findIndex((note) => note.beat === editingBeat);
+    const currentIndex = currentTrack.slots.findIndex((slot: Slot) => slot.beat === editingBeat);
     if (currentIndex === 0) {
       dispatch(setEditingBeat(0));
     } else if (currentIndex > 0) {
       const previousIndex = currentIndex - 1;
-      dispatch(setEditingBeat(currentTrack.notes[previousIndex].beat));
+      dispatch(setEditingBeat(currentTrack.slots[previousIndex].beat));
     } else {
-      dispatch(setEditingBeat(currentTrack.notes[currentTrack.notes.length - 1].beat));
+      dispatch(setEditingBeat(currentTrack.slots[currentTrack.slots.length - 1].beat));
     }
   });
 
   useHotkeys("right", (event) => {
     event.preventDefault();
 
-    const currentIndex = currentTrack.notes.findIndex((note) => note.beat === editingBeat);
-    if (currentIndex < currentTrack.notes.length - 1) {
+    const currentIndex = currentTrack.slots.findIndex((slot: Slot) => slot.beat === editingBeat);
+    if (currentIndex < currentTrack.slots.length - 1) {
       const nextIndex = currentIndex + 1;
-      if (nextIndex < currentTrack.notes.length) {
-        dispatch(setEditingBeat(currentTrack.notes[nextIndex].beat));
+      if (nextIndex < currentTrack.slots.length) {
+        dispatch(setEditingBeat(currentTrack.slots[nextIndex].beat));
       }
     }
   });
 
+  // Remove up/down navigation since we only have one track now
   useHotkeys("up", (event) => {
     event.preventDefault();
-    if (editingTrack > 0) {
-      dispatch(setEditingTrack(editingTrack - 1));
-    }
   });
 
   useHotkeys("down", (event) => {
     event.preventDefault();
-    if (editingTrack < score.tracks.length - 1) {
-      dispatch(setEditingTrack(editingTrack + 1));
-    }
   });
 
-  // Add keyboard shortcut for deleting notes
+  // Add keyboard shortcut for deleting content
   useHotkeys("backspace,delete", (event) => {
     event.preventDefault();
+
+    // Get existing slot to preserve other properties
+    const existingSlot = currentTrack.slots.find((slot) => slot.beat === currentBeat) || {
+      beat: currentBeat,
+      duration: durationValues[4], // Default to quarter note duration
+      notes: [],
+      chord: "",
+      lyrics: "",
+      comment: "",
+    };
+
+    // Clear the appropriate content based on editing mode
     dispatch(
-      setNote({
-        trackIndex: editingTrack,
-        note: {
-          beat: editingBeat,
-          duration: 0,
-          content: "",
-        },
+      setSlot({
+        ...existingSlot,
+        ...(editingMode === "notes" && { notes: [] }),
+        ...(editingMode === "lyrics" && { lyrics: "" }),
+        ...(editingMode === "chords" && { chord: "" }),
+        ...(editingMode === "comments" && { comment: "" }),
       })
     );
   });
@@ -169,7 +225,20 @@ export default function SimpleEditor() {
             <BarView />
           </div>
 
-          {/* Linear View */}
+          {/* Lyrics Input */}
+          {editingMode === "lyrics" && (
+            <div className="mb-6">
+              <h3 className="mb-2 text-lg font-semibold">Lyrics Input</h3>
+              <input
+                type="text"
+                value={lyricsInput}
+                onChange={handleLyricsInputChange}
+                onKeyDown={handleLyricsInputKeyDown}
+                placeholder="Type lyrics and press Enter..."
+                className="w-full rounded border border-gray-700 bg-[#2a2a2a] px-4 py-2 text-white placeholder-gray-400 focus:border-blue-500 focus:outline-none"
+              />
+            </div>
+          )}
 
           {/* Key Color Legend */}
         </div>

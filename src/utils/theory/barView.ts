@@ -1,6 +1,7 @@
-import type { Note } from "@stores/newScore/newScoreSlice";
-
-export interface BarNote extends Note {
+export interface BarNote {
+  beat: number;
+  duration: number;
+  content: string[];
   originalBeat: number; // Reference to the original note's beat
   sustain: boolean; // Whether this note is a continuation
 }
@@ -11,7 +12,10 @@ export interface Bar {
   barNumber: number;
 }
 
-export function splitNotesIntoBars(notes: Note[], beatsPerBar: number = 4): Bar[] {
+export function splitNotesIntoBars(
+  notes: { beat: number; duration: number; content: string[] }[],
+  beatsPerBar: number = 4
+): Bar[] {
   if (notes.length === 0) {
     // Return a single empty bar if there are no notes
     return [
@@ -146,7 +150,7 @@ export function breakDownNotesWithinBar(notes: BarNote[]): BarNote[] {
 // TODO: Step 2 - Implement greedy function to handle durations < 2
 
 export interface NoteDisplay {
-  content: string; // The note content (e.g., "1", "2", "3")
+  content: string[]; // The note content array (e.g., ["1", "3", "5"] for a triad)
   hasDot: boolean; // Whether the note has a dot
   underlineCount: number; // Number of underlines (0-3)
   sustain: boolean; // Whether it's a sustained note ("-")
@@ -159,7 +163,7 @@ export interface BarNoteWithDisplay extends BarNote {
 function getNoteDisplay(note: BarNote): NoteDisplay {
   if (note.sustain) {
     return {
-      content: "-",
+      content: ["-"],
       hasDot: false,
       underlineCount: 0,
       sustain: true,
@@ -196,7 +200,7 @@ function getNoteDisplay(note: BarNote): NoteDisplay {
   }
 
   return {
-    content: note.content,
+    content: note.content.length === 0 ? ["0"] : note.content,
     hasDot,
     underlineCount,
     sustain: false,

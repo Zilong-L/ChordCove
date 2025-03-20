@@ -28,7 +28,7 @@ export default function ScorePlayer({ className = "" }: ScorePlayerProps) {
 
   const score = useSelector((state: RootState) => state.newScore);
   const { editingTrack, editingBeat } = useSelector((state: RootState) => state.newEditing);
-  const currentTrack = score.tracks[editingTrack];
+  const currentTrack = score.track;
 
   // Convert beat position to time in seconds
   const beatToTime = (beat: number, bpm: number) => {
@@ -39,10 +39,10 @@ export default function ScorePlayer({ className = "" }: ScorePlayerProps) {
   useEffect(() => {
     if (!isPlaying && !isPaused) {
       setPlaybackStartBeat(editingBeat);
-      const index = currentTrack.notes.findIndex((note) => note.beat >= editingBeat);
-      setCurrentNoteIndex(index === -1 ? currentTrack.notes.length - 1 : index);
+      const index = currentTrack.slots.findIndex((slot) => slot.beat >= editingBeat);
+      setCurrentNoteIndex(index === -1 ? currentTrack.slots.length - 1 : index);
     }
-  }, [editingBeat, currentTrack.notes, isPlaying, isPaused]);
+  }, [editingBeat, currentTrack.slots, isPlaying, isPaused]);
 
   // Cleanup loop on unmount
   useEffect(() => {
@@ -59,15 +59,15 @@ export default function ScorePlayer({ className = "" }: ScorePlayerProps) {
 
       // Reset position to current editing beat
       setPlaybackStartBeat(editingBeat);
-      const index = currentTrack.notes.findIndex((note) => note.beat >= editingBeat);
-      setCurrentNoteIndex(index === -1 ? currentTrack.notes.length - 1 : index);
+      const index = currentTrack.slots.findIndex((slot) => slot.beat >= editingBeat);
+      setCurrentNoteIndex(index === -1 ? currentTrack.slots.length - 1 : index);
 
       setIsPlaying(false);
       setIsPaused(false);
     } catch (error) {
       console.error("Error during stop:", error);
     }
-  }, [editingBeat, currentTrack.notes]);
+  }, [editingBeat, currentTrack.slots]);
   // Create or update loop when notes change
   const setupLoop = useCallback(() => {
     // Dispose of existing loop
@@ -82,28 +82,28 @@ export default function ScorePlayer({ className = "" }: ScorePlayerProps) {
     Tone.getTransport().cancel();
 
     // Schedule each note individually
-    currentTrack.notes.forEach((note) => {
-      if (note.content && note.duration > 0) {
+    currentTrack.slots.forEach((slot) => {
+      if (slot.notes && slot.duration > 0) {
         // Schedule the note at the exact beat time
         Tone.getTransport().schedule(
           (time) => {
             sampler.sampler.triggerAttackRelease(
-              note.content,
-              beatToTime(note.duration, score.tempo),
+              slot.notes,
+              beatToTime(slot.duration, score.tempo),
               time
             );
             // dispatch(setEditingBeat(note.beat));
           },
-          beatToTime(note.beat, score.tempo)
+          beatToTime(slot.beat, score.tempo)
         );
       }
     });
 
     // Find the total duration of the track
-    const lastNote = currentTrack.notes[currentTrack.notes.length - 1];
-    if (lastNote) {
+    const lastSlot = currentTrack.slots[currentTrack.slots.length - 1];
+    if (lastSlot) {
       // Schedule stop at the end of the last note
-      const endTime = beatToTime(lastNote.beat + lastNote.duration, score.tempo);
+      const endTime = beatToTime(lastSlot.beat + lastSlot.duration, score.tempo);
       Tone.getTransport().schedule(() => {
         handleStop();
       }, endTime);
@@ -111,7 +111,7 @@ export default function ScorePlayer({ className = "" }: ScorePlayerProps) {
 
     // Set getTransport() tempo
     Tone.getTransport().bpm.value = score.tempo;
-  }, [currentTrack.notes, score.tempo, dispatch, handleStop]);
+  }, [currentTrack.slots, score.tempo, dispatch, handleStop]);
 
   const handlePlay = useCallback(async () => {
     if (isPaused) {
@@ -169,21 +169,21 @@ export default function ScorePlayer({ className = "" }: ScorePlayerProps) {
     if (!isPlaying && currentNoteIndex > 0) {
       const newIndex = currentNoteIndex - 1;
       setCurrentNoteIndex(newIndex);
-      const newBeat = currentTrack.notes[newIndex].beat;
+      const newBeat = currentTrack.slots[newIndex].beat;
       dispatch(setEditingBeat(newBeat));
       setPlaybackStartBeat(newBeat);
     }
-  }, [currentNoteIndex, currentTrack.notes, dispatch, isPlaying]);
+  }, [currentNoteIndex, currentTrack.slots, dispatch, isPlaying]);
 
   const handleStepForward = useCallback(() => {
     if (!isPlaying && currentNoteIndex < currentTrack.notes.length - 1) {
       const newIndex = currentNoteIndex + 1;
       setCurrentNoteIndex(newIndex);
-      const newBeat = currentTrack.notes[newIndex].beat;
+      const newBeat = currentTrack.slots[newIndex].beat;
       dispatch(setEditingBeat(newBeat));
       setPlaybackStartBeat(newBeat);
     }
-  }, [currentNoteIndex, currentTrack.notes, dispatch, isPlaying]);
+  }, [currentNoteIndex, currentTrack.slots, dispatch, isPlaying]);
   useEffect(() => {
     handleStop();
   }, [editingTrack, handleStop]);

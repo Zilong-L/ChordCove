@@ -11,6 +11,7 @@ import { Note as TonalNote } from "tonal";
 import { calculateDegree } from "@utils/theory/Note";
 import { useMemo, useCallback } from "react";
 import React from "react";
+import type { Score, Slot } from "@stores/newScore/newScoreSlice";
 
 // Helper function to get color based on MIDI value (reused from newEditor.tsx)
 function getMidiColor(midi: number, keyMidi: number): string {
@@ -46,7 +47,7 @@ const NoteDisplay = React.memo(
     hasDot,
     isLastInGroup,
   }: {
-    content: string;
+    content: string[];
     underlineCount: number;
     hasDot: boolean;
     isLastInGroup: boolean;
@@ -55,8 +56,14 @@ const NoteDisplay = React.memo(
       <div className="relative w-full text-center">
         {/* Note content and dot */}
         <div className="relative inline-block">
-          <span className="font-bold">{content}</span>
-          {hasDot && <span className="absolute -right-2 top-0">.</span>}
+          <div className="flex flex-col items-center">
+            {content.map((note, index) => (
+              <span key={index} className="font-bold">
+                {note}
+              </span>
+            ))}
+          </div>
+          {hasDot && <span className="absolute -right-2 top-1/2 -translate-y-1/2">.</span>}
         </div>
 
         {/* Underlines container - absolutely positioned */}
@@ -97,6 +104,7 @@ const Note = React.memo(
     onClick,
     showColors,
     isLastInGroup,
+    lyrics,
   }: {
     notesInBar: number;
     note: BarNote;
@@ -105,8 +113,10 @@ const Note = React.memo(
     onClick: () => void;
     showColors: boolean;
     isLastInGroup: boolean;
+    lyrics?: string;
   }) => {
-    const noteMidi = TonalNote.get(note.content).midi;
+    // Get the highest note's MIDI value for coloring
+    const noteMidi = note.content.length > 0 ? TonalNote.get(note.content[0]).midi : null;
     const keyMidi = TonalNote.get(keyNote).midi;
     const bgColor = showColors && noteMidi && keyMidi ? getMidiColor(noteMidi, keyMidi) : undefined;
     const underlineCount = getUnderlineCount(note.duration);
@@ -117,15 +127,17 @@ const Note = React.memo(
 
     // Calculate the display content
     const displayContent =
-      note.content === "0"
-        ? "0"
+      note.content.length === 0 || (note.content.length === 1 && note.content[0] === "0")
+        ? ["0"]
         : note.sustain
-          ? "-"
-          : (calculateDegree(keyNote, note.content, "number") ?? note.content).toString();
+          ? ["-"]
+          : note.content.map((noteContent: string) =>
+              (calculateDegree(keyNote, noteContent, "number") ?? noteContent).toString()
+            );
 
     return (
       <div
-        className={`relative flex cursor-pointer items-center justify-center ${
+        className={`relative flex cursor-pointer flex-col items-center ${
           isSelected ? "bg-slate-600" : ""
         } ${note.sustain ? "opacity-75" : ""}`}
         style={{
@@ -134,12 +146,31 @@ const Note = React.memo(
         }}
         onClick={onClick}
       >
-        <NoteDisplay
-          content={displayContent}
-          underlineCount={underlineCount}
-          hasDot={hasDot}
-          isLastInGroup={isLastInGroup}
-        />
+        {/* Chord section */}
+        <div className="flex items-center justify-center py-1">
+          <div className="invisible max-w-full overflow-hidden text-ellipsis whitespace-nowrap text-xs text-gray-300">
+            ♪
+          </div>
+        </div>
+
+        {/* Notes section */}
+        <div className="flex items-center justify-center py-1">
+          <NoteDisplay
+            content={displayContent}
+            underlineCount={underlineCount}
+            hasDot={hasDot}
+            isLastInGroup={isLastInGroup}
+          />
+        </div>
+
+        {/* Lyrics section */}
+        <div className="flex items-center justify-center py-1">
+          <div
+            className={`max-w-full overflow-hidden text-ellipsis whitespace-nowrap text-xs ${lyrics ? "text-gray-300" : "text-transparent"}`}
+          >
+            {lyrics || "♪"} {/* Use musical note as placeholder */}
+          </div>
+        </div>
       </div>
     );
   }
@@ -154,6 +185,7 @@ const Bar = React.memo(
     onNoteClick,
     barNumber,
     showColors,
+    slots,
   }: {
     bar: Bar;
     keyNote: string;
@@ -161,24 +193,28 @@ const Bar = React.memo(
     onNoteClick: (beat: number) => void;
     barNumber: number;
     showColors: boolean;
+    slots: Slot[];
   }) => {
     // Break down notes into basic units
     const brokenDownNotes = useMemo(() => breakDownNotesWithinBar(bar.notes), [bar.notes]);
 
     return (
       <div
-        className={`min-w-[200px] overflow-y-scroll rounded border border-gray-800 bg-[#1a1a1a] p-2 ${
+        className={`min-w-[200px] overflow-hidden rounded border border-gray-800 bg-[#1a1a1a] p-2 ${
           brokenDownNotes.length > 16 ? "col-span-2" : ""
         }`}
       >
         <div className="mb-1 text-xs text-gray-500">Bar {barNumber}</div>
-        <div className="flex items-end">
+        <div className="flex">
           {brokenDownNotes.map((note: BarNote, noteIndex: number) => {
             // Check if next note has same underline count to determine if this is last in group
             const nextNote = brokenDownNotes[noteIndex + 1];
             const currentUnderlines = getUnderlineCount(note.duration);
             const nextUnderlines = nextNote ? getUnderlineCount(nextNote.duration) : -1;
             const isLastInGroup = currentUnderlines !== nextUnderlines;
+
+            // Find the corresponding slot for lyrics
+            const slot = slots.find((s) => s.beat === note.originalBeat);
 
             return (
               <Note
@@ -190,6 +226,7 @@ const Bar = React.memo(
                 onClick={() => onNoteClick(note.originalBeat)}
                 showColors={showColors}
                 isLastInGroup={isLastInGroup}
+                lyrics={slot?.lyrics}
               />
             );
           })}
@@ -202,11 +239,22 @@ const Bar = React.memo(
 export default function BarView() {
   const dispatch = useDispatch();
   const { editingBeat, showColors } = useSelector((state: RootState) => state.newEditing);
-  const score = useSelector((state: RootState) => state.newScore);
-  const currentTrack = score.tracks[0]; // For now, just show the first track
+  const score = useSelector((state: RootState) => state.newScore as Score);
+  const currentTrack = score.track;
+
+  // Convert slots to note format for compatibility
+  const convertedNotes = useMemo(
+    () =>
+      currentTrack.slots.map((slot: Slot) => ({
+        beat: slot.beat,
+        duration: slot.duration,
+        content: slot.notes,
+      })),
+    [currentTrack.slots]
+  );
 
   // Memoize the bars calculation
-  const bars = useMemo(() => splitNotesIntoBars(currentTrack.notes), [currentTrack.notes]);
+  const bars = useMemo(() => splitNotesIntoBars(convertedNotes), [convertedNotes]);
 
   const handleNoteClick = useCallback(
     (beat: number) => {
@@ -227,6 +275,7 @@ export default function BarView() {
             onNoteClick={handleNoteClick}
             barNumber={bar.barNumber}
             showColors={showColors}
+            slots={currentTrack.slots}
           />
         ))}
       </div>

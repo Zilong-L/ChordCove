@@ -2,107 +2,102 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 // Types
-export interface Note {
-  beat: number; // absolute beat position
+export interface Slot {
+  beat: number;
   duration: number;
-  content: string; // note string (e.g., "C4")
+  notes: string[];
+  chord: string;
+  lyrics: string;
+  comment: string;
 }
 
 export interface Track {
-  notes: Note[];
+  slots: Slot[];
 }
 
-export interface NewScore {
+export interface Score {
+  track: Track;
   tempo: number;
   key: string;
-  tracks: Track[];
 }
 
 /**
- * Replaces or inserts a note at a specific beat position, handling duration conflicts.
+ * Replaces or inserts a slot at a specific beat position, handling duration conflicts.
  *
  * This function handles three scenarios:
- * 1. Simple replacement: When the new note has the same duration as the existing one
- * 2. Shortening: When the new note is shorter than existing one, splits the existing note
- * 3. Lengthening: When the new note is longer, consumes subsequent notes as needed
+ * 1. Simple replacement: When the new slot has the same duration as the existing one
+ * 2. Shortening: When the new slot is shorter than existing one, splits the existing slot
+ * 3. Lengthening: When the new slot is longer, consumes subsequent slots as needed
  *
- * @param notes - Array of notes in the track
- * @param newNote - The note to insert or replace with
- * @returns Modified array of notes, sorted by beat
+ * @param slots - Array of slots in the track
+ * @param newSlot - The slot to insert or replace with
+ * @returns Modified array of slots, sorted by beat
  */
-export function replaceOrInsertNote(notes: Note[], newNote: Note): Note[] {
-  const existingIndex = notes.findIndex((n) => n.beat === newNote.beat);
+export function replaceOrInsertSlot(slots: Slot[], newSlot: Slot): Slot[] {
+  const existingIndex = slots.findIndex((s) => s.beat === newSlot.beat);
 
   if (existingIndex === -1) {
     // Simple insertion
-    notes.push(newNote);
-    return notes.sort((a, b) => a.beat - b.beat);
+    slots.push(newSlot);
+    return slots.sort((a, b) => a.beat - b.beat);
   }
 
-  const existingNote = notes[existingIndex];
-  const notesCopy = [...notes];
+  const existingSlot = slots[existingIndex];
+  const slotsCopy = [...slots];
 
-  if (newNote.duration === existingNote.duration) {
+  if (newSlot.duration === existingSlot.duration) {
     // Simple replacement
-    notesCopy[existingIndex] = newNote;
-  } else if (newNote.duration < existingNote.duration) {
-    // Split existing note into two parts
-    notesCopy[existingIndex].duration -= newNote.duration;
-    notesCopy[existingIndex].beat += newNote.duration;
-    notesCopy.splice(existingIndex - 1, 0, newNote);
+    slotsCopy[existingIndex] = newSlot;
+  } else if (newSlot.duration < existingSlot.duration) {
+    // Split existing slot into two parts
+    slotsCopy[existingIndex].duration -= newSlot.duration;
+    slotsCopy[existingIndex].beat += newSlot.duration;
+    slotsCopy.splice(existingIndex - 1, 0, newSlot);
   } else {
-    // Consume subsequent notes if needed
-    let remainingDuration = newNote.duration;
+    // Consume subsequent slots if needed
+    let remainingDuration = newSlot.duration;
     let currentIndex = existingIndex;
 
-    // Calculate how many notes will be consumed
-    while (currentIndex < notesCopy.length && remainingDuration > 0) {
-      remainingDuration -= notesCopy[currentIndex].duration;
+    // Calculate how many slots will be consumed
+    while (currentIndex < slotsCopy.length && remainingDuration > 0) {
+      remainingDuration -= slotsCopy[currentIndex].duration;
       currentIndex++;
     }
 
-    // Handle partial consumption of the last note
+    // Handle partial consumption of the last slot
     if (remainingDuration < 0) {
-      const lastConsumedNote = notesCopy[currentIndex - 1];
+      const lastConsumedSlot = slotsCopy[currentIndex - 1];
 
-      // Add remaining part of the last consumed note
-      notesCopy.splice(currentIndex, 0, {
-        beat: newNote.beat + newNote.duration,
+      // Add remaining part of the last consumed slot
+      slotsCopy.splice(currentIndex, 0, {
+        ...lastConsumedSlot,
+        beat: newSlot.beat + newSlot.duration,
         duration: -remainingDuration,
-        content: lastConsumedNote.content,
       });
     }
 
-    // Remove consumed notes and insert new note
-    notesCopy.splice(existingIndex, currentIndex - existingIndex, newNote);
+    // Remove consumed slots and insert new slot
+    slotsCopy.splice(existingIndex, currentIndex - existingIndex, newSlot);
   }
 
-  return notesCopy.sort((a, b) => a.beat - b.beat);
+  return slotsCopy.sort((a, b) => a.beat - b.beat);
 }
 
-const initialState: NewScore = {
+const initialState: Score = {
   tempo: 120,
   key: "C3",
-  tracks: [
-    {
-      notes: [
-        {
-          beat: 0,
-          duration: 4,
-          content: "0",
-        },
-      ],
-    },
-    {
-      notes: [
-        {
-          beat: 0,
-          duration: 4,
-          content: "0",
-        },
-      ],
-    },
-  ],
+  track: {
+    slots: [
+      {
+        beat: 0,
+        duration: 4,
+        notes: [],
+        chord: "",
+        lyrics: "",
+        comment: "",
+      },
+    ],
+  },
 };
 
 const newScoreSlice = createSlice({
@@ -118,61 +113,35 @@ const newScoreSlice = createSlice({
       state.key = action.payload;
     },
 
-    // Track operations
-    addTrack(state) {
-      state.tracks.push({ notes: [] });
-    },
+    // Slot operations
+    setSlot(state, action: PayloadAction<Slot>) {
+      state.track.slots = replaceOrInsertSlot(state.track.slots, action.payload);
+      const lastSlot = state.track.slots[state.track.slots.length - 1];
 
-    removeTrack(state, action: PayloadAction<number>) {
-      const trackIndex = action.payload;
-      if (trackIndex >= 0 && trackIndex < state.tracks.length) {
-        state.tracks.splice(trackIndex, 1);
-      }
-    },
-
-    // Note operations
-    setNote(
-      state,
-      action: PayloadAction<{
-        trackIndex: number;
-        note: Note;
-      }>
-    ) {
-      const { trackIndex, note } = action.payload;
-      if (trackIndex >= 0 && trackIndex < state.tracks.length) {
-        state.tracks[trackIndex].notes = replaceOrInsertNote(state.tracks[trackIndex].notes, note);
-      }
-      const lastnote = state.tracks[trackIndex].notes[state.tracks[trackIndex].notes.length - 1];
-      console.log(
-        lastnote,
-        lastnote.beat,
-        lastnote.duration,
-        (lastnote.beat + lastnote.duration) % 4 === 0
-      );
-      if (lastnote.content != "0") {
-        state.tracks[trackIndex].notes.push({
-          beat: lastnote.beat + lastnote.duration,
-          duration: 4 - ((lastnote.beat + lastnote.duration) % 4),
-          content: "0",
+      // Add empty slot if needed
+      if (lastSlot.notes.length > 0 || lastSlot.chord || lastSlot.lyrics || lastSlot.comment) {
+        state.track.slots.push({
+          beat: lastSlot.beat + lastSlot.duration,
+          duration: 4 - ((lastSlot.beat + lastSlot.duration) % 4),
+          notes: [],
+          chord: "",
+          lyrics: "",
+          comment: "",
         });
       }
     },
 
     // Clear operations
-    clearTrack(state, action: PayloadAction<number>) {
-      const trackIndex = action.payload;
-      if (trackIndex >= 0 && trackIndex < state.tracks.length) {
-        state.tracks[trackIndex].notes = [];
-      }
+    clearTrack(state) {
+      state.track.slots = [];
     },
 
     clearScore(state) {
-      state.tracks = [{ notes: [] }];
+      state.track.slots = [];
     },
   },
 });
 
-export const { setTempo, setKey, addTrack, removeTrack, setNote, clearTrack, clearScore } =
-  newScoreSlice.actions;
+export const { setTempo, setKey, setSlot, clearTrack, clearScore } = newScoreSlice.actions;
 
 export default newScoreSlice.reducer;

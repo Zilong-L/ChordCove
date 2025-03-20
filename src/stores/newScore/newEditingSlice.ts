@@ -1,6 +1,8 @@
 // editingSlice.ts
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
+export type EditingMode = "notes" | "lyrics" | "chords" | "comments";
+
 export interface EditingSlotState {
   editingTrack: number;
   editingBeat: number;
@@ -10,17 +12,19 @@ export interface EditingSlotState {
   allowedDurations: [1, 2, 4, 8, 16];
   isDotted: boolean;
   showColors: boolean;
+  editingMode: EditingMode;
 }
 
 const initialState: EditingSlotState = {
   editingTrack: 0,
   editingBeat: 0,
-  selectedDuration: 4,  // Default to quarter note
-  lastInputNote: "C3",  // Default value from SimpleEditor
+  selectedDuration: 4, // Default to quarter note
+  lastInputNote: "C3", // Default value from SimpleEditor
   noteInput: "",
   allowedDurations: [1, 2, 4, 8, 16],
   isDotted: false,
   showColors: true,
+  editingMode: "notes",
 };
 
 const editingSlice = createSlice({
@@ -50,8 +54,11 @@ const editingSlice = createSlice({
     },
     advanceEditingPosition: (state) => {
       state.editingBeat += 1;
-    }
-  }
+    },
+    setEditingMode: (state, action: PayloadAction<EditingMode>) => {
+      state.editingMode = action.payload;
+    },
+  },
 });
 
 export const {
@@ -62,7 +69,8 @@ export const {
   toggleColors,
   setLastInputNote,
   setNoteInput,
-  advanceEditingPosition
+  advanceEditingPosition,
+  setEditingMode,
 } = editingSlice.actions;
 
 export default editingSlice.reducer;
