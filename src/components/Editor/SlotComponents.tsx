@@ -3,14 +3,25 @@ import { useSelector, useDispatch } from "react-redux";
 import type { MelodySlot, ChordSlot, LyricsSlot } from "@stores/scoreSlice";
 import type { RootState } from "@stores/store";
 import { setPlaybackStartBeat, setPlaybackEndBeat } from "@stores/editingSlice";
+import { calculateDegree } from "@utils/theory/Note";
+import { getUnderlineCount, isDotted } from "@utils/theory/duration";
 
 interface SlotProps {
   slot: MelodySlot | ChordSlot | LyricsSlot;
   className?: string;
+  isFirstTrack?: boolean;
 }
 
 const BaseSlotComponent = React.memo(
-  ({ slot, children }: { slot: SlotProps["slot"]; children: React.ReactNode }) => {
+  ({
+    slot,
+    children,
+    isFirstTrack = false,
+  }: {
+    slot: SlotProps["slot"];
+    children: React.ReactNode;
+    isFirstTrack?: boolean;
+  }) => {
     const dispatch = useDispatch();
     const [menuPosition, setMenuPosition] = useState<{ x: number; y: number } | null>(null);
     const playingBeat = useSelector((state: RootState) => state.editing.playingBeat);
@@ -18,24 +29,54 @@ const BaseSlotComponent = React.memo(
     const isPlaying = playingBeat === slot.beat;
     const isStart = playbackStartBeat === slot.beat;
     const isEnd = playbackEndBeat === slot.beat;
+    const containerRef = React.useRef<HTMLDivElement>(null);
 
+    // Global event listener for closing menu
     useEffect(() => {
-      const handleClickOutside = () => {
+      const handleGlobalClick = (e: MouseEvent) => {
+        const menuElement = document.querySelector(".context-menu");
+        if (!menuElement?.contains(e.target as Node)) {
+          setMenuPosition(null);
+        }
+      };
+
+      window.addEventListener("click", handleGlobalClick);
+      window.addEventListener("scroll", () => setMenuPosition(null));
+
+      return () => {
+        window.removeEventListener("click", handleGlobalClick);
+        window.removeEventListener("scroll", () => setMenuPosition(null));
+      };
+    }, []);
+
+    // Listen for global close menu event
+    useEffect(() => {
+      const handleCloseAllMenus = () => {
         setMenuPosition(null);
       };
 
-      if (menuPosition) {
-        document.addEventListener("click", handleClickOutside);
-        return () => {
-          document.removeEventListener("click", handleClickOutside);
-        };
-      }
-    }, [menuPosition]);
+      window.addEventListener("closealltracksmenus", handleCloseAllMenus);
+      return () => {
+        window.removeEventListener("closealltracksmenus", handleCloseAllMenus);
+      };
+    }, []);
 
     const handleContextMenu = useCallback((e: React.MouseEvent) => {
       e.preventDefault();
       e.stopPropagation();
-      setMenuPosition({ x: e.clientX, y: e.clientY });
+
+      // Close all other menus first
+      const event = new CustomEvent("closealltracksmenus");
+      window.dispatchEvent(event);
+
+      // Get the container element's rect
+      if (containerRef.current) {
+        const rect = containerRef.current.getBoundingClientRect();
+        setMenuPosition({
+          x: e.clientX - rect.left,
+          y: e.clientY - rect.top,
+        });
+      }
     }, []);
 
     const handleSetStart = useCallback(() => {
@@ -49,71 +90,135 @@ const BaseSlotComponent = React.memo(
     }, [dispatch, slot.beat]);
 
     return (
-      <span className="relative">
-        <span
-          className={`font-bold transition-colors duration-100 ${isPlaying ? "text-green-400" : ""} ${isStart ? "border-b-2 border-blue-400" : ""} ${isEnd ? "border-b-2 border-red-400" : ""}`}
-          onContextMenu={handleContextMenu}
-        >
-          {children}
-        </span>
-
+      <div
+        ref={containerRef}
+        className="relative h-full w-full"
+        onContextMenu={handleContextMenu}
+        data-slot-id={slot.beat}
+      >
+        {isFirstTrack && (
+          <>
+            {isStart && (
+              <div className="absolute top-[50%] h-3 w-3 -translate-x-[150%] -translate-y-1/2 rounded-full bg-green-500" />
+            )}
+            {isEnd && (
+              <div className="absolute left-[50%] top-[50%] h-3 w-3 -translate-y-[40%] rounded-full bg-red-500" />
+            )}
+          </>
+        )}
+        <div className={`h-full w-full ${isPlaying ? "text-blue-400" : ""}`}>{children}</div>
         {menuPosition && (
           <div
-            className="fixed z-50"
+            className="context-menu absolute z-50 min-w-[120px] rounded bg-gray-800 p-2 shadow-lg"
             style={{
               left: menuPosition.x,
               top: menuPosition.y,
             }}
-            onClick={(e) => e.stopPropagation()}
           >
-            <div className="w-40 rounded-md bg-gray-800 py-1 shadow-lg ring-1 ring-black ring-opacity-5">
-              <button
-                onClick={handleSetStart}
-                className="w-full px-4 py-2 text-left text-sm text-white hover:bg-gray-700"
-              >
-                设为起点
-              </button>
-              <button
-                onClick={handleSetEnd}
-                className="w-full px-4 py-2 text-left text-sm text-white hover:bg-gray-700"
-              >
-                设为终点
-              </button>
-            </div>
+            <button
+              className="block w-full rounded px-2 py-1 text-left hover:bg-gray-700"
+              onClick={handleSetStart}
+            >
+              Set as Start
+            </button>
+            <button
+              className="block w-full rounded px-2 py-1 text-left hover:bg-gray-700"
+              onClick={handleSetEnd}
+            >
+              Set as End
+            </button>
           </div>
         )}
-      </span>
+      </div>
     );
   }
 );
 
-export const MelodySlotComponent = React.memo(({ slot }: { slot: MelodySlot }) => {
-  if (slot.sustain) {
-    return <BaseSlotComponent slot={slot}>-</BaseSlotComponent>;
-  }
-  if (!slot.note) {
-    return <BaseSlotComponent slot={slot}>♪</BaseSlotComponent>;
-  }
+export const MelodySlotComponent = React.memo(
+  ({
+    keyNote,
+    slot,
+    isFirstTrack = false,
+  }: {
+    keyNote: string;
+    slot: MelodySlot;
+    isFirstTrack?: boolean;
+  }) => {
+    const underlineCount = getUnderlineCount(slot.duration);
+    const hasDot = isDotted(slot.duration);
 
-  // Format the note for display
-  const noteParts = slot.note.split(/(\d+)/); // Split between letter and number
-  if (noteParts.length >= 2) {
-    const [note, octave] = [noteParts[0], noteParts[1]];
-    return <BaseSlotComponent slot={slot}>{`${note}${octave}`}</BaseSlotComponent>;
-  }
-  return <BaseSlotComponent slot={slot}>{slot.note}</BaseSlotComponent>;
-});
+    const content = (() => {
+      if (slot.sustain) return "-";
+      if (!slot.note) return "♪";
+      return calculateDegree(keyNote, slot.note, "number");
+    })();
 
-export const ChordSlotComponent = React.memo(({ slot }: { slot: ChordSlot }) => {
-  if (!slot.chord) {
-    return <BaseSlotComponent slot={slot}>♪</BaseSlotComponent>;
-  }
-  return <BaseSlotComponent slot={slot}>{slot.chord}</BaseSlotComponent>;
-});
+    return (
+      <BaseSlotComponent slot={slot} isFirstTrack={isFirstTrack}>
+        <div className="relative flex w-full items-center">
+          {/* Note content and dot */}
+          <div className="relative">
+            <span className="inline-block">{content}</span>
+            {hasDot && <span className="absolute -right-2 top-1/2 -translate-y-1/2">.</span>}
+          </div>
 
-export const LyricsSlotComponent = React.memo(({ slot }: { slot: LyricsSlot }) => {
-  if (!slot.text) {
-    return <BaseSlotComponent slot={slot}>♪</BaseSlotComponent>;
+          {/* Underlines container */}
+          {underlineCount > 0 && (
+            <div
+              className="absolute left-0 right-0"
+              style={{
+                top: "calc(100% - 2px)",
+                height: `${underlineCount * 3}px`,
+                pointerEvents: "none",
+              }}
+            >
+              {Array.from({ length: underlineCount }).map((_, i) => (
+                <div
+                  key={i}
+                  className="absolute h-[1px] w-full bg-white"
+                  style={{
+                    top: `${i * 3}px`,
+                  }}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      </BaseSlotComponent>
+    );
   }
-  return <BaseSlotComponent slot={slot}>{slot.text}</BaseSlotComponent>;
-});
+);
+
+export const ChordSlotComponent = React.memo(
+  ({ slot, isFirstTrack = false }: { slot: ChordSlot; isFirstTrack?: boolean }) => {
+    if (!slot.chord) {
+      return (
+        <BaseSlotComponent slot={slot} isFirstTrack={isFirstTrack}>
+          ♪
+        </BaseSlotComponent>
+      );
+    }
+    return (
+      <BaseSlotComponent slot={slot} isFirstTrack={isFirstTrack}>
+        {slot.chord}
+      </BaseSlotComponent>
+    );
+  }
+);
+
+export const LyricsSlotComponent = React.memo(
+  ({ slot, isFirstTrack = false }: { slot: LyricsSlot; isFirstTrack?: boolean }) => {
+    if (!slot.text) {
+      return (
+        <BaseSlotComponent slot={slot} isFirstTrack={isFirstTrack}>
+          ♪
+        </BaseSlotComponent>
+      );
+    }
+    return (
+      <BaseSlotComponent slot={slot} isFirstTrack={isFirstTrack}>
+        {slot.text}
+      </BaseSlotComponent>
+    );
+  }
+);

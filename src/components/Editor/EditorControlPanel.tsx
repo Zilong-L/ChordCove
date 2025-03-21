@@ -52,7 +52,7 @@ const durationIcons: Record<NoteDuration, IconComponent> = {
 const editingModes: { mode: EditingMode; label: string; icon: IconComponent }[] = [
   { mode: "notes", label: "Notes", icon: MusicalNoteIcon },
   { mode: "lyrics", label: "Lyrics", icon: ChatBubbleBottomCenterTextIcon },
-  { mode: "chords", label: "Chords", icon: WholeNote },
+  { mode: "chords", label: "Chords", icon: MusicalNoteIcon },
   { mode: "comments", label: "Comments", icon: ChatBubbleBottomCenterTextIcon },
 ];
 

@@ -10,12 +10,7 @@ import {
   BackwardIcon,
   ForwardIcon,
 } from "@heroicons/react/24/solid";
-import {
-  setEditingBeat,
-  setPlaybackStartBeat,
-  setPlaybackEndBeat,
-  setPlayingBeat,
-} from "@stores/editingSlice";
+import { setEditingBeat, setPlaybackStartBeat, setPlayingBeat } from "@stores/editingSlice";
 
 interface ScorePlayerProps {
   className?: string;
@@ -44,11 +39,10 @@ export default function ScorePlayer({ className = "" }: ScorePlayerProps) {
   // Update playback start position when editing beat changes and not playing
   useEffect(() => {
     if (!isPlaying && !isPaused) {
-      dispatch(setPlaybackStartBeat(editingBeat));
       const index = currentTrack.slots.findIndex((slot) => slot.beat >= editingBeat);
       setCurrentNoteIndex(index === -1 ? currentTrack.slots.length - 1 : index);
     }
-  }, [editingBeat, currentTrack.slots, isPlaying, isPaused, dispatch]);
+  }, [editingBeat, currentTrack.slots, isPlaying, isPaused]);
 
   // Cleanup loop on unmount
   useEffect(() => {
@@ -65,8 +59,6 @@ export default function ScorePlayer({ className = "" }: ScorePlayerProps) {
       // Stop getTransport()
       Tone.getTransport().stop();
 
-      // Reset position to current editing beat
-      dispatch(setPlaybackStartBeat(editingBeat));
       dispatch(setPlayingBeat(null));
       const index = currentTrack.slots.findIndex((slot) => slot.beat >= editingBeat);
       setCurrentNoteIndex(index === -1 ? currentTrack.slots.length - 1 : index);
@@ -167,6 +159,10 @@ export default function ScorePlayer({ className = "" }: ScorePlayerProps) {
   }, [score.tracks, score.tempo, playbackEndBeat, playbackStartBeat, dispatch, handleStop]);
 
   const handlePlay = useCallback(async () => {
+    if (playbackStartBeat > playbackEndBeat!) {
+      console.log(playbackStartBeat, playbackEndBeat);
+      return;
+    }
     if (isPaused) {
       setIsPaused(false);
       setIsPlaying(true);
