@@ -1,21 +1,17 @@
-export interface BarNote {
-  beat: number;
-  duration: number;
-  content: string[];
+import { Slot } from "@stores/newScore/newScoreSlice";
+
+export interface SlotView extends Slot {
   originalBeat: number; // Reference to the original note's beat
   sustain: boolean; // Whether this note is a continuation
 }
 
-export interface Bar {
-  notes: BarNote[];
+export interface BarView {
+  notes: SlotView[];
   startBeat: number;
   barNumber: number;
 }
 
-export function splitNotesIntoBars(
-  notes: { beat: number; duration: number; content: string[] }[],
-  beatsPerBar: number = 4
-): Bar[] {
+export function splitNotesIntoBars(notes: Slot[], beatsPerBar: number = 4): BarView[] {
   if (notes.length === 0) {
     // Return a single empty bar if there are no notes
     return [
@@ -26,7 +22,6 @@ export function splitNotesIntoBars(
       },
     ];
   }
-
   // Sort notes by beat and find the last beat to determine total bars needed
   const sortedNotes = [...notes].sort((a, b) => a.beat - b.beat);
   const lastNote = sortedNotes[sortedNotes.length - 1];
@@ -34,7 +29,7 @@ export function splitNotesIntoBars(
   const totalBars = Math.ceil(lastBeat / beatsPerBar);
 
   // Pre-create all bars
-  const bars: Bar[] = Array.from({ length: totalBars }, (_, barIndex) => ({
+  const bars: BarView[] = Array.from({ length: totalBars }, (_, barIndex) => ({
     notes: [],
     startBeat: barIndex * beatsPerBar,
     barNumber: barIndex + 1,
@@ -54,17 +49,17 @@ export function splitNotesIntoBars(
       const durationInCurrentBar = Math.min(remainingDuration, currentBarEndBeat - currentBeat);
 
       // Create the note segment
-      const barNote: BarNote = {
+      const SlotView: SlotView = {
+        ...note,
         beat: currentBeat,
         duration: durationInCurrentBar,
-        content: note.content,
         originalBeat: note.beat,
         sustain: !isFirst,
       };
 
       // Add note to the appropriate bar
       if (bars[currentBarIndex]) {
-        bars[currentBarIndex].notes.push(barNote);
+        bars[currentBarIndex].notes.push(SlotView);
       }
 
       // Update for next iteration
@@ -86,12 +81,12 @@ export function splitNotesIntoBars(
 const basicDuration = [1.5, 1, 0.75, 0.5, 0.375, 0.25, 0.1875, 0.125];
 
 function breakDownToBasicDurations(
-  note: BarNote,
+  note: SlotView,
   startBeat: number,
   duration: number,
   isFirst: boolean
-): BarNote[] {
-  const result: BarNote[] = [];
+): SlotView[] {
+  const result: SlotView[] = [];
   let remainingDuration = duration;
   let currentBeat = startBeat;
   let isFirstNote = isFirst;
@@ -116,8 +111,8 @@ function breakDownToBasicDurations(
   return result;
 }
 
-export function breakDownNotesWithinBar(notes: BarNote[]): BarNote[] {
-  const result: BarNote[] = [];
+export function breakDownNotesWithinBar(notes: SlotView[]): SlotView[] {
+  const result: SlotView[] = [];
 
   // Process each note
   notes.forEach((note) => {
@@ -132,6 +127,9 @@ export function breakDownNotesWithinBar(notes: BarNote[]): BarNote[] {
         beat: currentBeat,
         duration: 1,
         sustain: note.sustain || !isFirst,
+        lyrics: note.lyrics,
+        chord: note.chord,
+        comment: note.comment,
       });
       remainingDuration = Number((remainingDuration - 1).toFixed(4));
       currentBeat += 1;
@@ -145,75 +143,4 @@ export function breakDownNotesWithinBar(notes: BarNote[]): BarNote[] {
   });
 
   return result.sort((a, b) => a.beat - b.beat);
-}
-
-// TODO: Step 2 - Implement greedy function to handle durations < 2
-
-export interface NoteDisplay {
-  content: string[]; // The note content array (e.g., ["1", "3", "5"] for a triad)
-  hasDot: boolean; // Whether the note has a dot
-  underlineCount: number; // Number of underlines (0-3)
-  sustain: boolean; // Whether it's a sustained note ("-")
-}
-
-export interface BarNoteWithDisplay extends BarNote {
-  display: NoteDisplay;
-}
-
-function getNoteDisplay(note: BarNote): NoteDisplay {
-  if (note.sustain) {
-    return {
-      content: ["-"],
-      hasDot: false,
-      underlineCount: 0,
-      sustain: true,
-    };
-  }
-
-  // Determine underlines and dots based on duration
-  let underlineCount = 0;
-  let hasDot = false;
-
-  // Dotted durations
-  if (note.duration === 1.5) {
-    hasDot = true;
-    underlineCount = 0;
-  } else if (note.duration === 0.75) {
-    hasDot = true;
-    underlineCount = 1;
-  } else if (note.duration === 0.375) {
-    hasDot = true;
-    underlineCount = 2;
-  } else if (note.duration === 0.1875) {
-    hasDot = true;
-    underlineCount = 3;
-  }
-  // Plain durations
-  else if (note.duration === 1) {
-    underlineCount = 0;
-  } else if (note.duration === 0.5) {
-    underlineCount = 1;
-  } else if (note.duration === 0.25) {
-    underlineCount = 2;
-  } else if (note.duration === 0.125) {
-    underlineCount = 3;
-  }
-
-  return {
-    content: note.content.length === 0 ? ["0"] : note.content,
-    hasDot,
-    underlineCount,
-    sustain: false,
-  };
-}
-
-export function processNotesWithDisplay(notes: BarNote[]): BarNoteWithDisplay[] {
-  // First break down the notes into basic durations
-  const brokenDownNotes = breakDownNotesWithinBar(notes);
-
-  // Then add display information
-  return brokenDownNotes.map((note) => ({
-    ...note,
-    display: getNoteDisplay(note),
-  }));
 }

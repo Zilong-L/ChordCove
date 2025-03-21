@@ -7,7 +7,6 @@ import simpleScoreReducer from "./simpleScoreSlice";
 import authReducer from "./authSlice";
 import newScoreReducer from "./newScore/newScoreSlice";
 import newEditingReducer from "./newScore/newEditingSlice";
-import barViewReducer from "./newScore/barViewSlice";
 
 const store = configureStore({
   reducer: {
@@ -18,7 +17,6 @@ const store = configureStore({
     auth: authReducer,
     newScore: newScoreReducer,
     newEditing: newEditingReducer,
-    barView: barViewReducer,
   },
 });
 
