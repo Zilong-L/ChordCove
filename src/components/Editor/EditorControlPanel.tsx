@@ -5,6 +5,7 @@ import {
   toggleDotted,
   toggleColors,
   setEditingMode,
+  toggleRelativePitch,
   type EditingMode,
 } from "@stores/editingSlice";
 import type { EditingSlotState } from "@stores/editingSlice";
@@ -58,9 +59,8 @@ const editingModes: { mode: EditingMode; label: string; icon: IconComponent }[] 
 
 export default function EditorControlPanel() {
   const dispatch = useDispatch();
-  const { selectedDuration, isDotted, showColors, editingMode, editingTrack } = useSelector(
-    (state: RootState) => state.editing as EditingSlotState
-  );
+  const { selectedDuration, isDotted, showColors, editingMode, editingTrack, useRelativePitch } =
+    useSelector((state: RootState) => state.editing as EditingSlotState);
   const score = useSelector((state: RootState) => state.score);
 
   const handleDurationClick = (duration: NoteDuration) => {
@@ -232,6 +232,21 @@ export default function EditorControlPanel() {
               <span className="text-gray-400">Add Lyrics</span>
             </div>
           )}
+        </div>
+      </div>
+
+      {/* Notation Settings */}
+      <div>
+        <div className="mb-2 text-sm text-gray-400">Notation Settings</div>
+        <div className="space-y-2">
+          <button
+            className={`flex items-center gap-2 rounded px-3 py-2 ${
+              useRelativePitch ? "bg-blue-600" : "bg-gray-700"
+            }`}
+            onClick={() => dispatch(toggleRelativePitch())}
+          >
+            <span className="text-sm">Relative Pitch</span>
+          </button>
         </div>
       </div>
     </div>

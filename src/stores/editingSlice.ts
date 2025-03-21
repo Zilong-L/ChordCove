@@ -16,6 +16,7 @@ export interface EditingSlotState {
   isDotted: boolean;
   showColors: boolean;
   editingMode: EditingMode;
+  useRelativePitch: boolean;
 }
 
 const initialState: EditingSlotState = {
@@ -31,6 +32,7 @@ const initialState: EditingSlotState = {
   isDotted: false,
   showColors: true,
   editingMode: "notes",
+  useRelativePitch: true,
 };
 
 const editingSlice = createSlice({
@@ -73,6 +75,9 @@ const editingSlice = createSlice({
     setEditingMode: (state, action: PayloadAction<EditingMode>) => {
       state.editingMode = action.payload;
     },
+    toggleRelativePitch: (state) => {
+      state.useRelativePitch = !state.useRelativePitch;
+    },
   },
 });
 
@@ -89,6 +94,7 @@ export const {
   setNoteInput,
   advanceEditingPosition,
   setEditingMode,
+  toggleRelativePitch,
 } = editingSlice.actions;
 
 export default editingSlice.reducer;

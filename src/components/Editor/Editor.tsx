@@ -8,13 +8,13 @@ import {
   setSelectedDuration,
   toggleDotted,
   setEditingBeat,
-  setEditingTrack,
   setLastInputNote,
 } from "@stores/editingSlice";
 import type { EditingSlotState } from "@stores/editingSlice";
 import EditorControlPanel, { durationValues, type NoteDuration } from "./EditorControlPanel";
 import BarView from "./BarView";
 import ScorePlayer from "./ScorePlayer";
+import { Note } from "tonal";
 
 export default function SimpleEditor() {
   const dispatch = useDispatch();
@@ -126,14 +126,48 @@ export default function SimpleEditor() {
   // Enable up/down navigation between tracks
   useHotkeys("up", (event) => {
     event.preventDefault();
-    const newTrackIndex = editingTrack > 0 ? editingTrack - 1 : score.tracks.length - 1;
-    dispatch(setEditingTrack(newTrackIndex));
+    const existingSlot = currentTrack.slots.find((slot) => slot.beat === currentBeat);
+    if (!existingSlot || existingSlot.type !== "melody" || !existingSlot.note) return;
+
+    const currentNote = Note.get(existingSlot.note);
+    if (!currentNote.midi) return;
+
+    const newNote = Note.fromMidi(currentNote.midi + 1);
+    if (!newNote) return;
+
+    dispatch(
+      setSlot({
+        trackId: currentTrack.id,
+        slot: {
+          ...existingSlot,
+          note: newNote,
+        },
+      })
+    );
+    dispatch(setLastInputNote(newNote));
   });
 
   useHotkeys("down", (event) => {
     event.preventDefault();
-    const newTrackIndex = editingTrack < score.tracks.length - 1 ? editingTrack + 1 : 0;
-    dispatch(setEditingTrack(newTrackIndex));
+    const existingSlot = currentTrack.slots.find((slot) => slot.beat === currentBeat);
+    if (!existingSlot || existingSlot.type !== "melody" || !existingSlot.note) return;
+
+    const currentNote = Note.get(existingSlot.note);
+    if (!currentNote.midi) return;
+
+    const newNote = Note.fromMidi(currentNote.midi - 1);
+    if (!newNote) return;
+
+    dispatch(
+      setSlot({
+        trackId: currentTrack.id,
+        slot: {
+          ...existingSlot,
+          note: newNote,
+        },
+      })
+    );
+    dispatch(setLastInputNote(newNote));
   });
 
   // Add keyboard shortcut for deleting content
@@ -142,7 +176,26 @@ export default function SimpleEditor() {
     const existingSlot = currentTrack.slots.find((slot) => slot.beat === currentBeat);
     if (!existingSlot) return;
 
-    // Clear content based on track type
+    // Get the duration of the slot to be deleted
+    const deletedDuration = existingSlot.duration;
+
+    // Find all slots after the current beat
+    const subsequentSlots = currentTrack.slots.filter((slot) => slot.beat > currentBeat);
+
+    // Update each subsequent slot's beat position
+    subsequentSlots.forEach((slot) => {
+      dispatch(
+        setSlot({
+          trackId: currentTrack.id,
+          slot: {
+            ...slot,
+            beat: slot.beat - deletedDuration,
+          },
+        })
+      );
+    });
+
+    // Clear content of the current slot
     const updatedSlot = {
       ...existingSlot,
       beat: currentBeat,

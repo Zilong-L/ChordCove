@@ -63,4 +63,37 @@ function shiftNote(note: string, currentKey: string, targetKey: string) {
   return Note.fromMidi(currentNote + distance);
 }
 
-export { calculateDegree, getNoteInKey, findCloestNote, keyMap, shiftNote };
+function getRelativePitchNotation(
+  note: string,
+  key: string
+): { degree: number; octaveDots: number } {
+  const noteObj = Note.get(note);
+  const keyObj = Note.get(key);
+
+  if (!noteObj.midi || !keyObj.midi) {
+    return { degree: 0, octaveDots: 0 };
+  }
+
+  // Get the scale degree (1-7)
+  const keyScale = getNoteInKey(keyObj.letter);
+  const degree = keyScale.findIndex((n) => n === noteObj.letter) + 1;
+
+  // Calculate octave difference
+  const noteOctave = noteObj.oct || 0;
+  const keyOctave = keyObj.oct || 0;
+  const octaveDiff = noteOctave - keyOctave;
+
+  return {
+    degree,
+    octaveDots: octaveDiff,
+  };
+}
+
+export {
+  calculateDegree,
+  getNoteInKey,
+  findCloestNote,
+  keyMap,
+  shiftNote,
+  getRelativePitchNotation,
+};
