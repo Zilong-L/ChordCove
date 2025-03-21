@@ -1,6 +1,11 @@
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@stores/store";
-import { setSelectedDuration, toggleDotted, toggleRelativePitch } from "@stores/editingSlice";
+import {
+  setSelectedDuration,
+  toggleDotted,
+  toggleRelativePitch,
+  setEditingTrack,
+} from "@stores/editingSlice";
 import type { EditingSlotState } from "@stores/editingSlice";
 import { createEmptySlot, type TrackType } from "@stores/scoreSlice";
 import { addTrack, removeTrack } from "@stores/scoreSlice";
@@ -65,7 +70,18 @@ export default function EditorControlPanel() {
   };
 
   const handleRemoveTrack = (trackIndex: number) => {
+    // Prevent removing the last track
+    if (score.tracks.length <= 1) {
+      return;
+    }
+
     dispatch(removeTrack(trackIndex));
+    // If we're removing the current track or one before it, update the editing track index
+    if (editingTrack >= trackIndex) {
+      // If we're removing the last track or the current track is the last one
+      const newEditingTrack = Math.max(0, Math.min(editingTrack, score.tracks.length - 2));
+      dispatch(setEditingTrack(newEditingTrack));
+    }
   };
 
   return (

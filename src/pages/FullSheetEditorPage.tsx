@@ -75,7 +75,7 @@ export default function FullSheetEditorPage() {
   return (
     <div className="mx-auto px-2 md:px-8 xl:max-w-[90vw]">
       <div className="flex flex-col gap-6 xl:flex-row xl:items-start">
-        <div className="order-2 flex flex-col xl:order-[-1] xl:w-1/4">
+        <div className="order-2 flex flex-col xl:order-[-1] xl:w-1/5">
           <MetadataForm uploading={uploading} setUploading={setUploading} />
           <button
             onClick={handleUpload}
@@ -90,7 +90,7 @@ export default function FullSheetEditorPage() {
           </button>
         </div>
 
-        <div className="flex gap-4 xl:w-3/4">
+        <div className="flex gap-4 xl:w-4/5">
           <Editor />
           {/* Control Panel */}
           <div className="sticky top-0 w-64 shrink-0 overflow-auto">
