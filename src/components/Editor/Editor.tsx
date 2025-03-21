@@ -3,15 +3,15 @@ import { getNoteInKey, findCloestNote, keyMap } from "@utils/theory/Note";
 import { useHotkeys } from "react-hotkeys-hook";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@stores/store";
-import { setSlot } from "@stores/newScore/newScoreSlice";
-import type { Score, Slot } from "@stores/newScore/newScoreSlice";
+import { setSlot } from "@stores/scoreSlice";
+import type { Score, Slot } from "@stores/scoreSlice";
 import {
   setSelectedDuration,
   toggleDotted,
   setLastInputNote,
   setEditingBeat,
-} from "@stores/newScore/newEditingSlice";
-import type { EditingSlotState } from "@stores/newScore/newEditingSlice";
+} from "@stores/editingSlice";
+import type { EditingSlotState } from "@stores/editingSlice";
 import EditorControlPanel, { durationValues, type NoteDuration } from "./EditorControlPanel";
 import BarView from "./BarView";
 import ScorePlayer from "./ScorePlayer";
@@ -23,10 +23,10 @@ export default function SimpleEditor() {
 
   // Get states from Redux
   const { editingBeat, selectedDuration, isDotted, lastInputNote, editingMode } = useSelector(
-    (state: RootState) => state.newEditing as EditingSlotState
+    (state: RootState) => state.editing as EditingSlotState
   );
 
-  const score = useSelector((state: RootState) => state.newScore as Score);
+  const score = useSelector((state: RootState) => state.score as Score);
   const currentTrack = score.track;
 
   // Calculate current beat position

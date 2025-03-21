@@ -1,4 +1,4 @@
-import { Slot } from "@stores/newScore/newScoreSlice";
+import { Slot } from "@stores/newScoreSlice";
 
 export interface SlotView extends Slot {
   originalBeat: number; // Reference to the original note's beat

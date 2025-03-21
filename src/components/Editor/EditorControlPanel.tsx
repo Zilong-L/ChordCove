@@ -6,8 +6,8 @@ import {
   toggleColors,
   setEditingMode,
   type EditingMode,
-} from "@stores/newScore/newEditingSlice";
-import type { EditingSlotState } from "@stores/newScore/newEditingSlice";
+} from "@stores/editingSlice";
+import type { EditingSlotState } from "@stores/editingSlice";
 import type { SVGProps } from "react";
 import {
   SwatchIcon,
@@ -57,7 +57,7 @@ const editingModes: { mode: EditingMode; label: string; icon: IconComponent }[] 
 export default function EditorControlPanel() {
   const dispatch = useDispatch();
   const { selectedDuration, isDotted, showColors, editingMode } = useSelector(
-    (state: RootState) => state.newEditing as EditingSlotState
+    (state: RootState) => state.editing as EditingSlotState
   );
 
   return (

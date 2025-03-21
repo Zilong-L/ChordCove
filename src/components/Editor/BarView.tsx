@@ -6,12 +6,12 @@ import {
   type BarView,
   type SlotView,
 } from "@utils/theory/barView";
-import { setEditingBeat } from "@stores/newScore/newEditingSlice";
+import { setEditingBeat } from "@stores/editingSlice";
 import { Note as TonalNote } from "tonal";
 import { calculateDegree } from "@utils/theory/Note";
 import { useMemo, useCallback } from "react";
 import React from "react";
-import type { Score, Slot } from "@stores/newScore/newScoreSlice";
+import type { Score, Slot } from "@stores/scoreSlice";
 
 // Helper function to get color based on MIDI value (reused from newEditor.tsx)
 function getMidiColor(midi: number, keyMidi: number): string {
@@ -233,8 +233,8 @@ const Bar = React.memo(
 
 export default function BarView() {
   const dispatch = useDispatch();
-  const { editingBeat, showColors } = useSelector((state: RootState) => state.newEditing);
-  const score = useSelector((state: RootState) => state.newScore as Score);
+  const { editingBeat, showColors } = useSelector((state: RootState) => state.editing);
+  const score = useSelector((state: RootState) => state.score as Score);
   const currentTrack = score.track;
 
   // Memoize the bars calculation

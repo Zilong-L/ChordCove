@@ -1,86 +1,75 @@
 // editingSlice.ts
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-interface EditingSlotState {
-  barNumber: number | null; // ID of the bar being edited
-  slotBeat: number | null; // The beat (start) of the slot being edited
-  lastInputNote: string; // The note text input by the user
-  noteInput: string; // The note text input by the user
-  insertedDuration: number; // Duration of the note being inserted
-  insertNoteTime: number;
-  allowedNoteTime: [1, 2, 4, 8, 16]; // Allowed note durations
-  allowedDurations: number[]; // List of allowed durations for splitting the slot (sorted descending ideally)
-  isdotted: boolean;
-  editingMode: string; // New state for tracking editing mode
-  allowedEditingModes: string[]; // Allowed editing modes
+export type EditingMode = "notes" | "lyrics" | "chords" | "comments";
+
+export interface EditingSlotState {
+  editingTrack: number;
+  editingBeat: number;
+  selectedDuration: 1 | 2 | 4 | 8 | 16 | 32;
+  lastInputNote: string;
+  noteInput: string;
+  allowedDurations: [1, 2, 4, 8, 16];
+  isDotted: boolean;
+  showColors: boolean;
+  editingMode: EditingMode;
 }
 
 const initialState: EditingSlotState = {
-  barNumber: 0,
-  slotBeat: 0,
-  lastInputNote: "",
+  editingTrack: 0,
+  editingBeat: 0,
+  selectedDuration: 4, // Default to quarter note
+  lastInputNote: "C3", // Default value from SimpleEditor
   noteInput: "",
-  insertedDuration: 1, // default value; update when setting the editing slot
-  insertNoteTime: 4,
-  allowedNoteTime: [1, 2, 4, 8, 16], // default value; update when setting the editing slot
-  allowedDurations: [4, 2, 1, 0.5, 0.25], // example allowed durations (in quarter-note units)
-  isdotted: false,
-  editingMode: "melody", // Default mode is "chord"
-  allowedEditingModes: ["chord", "lyric", "extrainfo", "melody"],
+  allowedDurations: [1, 2, 4, 8, 16],
+  isDotted: false,
+  showColors: true,
+  editingMode: "notes",
 };
 
 const editingSlice = createSlice({
   name: "editingSlot",
   initialState,
   reducers: {
-    setEditingSlot(
-      state,
-      action: PayloadAction<{
-        barNumber: number;
-        slotBeat: number;
-      }>
-    ) {
-      state.barNumber = action.payload.barNumber;
-      state.slotBeat = action.payload.slotBeat;
+    setEditingTrack: (state, action: PayloadAction<number>) => {
+      state.editingTrack = action.payload;
     },
-    updateNoteInput(state, action: PayloadAction<string>) {
-      state.noteInput = action.payload;
+    setEditingBeat: (state, action: PayloadAction<number>) => {
+      state.editingBeat = action.payload;
     },
-    updateLastInputNote(state, action: PayloadAction<string>) {
+    setSelectedDuration: (state, action: PayloadAction<1 | 2 | 4 | 8 | 16 | 32>) => {
+      state.selectedDuration = action.payload;
+    },
+    toggleDotted: (state) => {
+      state.isDotted = !state.isDotted;
+    },
+    toggleColors: (state) => {
+      state.showColors = !state.showColors;
+    },
+    setLastInputNote: (state, action: PayloadAction<string>) => {
       state.lastInputNote = action.payload;
     },
-    updateInputDuration(state, action: PayloadAction<{ newInputTime: number; baseBeat: number }>) {
-      if (state.isdotted && action.payload.newInputTime === 16) {
-        state.isdotted = false;
-      }
-      state.insertNoteTime = action.payload.newInputTime;
-      state.insertedDuration = action.payload.baseBeat / action.payload.newInputTime;
+    setNoteInput: (state, action: PayloadAction<string>) => {
+      state.noteInput = action.payload;
     },
-    clearEditingSlot(state) {
-      state.barNumber = null;
-      state.slotBeat = null;
-      state.noteInput = "";
-      // Optionally, you could reset allowedDurations to a default here.
+    advanceEditingPosition: (state) => {
+      state.editingBeat += 1;
     },
-    toggleDotted(state) {
-      if (state.insertNoteTime === 16) {
-        return;
-      }
-      state.isdotted = !state.isdotted;
-    },
-    setEditingMode(state, action: PayloadAction<string>) {
+    setEditingMode: (state, action: PayloadAction<EditingMode>) => {
       state.editingMode = action.payload;
     },
   },
 });
 
 export const {
-  setEditingSlot,
-  updateNoteInput,
-  clearEditingSlot,
-  updateInputDuration,
-  updateLastInputNote,
+  setEditingTrack,
+  setEditingBeat,
+  setSelectedDuration,
   toggleDotted,
+  toggleColors,
+  setLastInputNote,
+  setNoteInput,
+  advanceEditingPosition,
   setEditingMode,
 } = editingSlice.actions;
 

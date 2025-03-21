@@ -1,90 +1,147 @@
 // store/scoreSlice.ts
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import type { BarData, Score } from "../types/sheet";
 
-// Helper: parse a time signature string into beatsPerBar and baseBeat
-const parseTimeSignature = (ts: string): { beatsPerBar: number; baseBeat: number } => {
-  const [beats, base] = ts.split("/").map(Number);
-  return { beatsPerBar: beats, baseBeat: base };
-};
+// Types
+export interface Slot {
+  beat: number;
+  duration: number;
+  notes: string[];
+  chord: string;
+  lyrics: string;
+  comment: string;
+}
 
-// 🎼 初始状态
-const initialTimeSignature = "4/4";
-const { beatsPerBar, baseBeat } = parseTimeSignature(initialTimeSignature);
+export interface Track {
+  slots: Slot[];
+}
+
+export interface Score {
+  track: Track;
+  tempo: number;
+  key: string;
+}
+
+/**
+ * Replaces or inserts a slot at a specific beat position, handling duration conflicts.
+ *
+ * This function handles three scenarios:
+ * 1. Simple replacement: When the new slot has the same duration as the existing one
+ * 2. Shortening: When the new slot is shorter than existing one, splits the existing slot
+ * 3. Lengthening: When the new slot is longer, consumes subsequent slots as needed
+ *
+ * @param slots - Array of slots in the track
+ * @param newSlot - The slot to insert or replace with
+ * @returns Modified array of slots, sorted by beat
+ */
+export function replaceOrInsertSlot(slots: Slot[], newSlot: Slot): Slot[] {
+  const existingIndex = slots.findIndex((s) => s.beat === newSlot.beat);
+
+  if (existingIndex === -1) {
+    // Simple insertion
+    slots.push(newSlot);
+    return slots.sort((a, b) => a.beat - b.beat);
+  }
+
+  const existingSlot = slots[existingIndex];
+  const slotsCopy = [...slots];
+
+  if (newSlot.duration === existingSlot.duration) {
+    // Simple replacement
+    slotsCopy[existingIndex] = newSlot;
+  } else if (newSlot.duration < existingSlot.duration) {
+    // Split existing slot into two parts
+    slotsCopy[existingIndex].duration -= newSlot.duration;
+    slotsCopy[existingIndex].beat += newSlot.duration;
+    slotsCopy.splice(existingIndex - 1, 0, newSlot);
+  } else {
+    // Consume subsequent slots if needed
+    let remainingDuration = newSlot.duration;
+    let currentIndex = existingIndex;
+
+    // Calculate how many slots will be consumed
+    while (currentIndex < slotsCopy.length && remainingDuration > 0) {
+      remainingDuration -= slotsCopy[currentIndex].duration;
+      currentIndex++;
+    }
+
+    // Handle partial consumption of the last slot
+    if (remainingDuration < 0) {
+      const lastConsumedSlot = slotsCopy[currentIndex - 1];
+
+      // Add remaining part of the last consumed slot
+      slotsCopy.splice(currentIndex, 0, {
+        ...lastConsumedSlot,
+        beat: newSlot.beat + newSlot.duration,
+        duration: -remainingDuration,
+      });
+    }
+
+    // Remove consumed slots and insert new slot
+    slotsCopy.splice(existingIndex, currentIndex - existingIndex, newSlot);
+  }
+
+  return slotsCopy.sort((a, b) => a.beat - b.beat);
+}
+
 const initialState: Score = {
-  key: "C3",
   tempo: 120,
-  timeSignature: initialTimeSignature,
-  beatsPerBar,
-  baseBeat,
-  bars: [
-    {
-      id: crypto.randomUUID(),
-      barNumber: 1,
-      slots: [
-        { beat: 0, duration: 4, note: "C4", chord: "\u00A0", lyric: "\u00A0", sustain: false },
-      ],
-    },
-    {
-      id: crypto.randomUUID(),
-      barNumber: 2,
-      slots: [
-        { beat: 0, duration: 4, note: "C4", chord: "\u00A0", lyric: "\u00A0", sustain: false },
-      ],
-    },
-  ],
+  key: "C3",
+  track: {
+    slots: [
+      {
+        beat: 0,
+        duration: 4,
+        notes: [],
+        chord: "",
+        lyrics: "",
+        comment: "",
+      },
+    ],
+  },
 };
 
 const scoreSlice = createSlice({
-  name: "score",
+  name: "Score",
   initialState,
   reducers: {
-    setTempo: (state, action: PayloadAction<number>) => {
+    // Basic score properties
+    setTempo(state, action: PayloadAction<number>) {
       state.tempo = action.payload;
     },
-    setKey: (state, action: PayloadAction<string>) => {
+
+    setKey(state, action: PayloadAction<string>) {
       state.key = action.payload;
     },
-    setTimeSignature: (state, action: PayloadAction<string>) => {
-      state.timeSignature = action.payload;
-      const { beatsPerBar, baseBeat } = parseTimeSignature(action.payload);
-      state.beatsPerBar = beatsPerBar;
-      state.baseBeat = baseBeat;
+
+    // Slot operations
+    setSlot(state, action: PayloadAction<Slot>) {
+      state.track.slots = replaceOrInsertSlot(state.track.slots, action.payload);
+      const lastSlot = state.track.slots[state.track.slots.length - 1];
+
+      // Add empty slot if needed
+      if (lastSlot.notes.length > 0 || lastSlot.chord || lastSlot.lyrics || lastSlot.comment) {
+        state.track.slots.push({
+          beat: lastSlot.beat + lastSlot.duration,
+          duration: 4 - ((lastSlot.beat + lastSlot.duration) % 4),
+          notes: [],
+          chord: "",
+          lyrics: "",
+          comment: "",
+        });
+      }
     },
-    updateBars: (state, action: PayloadAction<{ newBars: BarData[] }>) => {
-      const { newBars } = action.payload;
-      state.bars = newBars;
+
+    // Clear operations
+    clearTrack(state) {
+      state.track.slots = [];
     },
-    // 📌 Add a bar to the score
-    addBar: (state) => {
-      state.bars.push({
-        id: crypto.randomUUID(),
-        barNumber: state.bars.length + 1,
-        slots: [
-          {
-            beat: 0,
-            duration: state.beatsPerBar,
-            note: "C4",
-            chord: "\u00A0",
-            lyric: "\u00A0",
-            sustain: false,
-          },
-        ],
-      });
-    },
-    // ❌ Remove a bar from the score
-    removeBar: (state, action: PayloadAction<{ barId: string }>) => {
-      state.bars = state.bars.filter((bar) => bar.id !== action.payload.barId);
-      // Renumber bars
-      state.bars.forEach((bar, index) => (bar.barNumber = index + 1));
-    },
-    // 🔀 Reorder bars (e.g., via drag-and-drop)
-    reorderBars: (state, action: PayloadAction<{ newBars: BarData[] }>) => {
-      state.bars = action.payload.newBars;
+
+    clearScore(state) {
+      state.track.slots = [];
     },
   },
 });
 
-export const { setTempo, setTimeSignature, addBar, removeBar, reorderBars, updateBars, setKey } =
-  scoreSlice.actions;
+export const { setTempo, setKey, setSlot, clearTrack, clearScore } = scoreSlice.actions;
+
 export default scoreSlice.reducer;

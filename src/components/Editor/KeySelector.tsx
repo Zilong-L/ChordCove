@@ -2,8 +2,7 @@ import { Listbox, ListboxButton, ListboxOption, ListboxOptions } from "@headless
 import { Note } from "tonal";
 import { RootState } from "@stores/store";
 import { useSelector, useDispatch } from "react-redux";
-import { setKey, updateBars } from "@stores/scoreSlice";
-import { shiftNote } from "@utils/theory/Note";
+import { setKey } from "@stores/scoreSlice";
 import { Transition } from "@headlessui/react";
 
 const midiRange = (startNote: string, endNote: string) => {
@@ -21,14 +20,6 @@ export default function KeySelector() {
   const dispatch = useDispatch();
   const setSelectedKey = (key: string) => dispatch(setKey(key));
   function handleKeyChange(key: string) {
-    const barsCopy = structuredClone(score.bars);
-    barsCopy.forEach((bar) => {
-      bar.slots.forEach((slot) => {
-        slot.note = shiftNote(slot.note, score.key, key) || slot.note;
-      });
-    });
-    dispatch(updateBars({ newBars: barsCopy }));
-
     setSelectedKey(key);
   }
   const notes = midiRange("C3", "C5"); // 获取 C3-C5 之间所有音符

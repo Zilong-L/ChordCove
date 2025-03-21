@@ -10,7 +10,7 @@ import {
   BackwardIcon,
   ForwardIcon,
 } from "@heroicons/react/24/solid";
-import { setEditingBeat } from "@stores/newScore/newEditingSlice";
+import { setEditingBeat } from "@stores/editingSlice";
 
 interface ScorePlayerProps {
   className?: string;
@@ -26,8 +26,8 @@ export default function ScorePlayer({ className = "" }: ScorePlayerProps) {
   // Use ref to store the loop so we can clean it up
   const loopRef = useRef<Tone.Loop | null>(null);
 
-  const score = useSelector((state: RootState) => state.newScore);
-  const { editingTrack, editingBeat } = useSelector((state: RootState) => state.newEditing);
+  const score = useSelector((state: RootState) => state.score);
+  const { editingTrack, editingBeat } = useSelector((state: RootState) => state.editing);
   const currentTrack = score.track;
 
   // Convert beat position to time in seconds
