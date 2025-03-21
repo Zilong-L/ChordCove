@@ -1,13 +1,14 @@
-import { Slot } from "@stores/newScoreSlice";
+import type { Slot, MelodySlot, ChordSlot, LyricsSlot } from "@stores/scoreSlice";
 
-export interface SlotView extends Slot {
-  originalBeat: number; // Reference to the original note's beat
-  sustain: boolean; // Whether this note is a continuation
-}
+// Create a union type for SlotView that includes originalBeat and sustain
+export type SlotView =
+  | (MelodySlot & { originalBeat: number; sustain?: boolean })
+  | (ChordSlot & { originalBeat: number; sustain?: boolean })
+  | (LyricsSlot & { originalBeat: number; sustain?: boolean });
 
 export interface BarView {
-  notes: SlotView[];
   startBeat: number;
+  notes: SlotView[];
   barNumber: number;
 }
 
@@ -22,6 +23,7 @@ export function splitNotesIntoBars(notes: Slot[], beatsPerBar: number = 4): BarV
       },
     ];
   }
+
   // Sort notes by beat and find the last beat to determine total bars needed
   const sortedNotes = [...notes].sort((a, b) => a.beat - b.beat);
   const lastNote = sortedNotes[sortedNotes.length - 1];
@@ -49,7 +51,7 @@ export function splitNotesIntoBars(notes: Slot[], beatsPerBar: number = 4): BarV
       const durationInCurrentBar = Math.min(remainingDuration, currentBarEndBeat - currentBeat);
 
       // Create the note segment
-      const SlotView: SlotView = {
+      const slotView: SlotView = {
         ...note,
         beat: currentBeat,
         duration: durationInCurrentBar,
@@ -59,7 +61,7 @@ export function splitNotesIntoBars(notes: Slot[], beatsPerBar: number = 4): BarV
 
       // Add note to the appropriate bar
       if (bars[currentBarIndex]) {
-        bars[currentBarIndex].notes.push(SlotView);
+        bars[currentBarIndex].notes.push(slotView);
       }
 
       // Update for next iteration
@@ -78,7 +80,7 @@ export function splitNotesIntoBars(notes: Slot[], beatsPerBar: number = 4): BarV
 }
 
 // Basic durations in descending order for greedy algorithm
-const basicDuration = [1.5, 1, 0.75, 0.5, 0.375, 0.25, 0.1875, 0.125];
+const basicDurations = [1.5, 1, 0.75, 0.5, 0.375, 0.25, 0.1875, 0.125];
 
 function breakDownToBasicDurations(
   note: SlotView,
@@ -94,7 +96,8 @@ function breakDownToBasicDurations(
   while (remainingDuration > 0) {
     // Find the largest basic duration that fits
     const fitDuration =
-      basicDuration.find((d) => d <= remainingDuration) || basicDuration[basicDuration.length - 1];
+      basicDurations.find((d) => d <= remainingDuration) ||
+      basicDurations[basicDurations.length - 1];
 
     result.push({
       ...note,
@@ -127,9 +130,6 @@ export function breakDownNotesWithinBar(notes: SlotView[]): SlotView[] {
         beat: currentBeat,
         duration: 1,
         sustain: note.sustain || !isFirst,
-        lyrics: note.lyrics,
-        chord: note.chord,
-        comment: note.comment,
       });
       remainingDuration = Number((remainingDuration - 1).toFixed(4));
       currentBeat += 1;

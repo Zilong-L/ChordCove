@@ -1,124 +1,85 @@
 import KeySelector from "./KeySelector";
-import { getNoteInKey, findCloestNote, keyMap } from "@utils/theory/Note";
 import { useHotkeys } from "react-hotkeys-hook";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@stores/store";
-import { setSlot } from "@stores/scoreSlice";
+import { setSlot, slotHelpers } from "@stores/scoreSlice";
 import type { Score, Slot } from "@stores/scoreSlice";
 import {
   setSelectedDuration,
   toggleDotted,
-  setLastInputNote,
   setEditingBeat,
+  setEditingTrack,
+  setLastInputNote,
 } from "@stores/editingSlice";
 import type { EditingSlotState } from "@stores/editingSlice";
 import EditorControlPanel, { durationValues, type NoteDuration } from "./EditorControlPanel";
 import BarView from "./BarView";
 import ScorePlayer from "./ScorePlayer";
-import { useState, useCallback } from "react";
 
 export default function SimpleEditor() {
   const dispatch = useDispatch();
-  const [lyricsInput, setLyricsInput] = useState("");
 
   // Get states from Redux
-  const { editingBeat, selectedDuration, isDotted, lastInputNote, editingMode } = useSelector(
+  const { editingBeat, editingTrack, selectedDuration, isDotted, lastInputNote } = useSelector(
     (state: RootState) => state.editing as EditingSlotState
   );
 
   const score = useSelector((state: RootState) => state.score as Score);
-  const currentTrack = score.track;
+  const currentTrack = score.tracks[editingTrack];
 
   // Calculate current beat position
   const currentBeat = editingBeat;
 
-  // Handle note input via keyboard with accidentals
-  useHotkeys(Object.entries(keyMap).join(","), (event, handler) => {
-    if (editingMode !== "notes") return;
+  // Handle input via keyboard
+  useHotkeys("*", (event) => {
+    if (event.ctrlKey || event.altKey || event.metaKey) return;
+
+    // Get existing slot or create a new one
+    const existingSlot = currentTrack.slots.find((slot) => slot.beat === currentBeat);
+    if (!existingSlot) return;
+
+    // Let the slot handle the input
+    const result = slotHelpers.handleInput(existingSlot, event, score.key, lastInputNote);
+    if (!result) return;
 
     event.preventDefault();
-    let pressedKey = handler.keys![0];
-    if (handler.ctrl && handler.alt) {
-      pressedKey = "ctrl+alt+" + pressedKey;
-    }
-    const degreeIndex = keyMap[pressedKey];
-    if (degreeIndex === undefined) return;
-    const rotatedScale = getNoteInKey(score.key);
-    const targetNoteLetter = rotatedScale[degreeIndex];
-
-    if (!targetNoteLetter) return;
-
-    const finalNote = findCloestNote(lastInputNote, targetNoteLetter);
-    if (!finalNote) return;
 
     // Calculate actual duration in beats
     const baseDuration = durationValues[selectedDuration as NoteDuration];
     const duration = isDotted ? baseDuration * 1.5 : baseDuration;
 
-    // Get existing slot to preserve other properties
-    const existingSlot = currentTrack.slots.find((slot) => slot.beat === currentBeat) || {
+    // Update the slot with new content based on track type
+    const updatedSlot = {
+      ...existingSlot,
       beat: currentBeat,
       duration,
-      notes: [],
-      chord: "",
-      lyrics: "",
-      comment: "",
     };
 
-    // Add new note using Redux actions
+    if (currentTrack.type === "melody") {
+      Object.assign(updatedSlot, { note: result.content });
+      // Update last input note for melody
+      dispatch(setLastInputNote(result.content));
+    } else if (currentTrack.type === "chords") {
+      Object.assign(updatedSlot, { chord: result.content });
+    } else if (currentTrack.type === "lyrics") {
+      Object.assign(updatedSlot, { lyrics: result.content });
+    }
+
     dispatch(
       setSlot({
-        ...existingSlot,
-        beat: currentBeat,
-        duration,
-        notes: [finalNote],
+        trackId: currentTrack.id,
+        slot: updatedSlot,
       })
     );
 
-    dispatch(setLastInputNote(finalNote));
-    dispatch(setEditingBeat(currentBeat + duration));
+    // Move cursor if needed
+    if (result.shouldMoveCursor) {
+      dispatch(setEditingBeat(currentBeat + duration));
+    }
   });
-
-  // Handle lyrics input
-  const handleLyricsInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setLyricsInput(e.target.value);
-  }, []);
-
-  const handleLyricsInputKeyDown = useCallback(
-    (e: React.KeyboardEvent<HTMLInputElement>) => {
-      if (e.key === "Enter" && lyricsInput.trim()) {
-        e.preventDefault();
-
-        // Get existing slot to preserve other properties
-        const existingSlot = currentTrack.slots.find((slot) => slot.beat === currentBeat) || {
-          beat: currentBeat,
-          duration: durationValues[4], // Default to quarter note duration
-          notes: [],
-          chord: "",
-          lyrics: "",
-          comment: "",
-        };
-
-        // Update the slot with new lyrics
-        dispatch(
-          setSlot({
-            ...existingSlot,
-            lyrics: lyricsInput.trim(),
-          })
-        );
-
-        // Clear input and move to next beat
-        setLyricsInput("");
-        dispatch(setEditingBeat(currentBeat + existingSlot.duration));
-      }
-    },
-    [currentBeat, currentTrack.slots, dispatch, lyricsInput]
-  );
 
   // Add keyboard shortcuts for durations
   useHotkeys("q,w,e,r,t,y", (event, handler) => {
-    if (editingMode !== "notes") return;
-
     event.preventDefault();
     const durationMap: Record<string, NoteDuration> = {
       q: 1, // whole note
@@ -134,7 +95,6 @@ export default function SimpleEditor() {
 
   // Add keyboard shortcut for dotted notes
   useHotkeys("d", () => {
-    if (editingMode !== "notes") return;
     dispatch(toggleDotted());
   });
 
@@ -154,7 +114,6 @@ export default function SimpleEditor() {
 
   useHotkeys("right", (event) => {
     event.preventDefault();
-
     const currentIndex = currentTrack.slots.findIndex((slot: Slot) => slot.beat === editingBeat);
     if (currentIndex < currentTrack.slots.length - 1) {
       const nextIndex = currentIndex + 1;
@@ -164,37 +123,43 @@ export default function SimpleEditor() {
     }
   });
 
-  // Remove up/down navigation since we only have one track now
+  // Enable up/down navigation between tracks
   useHotkeys("up", (event) => {
     event.preventDefault();
+    const newTrackIndex = editingTrack > 0 ? editingTrack - 1 : score.tracks.length - 1;
+    dispatch(setEditingTrack(newTrackIndex));
   });
 
   useHotkeys("down", (event) => {
     event.preventDefault();
+    const newTrackIndex = editingTrack < score.tracks.length - 1 ? editingTrack + 1 : 0;
+    dispatch(setEditingTrack(newTrackIndex));
   });
 
   // Add keyboard shortcut for deleting content
   useHotkeys("backspace,delete", (event) => {
     event.preventDefault();
+    const existingSlot = currentTrack.slots.find((slot) => slot.beat === currentBeat);
+    if (!existingSlot) return;
 
-    // Get existing slot to preserve other properties
-    const existingSlot = currentTrack.slots.find((slot) => slot.beat === currentBeat) || {
+    // Clear content based on track type
+    const updatedSlot = {
+      ...existingSlot,
       beat: currentBeat,
-      duration: durationValues[4], // Default to quarter note duration
-      notes: [],
-      chord: "",
-      lyrics: "",
-      comment: "",
     };
 
-    // Clear the appropriate content based on editing mode
+    if (currentTrack.type === "melody") {
+      Object.assign(updatedSlot, { note: "" });
+    } else if (currentTrack.type === "chords") {
+      Object.assign(updatedSlot, { chord: "" });
+    } else if (currentTrack.type === "lyrics") {
+      Object.assign(updatedSlot, { lyrics: "" });
+    }
+
     dispatch(
       setSlot({
-        ...existingSlot,
-        ...(editingMode === "notes" && { notes: [] }),
-        ...(editingMode === "lyrics" && { lyrics: "" }),
-        ...(editingMode === "chords" && { chord: "" }),
-        ...(editingMode === "comments" && { comment: "" }),
+        trackId: currentTrack.id,
+        slot: updatedSlot,
       })
     );
   });
@@ -216,6 +181,10 @@ export default function SimpleEditor() {
               <span>Current Position:</span>
               <span>Beat {currentBeat}</span>
             </div>
+            <div className="flex items-center gap-2">
+              <span>Current Track:</span>
+              <span>{currentTrack.type} (Use ↑↓ to switch)</span>
+            </div>
             <ScorePlayer />
           </div>
 
@@ -224,41 +193,12 @@ export default function SimpleEditor() {
             <h3 className="mb-2 text-lg font-semibold">Bar View</h3>
             <BarView />
           </div>
-
-          {/* Lyrics Input */}
-          {editingMode === "lyrics" && (
-            <div className="mb-6">
-              <h3 className="mb-2 text-lg font-semibold">Lyrics Input</h3>
-              <input
-                type="text"
-                value={lyricsInput}
-                onChange={handleLyricsInputChange}
-                onKeyDown={handleLyricsInputKeyDown}
-                placeholder="Type lyrics and press Enter..."
-                className="w-full rounded border border-gray-700 bg-[#2a2a2a] px-4 py-2 text-white placeholder-gray-400 focus:border-blue-500 focus:outline-none"
-              />
-            </div>
-          )}
-
-          {/* Key Color Legend */}
         </div>
       </div>
 
-      {/* Right Sidebar - Control Panel */}
-      <div className="w-64 shrink-0 rounded-md bg-[#1a1a1a] p-4">
-        <div className="sticky top-4">
-          <h3 className="mb-4 text-lg font-semibold">Controls</h3>
-          <div className="space-y-4">
-            <div className="rounded bg-[#212121] p-3">
-              <div className="mb-2 text-sm text-gray-400">Current Duration</div>
-              <div className="font-medium">
-                {durationValues[selectedDuration as NoteDuration]} {isDotted ? "(dotted)" : ""}{" "}
-                beats
-              </div>
-            </div>
-            <EditorControlPanel />
-          </div>
-        </div>
+      {/* Control Panel */}
+      <div className="w-64 shrink-0">
+        <EditorControlPanel />
       </div>
     </div>
   );

@@ -14,6 +14,8 @@ import {
   MusicalNoteIcon,
   ChatBubbleBottomCenterTextIcon,
 } from "@heroicons/react/24/outline";
+import { createEmptySlot, type TrackType } from "@stores/scoreSlice";
+import { addTrack, removeTrack } from "@stores/scoreSlice";
 
 // note icons
 import WholeNote from "@assets/musicnotes/Whole";
@@ -25,16 +27,16 @@ import ThirtySecondNote from "@assets/musicnotes/Thirtysecond";
 import Dotted from "@assets/musicnotes/Dotted";
 
 // Types
-export type NoteDuration = 1 | 2 | 4 | 8 | 16 | 32;
+export const durationValues = {
+  1: 4, // whole note
+  2: 2, // half note
+  4: 1, // quarter note
+  8: 0.5, // eighth note
+  16: 0.25, // sixteenth note
+  32: 0.125, // thirty-second note
+} as const;
 
-export const durationValues: Record<NoteDuration, number> = {
-  1: 4, // whole note = 4 beats
-  2: 2, // half note = 2 beats
-  4: 1, // quarter note = 1 beat
-  8: 0.5, // eighth note = 1/2 beat
-  16: 0.25, // sixteenth note = 1/4 beat
-  32: 0.125, // thirty-second note = 1/8 beat
-};
+export type NoteDuration = keyof typeof durationValues;
 
 type IconComponent = React.FC<SVGProps<SVGSVGElement>>;
 
@@ -56,9 +58,32 @@ const editingModes: { mode: EditingMode; label: string; icon: IconComponent }[] 
 
 export default function EditorControlPanel() {
   const dispatch = useDispatch();
-  const { selectedDuration, isDotted, showColors, editingMode } = useSelector(
+  const { selectedDuration, isDotted, showColors, editingMode, editingTrack } = useSelector(
     (state: RootState) => state.editing as EditingSlotState
   );
+  const score = useSelector((state: RootState) => state.score);
+
+  const handleDurationClick = (duration: NoteDuration) => {
+    dispatch(setSelectedDuration(duration));
+  };
+
+  const handleDottedClick = () => {
+    dispatch(toggleDotted());
+  };
+
+  const handleAddTrack = (type: TrackType) => {
+    dispatch(
+      addTrack({
+        id: `${type}${Date.now()}`,
+        type,
+        slots: [createEmptySlot(type, 0, 4)],
+      })
+    );
+  };
+
+  const handleRemoveTrack = (trackIndex: number) => {
+    dispatch(removeTrack(trackIndex));
+  };
 
   return (
     <div className="space-y-4">
@@ -94,7 +119,7 @@ export default function EditorControlPanel() {
               return (
                 <button
                   key={duration}
-                  onClick={() => dispatch(setSelectedDuration(durationNum))}
+                  onClick={() => handleDurationClick(durationNum)}
                   className={`flex items-center justify-center rounded p-2 transition-colors ${
                     isSelected
                       ? "bg-blue-500 text-white"
@@ -116,7 +141,7 @@ export default function EditorControlPanel() {
           <div className="mb-2 text-sm text-gray-400">Note Modifiers</div>
           <div className="space-y-2">
             <button
-              onClick={() => dispatch(toggleDotted())}
+              onClick={handleDottedClick}
               className={`flex w-full items-center justify-center rounded p-2 transition-colors ${
                 isDotted
                   ? "bg-blue-500 text-white"
@@ -143,6 +168,39 @@ export default function EditorControlPanel() {
           </div>
         </div>
       )}
+
+      {/* Track Controls */}
+      <div className="rounded bg-[#212121] p-3">
+        <div className="mb-2 text-sm text-gray-400">Tracks</div>
+        <div className="mb-2 space-y-2">
+          {score.tracks.map((track, index) => (
+            <div
+              key={track.id}
+              className={`flex items-center justify-between rounded p-2 ${
+                editingTrack === index ? "bg-blue-500" : "bg-[#2a2a2a]"
+              }`}
+            >
+              <span className="text-sm">
+                {track.type} {index + 1}
+              </span>
+              <button
+                className="rounded bg-red-500 px-2 py-1 text-xs hover:bg-red-600"
+                onClick={() => handleRemoveTrack(index)}
+              >
+                Remove
+              </button>
+            </div>
+          ))}
+        </div>
+        <div className="grid grid-cols-2 gap-2">
+          <button
+            className="rounded bg-[#2a2a2a] p-2 text-sm hover:bg-[#333]"
+            onClick={() => handleAddTrack("melody")}
+          >
+            Add Melody
+          </button>
+        </div>
+      </div>
 
       {/* Keyboard Shortcuts Help */}
       <div>
