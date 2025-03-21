@@ -3,18 +3,13 @@ import { RootState } from "@stores/store";
 import {
   setSelectedDuration,
   toggleDotted,
-  toggleColors,
   setEditingMode,
   toggleRelativePitch,
   type EditingMode,
 } from "@stores/editingSlice";
 import type { EditingSlotState } from "@stores/editingSlice";
 import type { SVGProps } from "react";
-import {
-  SwatchIcon,
-  MusicalNoteIcon,
-  ChatBubbleBottomCenterTextIcon,
-} from "@heroicons/react/24/outline";
+import { MusicalNoteIcon, ChatBubbleBottomCenterTextIcon } from "@heroicons/react/24/outline";
 import { createEmptySlot, type TrackType } from "@stores/scoreSlice";
 import { addTrack, removeTrack } from "@stores/scoreSlice";
 
@@ -59,8 +54,9 @@ const editingModes: { mode: EditingMode; label: string; icon: IconComponent }[] 
 
 export default function EditorControlPanel() {
   const dispatch = useDispatch();
-  const { selectedDuration, isDotted, showColors, editingMode, editingTrack, useRelativePitch } =
-    useSelector((state: RootState) => state.editing as EditingSlotState);
+  const { selectedDuration, isDotted, editingMode, editingTrack, useRelativePitch } = useSelector(
+    (state: RootState) => state.editing as EditingSlotState
+  );
   const score = useSelector((state: RootState) => state.score);
 
   const handleDurationClick = (duration: NoteDuration) => {
@@ -142,7 +138,7 @@ export default function EditorControlPanel() {
           <div className="space-y-2">
             <button
               onClick={handleDottedClick}
-              className={`flex w-full items-center justify-center rounded p-2 transition-colors ${
+              className={`flex w-full items-center justify-center rounded-md p-2 transition-shadow duration-500 ${
                 isDotted
                   ? "bg-blue-500 text-white"
                   : "bg-[#2a2a2a] text-gray-300 hover:bg-[#333333]"
@@ -151,19 +147,6 @@ export default function EditorControlPanel() {
             >
               <Dotted className="h-6 w-6" />
               <span className="ml-2">Dotted Note</span>
-            </button>
-
-            <button
-              onClick={() => dispatch(toggleColors())}
-              className={`flex w-full items-center justify-center rounded p-2 transition-colors ${
-                showColors
-                  ? "bg-blue-500 text-white"
-                  : "bg-[#2a2a2a] text-gray-300 hover:bg-[#333333]"
-              }`}
-              title="Toggle note colors"
-            >
-              <SwatchIcon className="h-6 w-6" />
-              <span className="ml-2">Note Colors</span>
             </button>
           </div>
         </div>
