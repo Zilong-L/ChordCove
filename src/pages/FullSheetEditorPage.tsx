@@ -10,6 +10,7 @@ import { RootState } from "@stores/store";
 
 import { fetchApi } from "@utils/api";
 import { SheetMetaData } from "@/types/sheet";
+import EditorControlPanel from "@components/Editor/EditorControlPanel";
 
 const API_BACKEND_DEV = "http://localhost:8787";
 const API_BACKEND = "https://chordcove-backend.875159954.workers.dev";
@@ -89,9 +90,12 @@ export default function FullSheetEditorPage() {
           </button>
         </div>
 
-        <div className="xl:w-3/4">
+        <div className="flex gap-4 xl:w-3/4">
           <Editor />
-
+          {/* Control Panel */}
+          <div className="sticky top-0 w-64 shrink-0 overflow-auto">
+            <EditorControlPanel />
+          </div>
           {message && <p className="mt-2 text-center text-[var(--text-tertiary)]">{message}</p>}
         </div>
       </div>

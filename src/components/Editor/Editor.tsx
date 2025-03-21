@@ -218,36 +218,24 @@ export default function SimpleEditor() {
   });
 
   return (
-    <div className="relative flex gap-6 text-[var(--text-primary)]">
-      {/* Main Content */}
-      <div className="h-[calc(100vh-4rem)] flex-1 overflow-auto">
-        {/* Score Display */}
-        <div className="top-0 z-10 w-full rounded-md bg-gradient-to-b from-[var(--gradient-start)] to-[var(--gradient-end)] p-8">
-          {/* Header Info */}
-          <div className="mb-6 flex items-center gap-4">
-            <KeySelector />
-            <div className="flex items-center gap-2">
-              <span>Tempo:</span>
-              <span>{score.tempo}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span>Current Position:</span>
-              <span>Beat {currentBeat}</span>
-            </div>
-            <ScorePlayer />
-          </div>
-
-          {/* Bar View */}
-          <div className="mb-6">
-            <h3 className="mb-2 text-lg font-semibold text-[var(--text-primary)]">Bar View</h3>
-            <BarView />
-          </div>
+    <div className="relative flex h-[calc(100vh-8rem)] w-full flex-col gap-6 overflow-y-scroll rounded-md bg-gradient-to-b from-[var(--gradient-start)] to-[var(--gradient-end)] p-8 text-[var(--text-primary)]">
+      <div className="mb-6 flex items-center gap-4">
+        <KeySelector />
+        <div className="flex items-center gap-2">
+          <span>Tempo:</span>
+          <span>{score.tempo}</span>
         </div>
+        <div className="flex items-center gap-2">
+          <span>Current Position:</span>
+          <span>Beat {currentBeat}</span>
+        </div>
+        <ScorePlayer />
       </div>
 
-      {/* Control Panel */}
-      <div className="sticky top-0 h-screen w-64 shrink-0 overflow-auto py-4">
-        <EditorControlPanel />
+      {/* Bar View */}
+      <div className="mb-6">
+        <h3 className="mb-2 text-lg font-semibold text-[var(--text-primary)]">Bar View</h3>
+        <BarView />
       </div>
     </div>
   );
