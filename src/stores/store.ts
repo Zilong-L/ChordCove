@@ -5,6 +5,7 @@ import editingReducer from "./editingSlice";
 import sheetMetadataReducer from "./sheetMetadataSlice";
 import simpleScoreReducer from "./simpleScoreSlice";
 import authReducer from "./authSlice";
+import themeReducer from "./themeSlice";
 
 const store = configureStore({
   reducer: {
@@ -13,6 +14,7 @@ const store = configureStore({
     editing: editingReducer,
     sheetMetadata: sheetMetadataReducer,
     auth: authReducer,
+    theme: themeReducer,
   },
 });
 

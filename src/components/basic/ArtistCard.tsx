@@ -21,22 +21,24 @@ export default function ArtistCard({ artist }: ArtistCardProps) {
   return (
     <Link
       to={`/artist/${artist.id}`}
-      className="group relative rounded-md p-4 text-center hover:bg-[#2f2f2f]"
+      className="group relative rounded-md p-4 text-center hover:bg-[var(--bg-hover)]"
     >
-      <PlayTriangle containerClassName="absolute bottom-6 group-hover:translate-y-[15%] right-4" />
-      {artist.image ? (
-        <img
-          src={artist.image}
-          alt={artist.name}
-          className="mb-2 aspect-square w-full rounded-full object-cover transition-opacity"
-        />
-      ) : (
-        <div className="mb-2 flex aspect-square w-full items-center justify-center rounded-full bg-gray-700 transition-colors">
-          <span className="text-4xl">{artist.name[0]}</span>
-        </div>
-      )}
-      <h3 className="truncate px-2 font-medium">{artist.name}</h3>
-      <p className="text-sm text-gray-400">
+      <PlayTriangle containerClassName="absolute bottom-6 group-hover:translate-y-[15%] right-4 z-10" />
+      <div className="relative z-0">
+        {artist.image ? (
+          <img
+            src={artist.image}
+            alt={artist.name}
+            className="mb-2 aspect-square w-full rounded-full object-cover transition-opacity"
+          />
+        ) : (
+          <div className="mb-2 flex aspect-square w-full items-center justify-center rounded-full bg-[var(--bg-tertiary)] transition-colors">
+            <span className="text-4xl text-[var(--text-primary)]">{artist.name[0]}</span>
+          </div>
+        )}
+      </div>
+      <h3 className="truncate px-2 font-medium text-[var(--text-primary)]">{artist.name}</h3>
+      <p className="text-sm text-[var(--text-tertiary)]">
         {artist.sheets.length} {artist.sheets.length === 1 ? "sheet" : "sheets"}
       </p>
     </Link>

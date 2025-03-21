@@ -18,7 +18,7 @@ export default function SheetEditor() {
           <SimpleSheetDisplay />
           <Link
             to={`/edit/${sheetMetadata.id}`}
-            className="absolute right-8 top-4 text-gray-600 hover:text-gray-200"
+            className="absolute right-8 top-4 text-[var(--text-tertiary)] hover:text-[var(--text-primary)]"
           >
             <PencilIcon className="h-6 w-6" />
           </Link>

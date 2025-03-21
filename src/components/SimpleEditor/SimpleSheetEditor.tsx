@@ -51,15 +51,15 @@ function KeySelector({ currentKey, onKeyChange }: KeySelectorProps) {
       Key:
       <Listbox value={currentKey} onChange={onKeyChange}>
         <div className="relative w-32">
-          <ListboxButton className="w-full rounded px-2 text-left text-white">
+          <ListboxButton className="w-full rounded px-2 text-left text-[var(--text-primary)]">
             {currentKey}
           </ListboxButton>
-          <ListboxOptions className="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded text-white shadow-lg backdrop-blur-md">
+          <ListboxOptions className="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded text-[var(--text-primary)] shadow-lg backdrop-blur-md">
             {notes.map((note) => (
               <ListboxOption
                 key={note.midi}
                 value={note.name}
-                className="cursor-pointer p-2 hover:bg-gray-700"
+                className="cursor-pointer p-2 hover:bg-[var(--bg-hover)]"
               >
                 {note.name}
               </ListboxOption>
@@ -91,7 +91,7 @@ function TempoInput({ currentTempo, onTempoChange }: TempoInputProps) {
       {isEditing ? (
         <input
           type="number"
-          className="w-16 rounded border border-gray-600 bg-transparent px-2 text-white"
+          className="w-16 rounded border border-[var(--border-primary)] bg-transparent px-2 text-[var(--text-primary)]"
           value={tempValue}
           onChange={(e) => setTempValue(e.target.value)}
           onBlur={handleBlur}
@@ -107,7 +107,7 @@ function TempoInput({ currentTempo, onTempoChange }: TempoInputProps) {
         />
       ) : (
         <p
-          className="cursor-pointer rounded px-2 hover:bg-gray-700"
+          className="cursor-pointer rounded px-2 hover:bg-[var(--bg-hover)]"
           onClick={() => setIsEditing(true)}
         >
           {currentTempo}
@@ -212,45 +212,56 @@ export default function SheetRenderer() {
   }, []);
   if (sheetMissing) {
     return (
-      <div className="min-h-[700px] w-full rounded-md bg-gradient-to-b from-[#212121] to-[#121212] px-8 py-12 xl:px-24">
-        <h2 className="mb-2 min-h-16 text-center text-3xl font-bold">Sheet not found</h2>
+      <div className="min-h-[700px] w-full rounded-md bg-gradient-to-b from-[var(--gradient-start)] to-[var(--gradient-end)] px-8 py-12 xl:px-24">
+        <h2 className="mb-2 min-h-16 text-center text-3xl font-bold text-[var(--text-primary)]">
+          Sheet not found
+        </h2>
       </div>
     );
   }
   return (
-    <div className="min-h-[700px] w-full rounded-md bg-gradient-to-b from-[#212121] to-[#121212] px-8 py-12 xl:px-24">
-      <h2 className="mb-2 min-h-16 text-center text-3xl font-bold">{sheetMetadata.title}</h2>
-      <div className="mb-6 flex items-center justify-between text-gray-100">
-        <div className="text-lg">
-          <KeySelector currentKey={simpleScore.key} onKeyChange={(key) => dispatch(setKey(key))} />
-          <TempoInput
-            currentTempo={simpleScore.tempo}
-            onTempoChange={(tempo) => dispatch(setTempo(tempo))}
-          />
+    <div className="min-h-[700px] w-full overflow-auto rounded-md bg-gradient-to-b from-[var(--gradient-start)] to-[var(--gradient-end)]">
+      <div className="px-8 py-12 xl:px-24">
+        <h2 className="mb-2 min-h-16 text-center text-3xl font-bold text-[var(--text-primary)]">
+          {sheetMetadata.title}
+        </h2>
+        <div className="mb-6 flex items-center justify-between text-[var(--text-primary)]">
+          <div className="text-lg">
+            <KeySelector
+              currentKey={simpleScore.key}
+              onKeyChange={(key) => dispatch(setKey(key))}
+            />
+            <TempoInput
+              currentTempo={simpleScore.tempo}
+              onTempoChange={(tempo) => dispatch(setTempo(tempo))}
+            />
+          </div>
+          <div className="grid grid-cols-[100px_100px] text-left">
+            <p>Singer:</p>
+            <p>
+              {" "}
+              {sheetMetadata.singers?.map((singer) => singer.name).join(", ") || "Unknown Singer"}
+            </p>
+            <p>Upload:</p>
+            <p> {sheetMetadata.uploader}</p>
+            <p>Composer:</p>
+            <p>
+              {" "}
+              {sheetMetadata.composers?.map((composer) => composer.name).join(", ") ||
+                "Unknown Composer"}
+            </p>
+          </div>
         </div>
-        <div className="grid grid-cols-[100px_100px] text-left">
-          <p>Singer:</p>
-          <p>
-            {" "}
-            {sheetMetadata.singers?.map((singer) => singer.name).join(", ") || "Unknown Singer"}
-          </p>
-          <p>Upload:</p>
-          <p> {sheetMetadata.uploader}</p>
-          <p>Composer:</p>
-          <p>
-            {" "}
-            {sheetMetadata.composers?.map((composer) => composer.name).join(", ") ||
-              "Unknown Composer"}
-          </p>
-        </div>
-      </div>
-      <div className="grid grid-cols-2 content-start gap-2 md:grid-cols-4">
-        {/* 顶部信息栏 */}
+        <div className="grid grid-cols-2 content-start gap-2 md:grid-cols-4">
+          {/* 顶部信息栏 */}
 
-        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-          <SortableContext items={lineItems.map((it) => it.id)} strategy={rectSortingStrategy}>
-            {lineItems.map((item, idx) => {
-              return (
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext items={lineItems} strategy={rectSortingStrategy}>
+              {lineItems.map((item, idx) => (
                 <Bar
                   key={item.id}
                   item={item}
@@ -262,15 +273,18 @@ export default function SheetRenderer() {
                   handleDelete={handleDelete}
                   finishEditing={finishEditing}
                 />
-              );
-            })}
-          </SortableContext>
-        </DndContext>
-        <div
-          className="z-1 transition-color group flex min-h-[4rem] cursor-pointer items-center justify-center rounded-lg duration-500 hover:bg-[#1f1f1f]"
-          onClick={handleAppend}
-        >
-          <PlusIcon className="opacity h-6 w-6 text-gray-400 opacity-0 transition-opacity duration-500 group-hover:opacity-75" />
+              ))}
+            </SortableContext>
+          </DndContext>
+
+          {/* Add button */}
+          <button
+            onClick={handleAppend}
+            className="group flex h-[4rem] w-full items-center justify-center rounded-lg duration-500 hover:bg-[var(--bg-hover)]"
+            aria-label="Add new line"
+          >
+            <PlusIcon className="opacity h-6 w-6 text-[var(--text-tertiary)] opacity-0 transition-opacity duration-500 group-hover:opacity-75" />
+          </button>
         </div>
       </div>
     </div>

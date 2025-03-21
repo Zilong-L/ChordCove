@@ -40,22 +40,31 @@ const Bar = React.memo(
     onNoteClick: (beat: number) => void;
     isFirstTrack: boolean;
   }) => {
+    const { playingBeat, playbackStartBeat, playbackEndBeat } = useSelector(
+      (state: RootState) => state.editing
+    );
     const slots = useMemo(() => breakDownNotesWithinBar(bar.notes), [bar.notes]);
 
     return (
       <div
         className={`grid auto-cols-fr grid-flow-col ${slots.length > 16 ? "min-w-[200px]" : "min-w-[100px]"}`}
       >
-        {slots.map((slot, index) => (
-          <div
-            key={`${slot.beat}-${index}`}
-            //do not center it
-            className={`flex cursor-pointer items-center px-0.5 py-0.5 text-sm hover:bg-gray-800 ${editingBeat === slot.beat ? "bg-blue-900" : ""}`}
-            onClick={() => onNoteClick(slot.originalBeat)}
-          >
-            <SlotContent slot={slot} isFirstTrack={isFirstTrack} />
-          </div>
-        ))}
+        {slots.map((slot, index) => {
+          const isEditing = editingBeat === slot.beat;
+          const isPlaying = playingBeat === slot.beat;
+
+          return (
+            <div
+              key={`${slot.beat}-${index}`}
+              className={`relative flex cursor-pointer items-center px-0.5 py-0.5 text-sm hover:bg-[var(--bg-hover)] ${
+                isEditing ? "bg-[var(--bg-active)]" : ""
+              } ${isPlaying ? "text-[var(--text-accent)]" : ""}`}
+              onClick={() => onNoteClick(slot.originalBeat)}
+            >
+              <SlotContent slot={slot} isFirstTrack={isFirstTrack} />
+            </div>
+          );
+        })}
       </div>
     );
   }
@@ -95,7 +104,7 @@ const BarGroup = React.memo(
 
     return (
       <div
-        className="relative rounded border border-gray-800 bg-[#1a1a1a]"
+        className="relative rounded border border-[var(--border-primary)] bg-[var(--bg-secondary)]"
         style={{
           gridColumn: `span ${colSpan}`,
         }}
@@ -107,7 +116,9 @@ const BarGroup = React.memo(
           }}
         >
           {showBarNumber && (
-            <div className="absolute -top-5 left-0 text-xs text-gray-500">Bar {barIndex + 1}</div>
+            <div className="absolute -top-4 left-0 text-xs text-[var(--text-tertiary)]">
+              {barIndex + 1}
+            </div>
           )}
           {trackBars.map(({ track, bar, trackIndex }) => (
             <div key={track.id} className={`relative ${trackIndex === editingTrack ? "z-10" : ""}`}>
@@ -120,9 +131,7 @@ const BarGroup = React.memo(
                 />
               ) : (
                 <div className="min-w-[100px] p-1 opacity-50">
-                  <div className="flex h-full items-center justify-center text-xs text-gray-500">
-                    Empty
-                  </div>
+                  <div className="flex h-full items-center justify-center text-xs text-[var(--text-tertiary)]"></div>
                 </div>
               )}
             </div>

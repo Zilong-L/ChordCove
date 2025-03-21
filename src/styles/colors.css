@@ -1,0 +1,130 @@
+/* Theme toggle class will be added to :root */
+:root {
+  color-scheme: dark;
+}
+
+:root {
+  /* Base Colors */
+  --color-black: #000000;
+  --color-white: #ffffff;
+  --bg-active:var(--bg-hover);
+  --success: #a6d96a;
+  --error: #543005;
+  --text-accent: var(--success);
+
+  /* Dark Theme (default) */
+  &:not(.light) {
+    /* Background Colors */
+    --bg-page: #000000;
+    --bg-primary: #212121;
+    --bg-secondary: #1f1f1f;
+    --bg-tertiary: #2a2a2a;
+    --bg-quaternary: #3a3a3a;
+    --bg-hover: #333333;
+    --bg-selected: #aaaaaa;
+
+    
+    /* Text Colors */
+    --text-primary: #ffffff;
+    --text-secondary: #dfdfdf;
+    --text-tertiary: #a1a1aa;
+    --text-disabled: #666666;
+    --text-placeholder: #999999;
+    --text-selected: #000000;
+    
+    /* Interactive Colors */
+    --interactive-primary: #1a1a1a;
+    --interactive-hover: #efefef;
+    --interactive-active: #191919;
+    
+    /* Border Colors */
+    --border-primary: #1f1f1f;
+    --border-secondary: #333333;
+    
+    /* Component Specific */
+    --editor-bg: var(--bg-primary);
+    --editor-text: var(--text-primary);
+    --editor-active: #1e40af;
+    
+    /* Play Button Colors */
+    --play-button-bg: #166534;
+    --play-button-hover: #15803d;
+    --play-button-icon: #000000;
+    
+    /* Overlay Colors */
+    --overlay-background: rgba(0, 0, 0, 0.75);
+    --overlay-hover: rgba(0, 0, 0, 0.85);
+    
+    /* Gradient Colors */
+    --gradient-start: #1a1a1a;
+    --gradient-end: #2a2a2a;
+  }
+
+  /* Light Theme */
+  &.light {
+    /* Background Colors */
+    --bg-page: #ffffff;
+    --bg-primary: #f8f8f8;
+    --bg-secondary: #f1f1f1;
+    --bg-tertiary: #e5e5e5;
+    --bg-quaternary: #d4d4d4;
+    --bg-hover: #ebebeb;
+    --bg-selected: #444444;
+    
+    /* Text Colors */
+    --text-primary: #171717;
+    --text-secondary: #404040;
+    --text-tertiary: #505050;
+    --text-disabled: #a3a3a3;
+    --text-placeholder: #606060;
+    
+    /* Interactive Colors */
+    --interactive-primary: #ffffff;
+    --interactive-hover: #f3f4f6;
+    --interactive-active: #e5e7eb;
+    
+    /* Border Colors */
+    --border-primary: #d2d2d2;
+    --border-secondary: #d4d4d4;
+    
+    /* Component Specific */
+    --editor-bg: var(--bg-primary);
+    --editor-text: var(--text-primary);
+    --editor-active: #60a5fa;
+    
+    /* Play Button Colors */
+    --play-button-bg: #bbf7d0;
+    --play-button-hover: #86efac;
+    --play-button-icon: #166534;
+    
+    /* Overlay Colors */
+    --overlay-background: rgba(255, 255, 255, 0.75);
+    --overlay-hover: rgba(255, 255, 255, 0.85);
+    
+    /* Gradient Colors */
+    --gradient-start: #f8f8f8;
+    --gradient-end: #e5e5e5;
+    --text-selected: #ffffff;
+  }
+
+  /* Shared Colors (Same in both themes) */
+  /* Accent Colors */
+  --accent-blue: #3b82f6;
+  --accent-blue-hover: #2563eb;
+  --accent-green: #22c55e;
+  --accent-green-hover: #16a34a;
+  --accent-red: #ef4444;
+  --accent-red-hover: #dc2626;
+  --accent-yellow: #eab308;
+  --accent-yellow-hover: #ca8a04;
+  
+  /* Status Colors */
+  --status-success: var(--accent-green);
+  --status-error: var(--accent-red);
+  --status-warning: var(--accent-yellow);
+  --status-info: var(--accent-blue);
+  
+  /* Focus/Highlight Colors */
+  --border-focus: var(--accent-blue);
+  --editor-highlight: var(--accent-blue);
+} 

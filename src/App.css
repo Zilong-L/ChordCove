@@ -1,3 +1,4 @@
+@import "./styles/colors.css";
 @import "./styles/scrollbar.css";
 @import "./styles/tooltips.css";
 @tailwind base;

@@ -21,14 +21,14 @@ export default function HomePage() {
   }, []);
 
   return (
-    <div className="flex h-[calc(100vh-4rem)] bg-gradient-to-b from-[#313131] to-[#121212] text-white">
+    <div className="flex h-[calc(100vh-4rem)] bg-gradient-to-b from-[var(--gradient-start)] to-[var(--gradient-end)] text-[var(--text-primary)]">
       {/* 左侧栏（占 20% 宽度） */}
-      <aside className="w-1/5 border-r border-gray-700 p-4">
+      <aside className="w-1/5 border-r border-[var(--border-primary)] p-4">
         <h2 className="mb-4 text-xl font-bold">Navigation</h2>
         <ul className="space-y-2">
-          <li className="cursor-pointer rounded p-2 hover:bg-gray-800">All Sheets</li>
-          <li className="cursor-pointer rounded p-2 hover:bg-gray-800">Popular</li>
-          <li className="cursor-pointer rounded p-2 hover:bg-gray-800">Recent Uploads</li>
+          <li className="cursor-pointer rounded p-2 hover:bg-[var(--bg-hover)]">All Sheets</li>
+          <li className="cursor-pointer rounded p-2 hover:bg-[var(--bg-hover)]">Popular</li>
+          <li className="cursor-pointer rounded p-2 hover:bg-[var(--bg-hover)]">Recent Uploads</li>
         </ul>
       </aside>
 

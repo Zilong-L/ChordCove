@@ -6,10 +6,10 @@ export default function ReadOnlyMetadataForm() {
     (state: RootState) => state.sheetMetadata
   );
   return (
-    <div className="space-y-4 rounded-lg bg-gradient-to-t from-[#121212] to-[#212121] p-4">
+    <div className="space-y-4 rounded-lg bg-gradient-to-b from-[var(--gradient-start)] to-[var(--gradient-end)] p-4">
       <div>
         <div
-          className="relative mb-4 flex aspect-square w-full items-center justify-center overflow-hidden rounded-lg bg-gray-800"
+          className="relative mb-4 flex aspect-square w-full items-center justify-center overflow-hidden rounded-lg bg-[var(--bg-secondary)]"
           aria-label="Sheet music cover image"
         >
           {coverImage ? (
@@ -19,7 +19,7 @@ export default function ReadOnlyMetadataForm() {
               className="h-full w-full object-cover"
             />
           ) : (
-            <div className="text-center text-gray-400">
+            <div className="text-center text-[var(--text-tertiary)]">
               <svg
                 className="mx-auto mb-2 h-12 w-12"
                 fill="none"
@@ -40,9 +40,9 @@ export default function ReadOnlyMetadataForm() {
       </div>
 
       <div>
-        <label className="mb-1 block text-gray-400">曲名</label>
+        <label className="mb-1 block text-[var(--text-tertiary)]">曲名</label>
         <div
-          className="min-h-[2.5rem] w-full rounded border border-gray-700 bg-transparent p-2 text-gray-100"
+          className="min-h-[2.5rem] w-full rounded border border-[var(--border-primary)] bg-transparent p-2 text-[var(--text-primary)]"
           aria-label="Song title"
         >
           {title || "未提供"}
@@ -50,9 +50,9 @@ export default function ReadOnlyMetadataForm() {
       </div>
 
       <div>
-        <label className="mb-1 block text-gray-400">作曲者</label>
+        <label className="mb-1 block text-[var(--text-tertiary)]">作曲者</label>
         <div
-          className="min-h-[2.5rem] w-full rounded border border-gray-700 bg-transparent p-2 text-gray-100"
+          className="min-h-[2.5rem] w-full rounded border border-[var(--border-primary)] bg-transparent p-2 text-[var(--text-primary)]"
           aria-label="Composer"
         >
           {composers?.map((composer) => composer.name).join(", ") || "未提供"}
@@ -60,9 +60,9 @@ export default function ReadOnlyMetadataForm() {
       </div>
 
       <div>
-        <label className="mb-1 block text-gray-400">演唱者</label>
+        <label className="mb-1 block text-[var(--text-tertiary)]">演唱者</label>
         <div
-          className="min-h-[2.5rem] w-full rounded border border-gray-700 bg-transparent p-2 text-gray-100"
+          className="min-h-[2.5rem] w-full rounded border border-[var(--border-primary)] bg-transparent p-2 text-[var(--text-primary)]"
           aria-label="Singer"
         >
           {singers?.map((singer) => singer.name).join(", ") || "未提供"}
@@ -71,9 +71,9 @@ export default function ReadOnlyMetadataForm() {
 
       {uploader && (
         <div>
-          <label className="mb-1 block text-gray-400">制谱者</label>
+          <label className="mb-1 block text-[var(--text-tertiary)]">制谱者</label>
           <div
-            className="min-h-[2.5rem] w-full rounded border border-gray-700 bg-transparent p-2 text-gray-100"
+            className="min-h-[2.5rem] w-full rounded border border-[var(--border-primary)] bg-transparent p-2 text-[var(--text-primary)]"
             aria-label="Sheet music creator"
           >
             {uploader}

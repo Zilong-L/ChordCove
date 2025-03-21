@@ -29,16 +29,16 @@ export default function KeySelector() {
         Key:
         <Listbox value={selectedKey} onChange={handleKeyChange}>
           <div className="relative w-32">
-            <ListboxButton className="w-full rounded px-2 text-left text-white">
+            <ListboxButton className="w-full rounded px-2 text-left text-[var(--text-primary)]">
               {selectedKey}
             </ListboxButton>
             <div className="relative">
-              <ListboxOptions className="absolute z-50 mt-1 w-full rounded bg-[#2a2a2a] py-1 text-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none [&::-webkit-scrollbar]:hidden">
+              <ListboxOptions className="absolute z-50 mt-1 w-full rounded bg-[var(--bg-secondary)] py-1 text-[var(--text-primary)] shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none [&::-webkit-scrollbar]:hidden">
                 {notes.map((note) => (
                   <ListboxOption
                     key={note.midi}
                     value={note.name}
-                    className="relative cursor-pointer select-none py-2 pl-3 pr-9 hover:bg-[#3a3a3a]"
+                    className="relative cursor-pointer select-none py-2 pl-3 pr-9 hover:bg-[var(--bg-hover)]"
                   >
                     {note.name}
                   </ListboxOption>

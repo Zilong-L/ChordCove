@@ -85,7 +85,7 @@ export default function EditorControlPanel() {
     <div className="space-y-4">
       {/* Editing Mode Selection */}
       <div>
-        <div className="mb-2 text-sm text-gray-400">Editing Mode</div>
+        <div className="mb-2 text-sm text-[var(--text-tertiary)]">Editing Mode</div>
         <div className="grid grid-cols-2 gap-2">
           {editingModes.map(({ mode, label, icon: Icon }) => (
             <button
@@ -93,8 +93,8 @@ export default function EditorControlPanel() {
               onClick={() => dispatch(setEditingMode(mode))}
               className={`flex items-center justify-center rounded p-2 transition-colors ${
                 editingMode === mode
-                  ? "bg-blue-500 text-white"
-                  : "bg-[#2a2a2a] text-gray-300 hover:bg-[#333333]"
+                  ? "bg-[var(--bg-selected)] text-[var(--text-selected)]"
+                  : "bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:bg-[var(--bg-hover)]"
               }`}
             >
               <Icon className="mr-2 h-5 w-5" />
@@ -107,7 +107,7 @@ export default function EditorControlPanel() {
       {/* Duration Selection - Only show when editing notes */}
       {editingMode === "notes" && (
         <div>
-          <div className="mb-2 text-sm text-gray-400">Note Duration</div>
+          <div className="mb-2 text-sm text-[var(--text-tertiary)]">Note Duration</div>
           <div className="grid grid-cols-3 gap-2">
             {Object.entries(durationIcons).map(([duration, Icon]) => {
               const durationNum = Number(duration) as NoteDuration;
@@ -118,8 +118,8 @@ export default function EditorControlPanel() {
                   onClick={() => handleDurationClick(durationNum)}
                   className={`flex items-center justify-center rounded p-2 transition-colors ${
                     isSelected
-                      ? "bg-blue-500 text-white"
-                      : "bg-[#2a2a2a] text-gray-300 hover:bg-[#333333]"
+                      ? "bg-[var(--bg-selected)] text-[var(--text-selected)]"
+                      : "bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:bg-[var(--bg-hover)]"
                   }`}
                   title={`${durationValues[durationNum]} beat${durationValues[durationNum] !== 1 ? "s" : ""}`}
                 >
@@ -134,14 +134,14 @@ export default function EditorControlPanel() {
       {/* Note Modifiers - Only show when editing notes */}
       {editingMode === "notes" && (
         <div>
-          <div className="mb-2 text-sm text-gray-400">Note Modifiers</div>
+          <div className="mb-2 text-sm text-[var(--text-tertiary)]">Note Modifiers</div>
           <div className="space-y-2">
             <button
               onClick={handleDottedClick}
               className={`flex w-full items-center justify-center rounded-md p-2 transition-shadow duration-500 ${
                 isDotted
-                  ? "bg-blue-500 text-white"
-                  : "bg-[#2a2a2a] text-gray-300 hover:bg-[#333333]"
+                  ? "bg-[var(--bg-selected)] text-[var(--text-selected)]"
+                  : "bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:bg-[var(--bg-hover)]"
               }`}
               title="Toggle dotted note"
             >
@@ -153,21 +153,23 @@ export default function EditorControlPanel() {
       )}
 
       {/* Track Controls */}
-      <div className="rounded bg-[#212121] p-3">
-        <div className="mb-2 text-sm text-gray-400">Tracks</div>
+      <div className="rounded bg-[var(--bg-secondary)] p-3">
+        <div className="mb-2 text-sm text-[var(--text-tertiary)]">Tracks</div>
         <div className="mb-2 space-y-2">
           {score.tracks.map((track, index) => (
             <div
               key={track.id}
               className={`flex items-center justify-between rounded p-2 ${
-                editingTrack === index ? "bg-blue-500" : "bg-[#2a2a2a]"
+                editingTrack === index
+                  ? "bg-[var(--bg-selected)] text-[var(--text-selected)]"
+                  : "bg-[var(--bg-secondary)]"
               }`}
             >
               <span className="text-sm">
                 {track.type} {index + 1}
               </span>
               <button
-                className="rounded bg-red-500 px-2 py-1 text-xs hover:bg-red-600"
+                className="] rounded bg-[var(--error)] px-2 py-1 text-xs text-white"
                 onClick={() => handleRemoveTrack(index)}
               >
                 Remove
@@ -177,7 +179,7 @@ export default function EditorControlPanel() {
         </div>
         <div className="grid grid-cols-2 gap-2">
           <button
-            className="rounded bg-[#2a2a2a] p-2 text-sm hover:bg-[#333]"
+            className="rounded bg-[var(--bg-secondary)] p-2 text-sm hover:bg-[var(--bg-hover)]"
             onClick={() => handleAddTrack("melody")}
           >
             Add Melody
@@ -187,32 +189,32 @@ export default function EditorControlPanel() {
 
       {/* Keyboard Shortcuts Help */}
       <div>
-        <div className="mb-2 text-sm text-gray-400">Keyboard Shortcuts</div>
-        <div className="space-y-2 rounded bg-[#212121] p-3 text-sm">
+        <div className="mb-2 text-sm text-[var(--text-tertiary)]">Keyboard Shortcuts</div>
+        <div className="space-y-2 rounded bg-[var(--bg-secondary)] p-3 text-sm">
           {editingMode === "notes" && (
             <>
               <div className="flex justify-between">
                 <span>Q W E R T Y</span>
-                <span className="text-gray-400">Duration</span>
+                <span className="text-[var(--text-tertiary)]">Duration</span>
               </div>
               <div className="flex justify-between">
                 <span>D</span>
-                <span className="text-gray-400">Toggle Dotted</span>
+                <span className="text-[var(--text-tertiary)]">Toggle Dotted</span>
               </div>
             </>
           )}
           <div className="flex justify-between">
             <span>← →</span>
-            <span className="text-gray-400">Navigate Slots</span>
+            <span className="text-[var(--text-tertiary)]">Navigate Slots</span>
           </div>
           <div className="flex justify-between">
             <span>Delete/Backspace</span>
-            <span className="text-gray-400">Delete Content</span>
+            <span className="text-[var(--text-tertiary)]">Delete Content</span>
           </div>
           {editingMode === "lyrics" && (
             <div className="flex justify-between">
               <span>Enter</span>
-              <span className="text-gray-400">Add Lyrics</span>
+              <span className="text-[var(--text-tertiary)]">Add Lyrics</span>
             </div>
           )}
         </div>
@@ -220,11 +222,13 @@ export default function EditorControlPanel() {
 
       {/* Notation Settings */}
       <div>
-        <div className="mb-2 text-sm text-gray-400">Notation Settings</div>
+        <div className="mb-2 text-sm text-[var(--text-tertiary)]">Notation Settings</div>
         <div className="space-y-2">
           <button
             className={`flex items-center gap-2 rounded px-3 py-2 ${
-              useRelativePitch ? "bg-blue-600" : "bg-gray-700"
+              useRelativePitch
+                ? "bg-[var(--bg-selected)] text-[var(--text-selected)]"
+                : "bg-[var(--bg-secondary)]"
             }`}
             onClick={() => dispatch(toggleRelativePitch())}
           >

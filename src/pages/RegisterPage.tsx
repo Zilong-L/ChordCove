@@ -83,10 +83,10 @@ export default function RegisterPage() {
 
   if (step === "success") {
     return (
-      <div className="flex min-h-[calc(100vh-4rem)] flex-col bg-dark text-white">
+      <div className="flex min-h-[calc(100vh-4rem)] flex-col">
         <div className="flex flex-grow items-center justify-center">
           <div className="flex flex-col items-center">
-            <div className="w-[448px] rounded-lg bg-[#212121] p-8 text-center">
+            <div className="w-[448px] rounded-lg bg-[var(--bg-secondary)] p-8 text-center">
               <svg
                 className="mx-auto mb-4 h-16 w-16 text-green-500"
                 fill="none"
@@ -100,11 +100,13 @@ export default function RegisterPage() {
                   d="M5 13l4 4L19 7"
                 />
               </svg>
-              <h2 className="mb-4 text-2xl font-bold">注册成功！</h2>
-              <p className="mb-6 text-gray-400">您的账号已创建成功，现在可以登录使用了</p>
+              <h2 className="mb-4 text-2xl font-bold text-[var(--text-primary)]">注册成功！</h2>
+              <p className="mb-6 text-[var(--text-tertiary)]">
+                您的账号已创建成功，现在可以登录使用了
+              </p>
               <button
                 onClick={() => navigate("/login")}
-                className="w-full rounded bg-[#dfdfdf] py-3 font-medium text-black transition-colors hover:bg-[#efefef]"
+                className="w-full rounded bg-[var(--bg-button)] py-3 font-medium text-[var(--text-button)] transition-colors hover:bg-[var(--bg-button-hover)]"
               >
                 前往登录
               </button>
@@ -116,19 +118,22 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="flex min-h-[calc(100vh-4rem)] flex-col bg-dark text-white">
+    <div className="flex min-h-[calc(100vh-4rem)] flex-col">
       <div className="flex flex-grow items-center justify-center">
         <div className="flex flex-col items-center">
-          <h2 className="mb-6 bg-gradient-to-b from-[#878787] to-[#616161] bg-clip-text text-2xl font-bold text-transparent">
+          <h2 className="mb-6 bg-gradient-to-b from-[var(--text-secondary)] to-[var(--text-tertiary)] bg-clip-text text-2xl font-bold text-transparent">
             创建账号
           </h2>
 
-          <div className="w-[448px] rounded-lg bg-[#212121] p-8">
+          <div className="w-[448px] rounded-lg bg-[var(--bg-secondary)] p-8">
             {step === "email" ? (
               <form onSubmit={handleSendCode}>
                 <div className="space-y-4">
                   <div>
-                    <label htmlFor="email" className="mb-2 block text-sm font-medium">
+                    <label
+                      htmlFor="email"
+                      className="mb-2 block text-sm font-medium text-[var(--text-tertiary)]"
+                    >
                       邮箱地址
                     </label>
                     <input
@@ -137,7 +142,7 @@ export default function RegisterPage() {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
-                      className="w-full rounded bg-[#191919] p-3 focus:outline-none"
+                      className="w-full rounded bg-[var(--bg-primary)] p-3 text-[var(--text-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--border-primary)]"
                     />
                   </div>
                   {error && <div className="mt-2 text-center text-sm text-red-500">{error}</div>}
@@ -146,9 +151,9 @@ export default function RegisterPage() {
                     disabled={loading || countdown > 0}
                     className={`mt-4 w-full py-3 ${
                       loading || countdown > 0
-                        ? "cursor-not-allowed bg-gray-500"
-                        : "bg-[#dfdfdf] hover:bg-[#efefef]"
-                    } rounded font-medium text-black transition-colors`}
+                        ? "cursor-not-allowed bg-[var(--bg-button-disabled)] text-[var(--text-button-disabled)]"
+                        : "bg-[var(--bg-button)] text-[var(--text-button)] hover:bg-[var(--bg-button-hover)]"
+                    } rounded font-medium transition-colors`}
                   >
                     {loading
                       ? "发送中..."
@@ -167,7 +172,10 @@ export default function RegisterPage() {
                     </div>
                   )}
                   <div>
-                    <label htmlFor="code" className="mb-2 block text-sm font-medium">
+                    <label
+                      htmlFor="code"
+                      className="mb-2 block text-sm font-medium text-[var(--text-tertiary)]"
+                    >
                       验证码
                     </label>
                     <div className="flex gap-4">
@@ -178,7 +186,7 @@ export default function RegisterPage() {
                         onChange={(e) => setVerificationCode(e.target.value)}
                         required
                         maxLength={6}
-                        className="flex-1 rounded bg-[#191919] p-3 focus:outline-none"
+                        className="flex-1 rounded bg-[var(--bg-primary)] p-3 text-[var(--text-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--border-primary)]"
                       />
                       <button
                         type="button"
@@ -186,16 +194,19 @@ export default function RegisterPage() {
                         disabled={loading || countdown > 0}
                         className={`px-4 py-2 ${
                           loading || countdown > 0
-                            ? "cursor-not-allowed bg-gray-500"
-                            : "bg-[#dfdfdf] hover:bg-[#efefef]"
-                        } whitespace-nowrap rounded text-sm font-medium text-black transition-colors`}
+                            ? "cursor-not-allowed bg-[var(--bg-button-disabled)] text-[var(--text-button-disabled)]"
+                            : "bg-[var(--bg-button)] text-[var(--text-button)] hover:bg-[var(--bg-button-hover)]"
+                        } whitespace-nowrap rounded text-sm font-medium transition-colors`}
                       >
                         {countdown > 0 ? `${countdown}s` : "重新发送"}
                       </button>
                     </div>
                   </div>
                   <div>
-                    <label htmlFor="password" className="mb-2 block text-sm font-medium">
+                    <label
+                      htmlFor="password"
+                      className="mb-2 block text-sm font-medium text-[var(--text-tertiary)]"
+                    >
                       密码
                     </label>
                     <input
@@ -204,9 +215,9 @@ export default function RegisterPage() {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
-                      className="w-full rounded bg-[#191919] p-3 focus:outline-none"
+                      className="w-full rounded bg-[var(--bg-primary)] p-3 text-[var(--text-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--border-primary)]"
                     />
-                    <p className="mt-1 text-xs text-gray-400">
+                    <p className="mt-1 text-xs text-[var(--text-tertiary)]">
                       密码需要包含大小写字母和数字，至少8位
                     </p>
                   </div>
@@ -214,16 +225,16 @@ export default function RegisterPage() {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="mt-4 w-full rounded bg-[#dfdfdf] py-3 font-medium text-black transition-colors hover:bg-[#efefef]"
+                    className="mt-4 w-full rounded bg-[var(--bg-button)] py-3 font-medium text-[var(--text-button)] transition-colors hover:bg-[var(--bg-button-hover)]"
                   >
                     {loading ? "创建中..." : "创建账号"}
                   </button>
                 </div>
               </form>
             )}
-            <div className="mt-4 text-center text-sm text-gray-400">
+            <div className="mt-4 text-center text-sm text-[var(--text-tertiary)]">
               已有账号？{" "}
-              <Link to="/login" className="text-white hover:underline">
+              <Link to="/login" className="text-[var(--text-primary)] hover:underline">
                 登录
               </Link>
             </div>

@@ -42,8 +42,8 @@ export default function ArtistRow() {
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
           {[...Array(6)].map((_, i) => (
             <div key={i} className="animate-pulse">
-              <div className="mb-2 aspect-square w-full rounded-full bg-gray-700"></div>
-              <div className="mx-auto h-4 w-3/4 rounded bg-gray-700"></div>
+              <div className="mb-2 aspect-square w-full rounded-full bg-[var(--bg-quaternary)]"></div>
+              <div className="mx-auto h-4 w-3/4 rounded bg-[var(--bg-quaternary)]"></div>
             </div>
           ))}
         </div>

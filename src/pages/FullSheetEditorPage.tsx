@@ -79,7 +79,11 @@ export default function FullSheetEditorPage() {
           <button
             onClick={handleUpload}
             disabled={uploading}
-            className="mx-auto w-[90%] justify-self-center rounded bg-[#1f1f1f] py-2 text-gray-100 shadow-inner shadow-[#1f1f1f] transition hover:bg-gray-700"
+            className={`mx-auto w-[90%] justify-self-center rounded py-2 transition ${
+              uploading
+                ? "bg-[var(--bg-button-disabled)] text-[var(--text-button-disabled)]"
+                : "bg-[var(--bg-button)] text-[var(--text-button)] shadow-inner shadow-[var(--bg-button)] hover:bg-[var(--bg-button-hover)]"
+            }`}
           >
             {uploading ? "上传中..." : "上传乐谱"}
           </button>
@@ -88,7 +92,7 @@ export default function FullSheetEditorPage() {
         <div className="xl:w-3/4">
           <Editor />
 
-          {message && <p className="mt-2 text-center text-gray-400">{message}</p>}
+          {message && <p className="mt-2 text-center text-[var(--text-tertiary)]">{message}</p>}
         </div>
       </div>
     </div>

@@ -13,7 +13,7 @@ import "./App.css";
 
 function App() {
   return (
-    <div className="flex flex-col bg-dark text-dark">
+    <div className="flex min-h-screen flex-col bg-[var(--bg-page)] text-[var(--text-primary)]">
       <Router>
         <Header />
         <main className="flex-grow">

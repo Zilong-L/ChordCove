@@ -240,51 +240,50 @@ export default function ScorePlayer({ className = "" }: ScorePlayerProps) {
     <div className={`flex items-center gap-2 ${className}`}>
       <button
         onClick={handleStepBackward}
-        className="rounded p-2 hover:bg-gray-700"
+        className="rounded p-2 hover:bg-[var(--bg-hover)]"
         title="Previous Note"
         disabled={isPlaying}
       >
-        <BackwardIcon className="h-4 w-4" />
+        <BackwardIcon className="h-4 w-4 text-[var(--text-primary)]" />
       </button>
 
       {isPlaying ? (
         <button
           onClick={handlePause}
-          className="flex items-center gap-2 rounded bg-yellow-600 px-4 py-2 hover:bg-yellow-700"
+          className="rounded p-2 hover:bg-[var(--bg-hover)]"
           title="Pause"
         >
-          <PauseIcon className="h-5 w-5" />
-          <span>Pause</span>
+          <PauseIcon className="h-4 w-4 text-[var(--text-primary)]" />
+        </button>
+      ) : isPaused ? (
+        <button
+          onClick={handlePlay}
+          className="rounded p-2 hover:bg-[var(--bg-hover)]"
+          title="Resume"
+        >
+          <PlayIcon className="h-4 w-4 text-[var(--text-primary)]" />
         </button>
       ) : (
         <button
           onClick={handlePlay}
-          className="flex items-center gap-2 rounded bg-green-600 px-4 py-2 hover:bg-green-700"
-          title={isPaused ? "Resume" : "Play"}
+          className="rounded p-2 hover:bg-[var(--bg-hover)]"
+          title="Play"
         >
-          <PlayIcon className="h-5 w-5" />
-          <span>{isPaused ? "Resume" : "Play"}</span>
+          <PlayIcon className="h-4 w-4 text-[var(--text-primary)]" />
         </button>
       )}
 
-      <button
-        onClick={handleStop}
-        className={`flex items-center gap-2 rounded px-4 py-2 ${
-          isPlaying || isPaused ? "bg-red-600 hover:bg-red-700" : "bg-gray-600 hover:bg-gray-700"
-        }`}
-        title="Stop"
-      >
-        <StopIcon className="h-5 w-5" />
-        <span>Stop</span>
+      <button onClick={handleStop} className="rounded p-2 hover:bg-[var(--bg-hover)]" title="Stop">
+        <StopIcon className="h-4 w-4 text-[var(--text-primary)]" />
       </button>
 
       <button
         onClick={handleStepForward}
-        className="rounded p-2 hover:bg-gray-700"
+        className="rounded p-2 hover:bg-[var(--bg-hover)]"
         title="Next Note"
         disabled={isPlaying}
       >
-        <ForwardIcon className="h-4 w-4" />
+        <ForwardIcon className="h-4 w-4 text-[var(--text-primary)]" />
       </button>
     </div>
   );

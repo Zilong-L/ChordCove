@@ -137,10 +137,10 @@ export default function MetadataForm({ uploading, setUploading }: MetadataFormPr
   };
 
   return (
-    <div className="space-y-4 rounded-lg bg-gradient-to-t from-[#121212] to-[#212121] p-4">
+    <div className="space-y-4 rounded-lg bg-gradient-to-b from-[var(--gradient-start)] to-[var(--gradient-end)] p-4">
       <div>
         <div
-          className={`aspect-square w-full border-4 ${isDragging ? "border-blue-500 bg-blue-500/10" : "border-[#1f1f1f]"} relative mb-4 flex cursor-pointer items-center justify-center overflow-hidden rounded-lg shadow-md transition-colors duration-200`}
+          className={`aspect-square w-full border-4 ${isDragging ? "border-blue-500 bg-blue-500/10" : "border-[var(--border-primary)]"} relative mb-4 flex cursor-pointer items-center justify-center overflow-hidden rounded-lg shadow-md transition-colors duration-200`}
           onClick={() => fileInputRef.current?.click()}
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
@@ -152,7 +152,7 @@ export default function MetadataForm({ uploading, setUploading }: MetadataFormPr
           {coverImage ? (
             <img src={coverImage} alt="封面图片" className="h-full w-full object-cover" />
           ) : (
-            <div className="text-center text-gray-400">
+            <div className="text-center text-[var(--text-tertiary)]">
               <svg
                 className="mx-auto mb-2 h-12 w-12"
                 fill="none"
@@ -184,7 +184,7 @@ export default function MetadataForm({ uploading, setUploading }: MetadataFormPr
       </div>
 
       <div>
-        <label htmlFor="title" className="mb-1 block text-gray-400">
+        <label htmlFor="title" className="mb-1 block text-[var(--text-tertiary)]">
           曲名
         </label>
         <input
@@ -192,23 +192,26 @@ export default function MetadataForm({ uploading, setUploading }: MetadataFormPr
           type="text"
           value={title}
           onChange={(e) => dispatch(setSheetMetadata({ ...sheetMetadata, title: e.target.value }))}
-          className="w-full rounded border border-gray-700 bg-transparent p-2 text-gray-100"
+          className="w-full rounded border border-[var(--border-primary)] bg-transparent p-2 text-[var(--text-primary)]"
           placeholder="请输入曲名"
           title="曲名"
         />
       </div>
 
       <div>
-        <label htmlFor="composer" className="mb-1 block text-gray-400">
+        <label htmlFor="composer" className="mb-1 block text-[var(--text-tertiary)]">
           作曲者
         </label>
-        <div className="flex flex-wrap gap-2 rounded border border-gray-700 bg-transparent p-2">
+        <div className="flex flex-wrap gap-2 rounded border border-[var(--border-primary)] bg-transparent p-2">
           {composers?.map((composer, index) => (
-            <div key={index} className="flex items-center rounded bg-gray-700 px-2 py-1">
-              <span className="text-gray-100">{composer.name}</span>
+            <div
+              key={index}
+              className="flex items-center rounded bg-[var(--bg-secondary)] px-2 py-1"
+            >
+              <span className="text-[var(--text-primary)]">{composer.name}</span>
               <button
                 onClick={() => removeArtist(index, "composers")}
-                className="ml-1 text-gray-400 hover:text-gray-200"
+                className="ml-1 text-[var(--text-tertiary)] hover:text-[var(--text-primary)]"
                 aria-label={`移除作曲者 ${composer.name}`}
               >
                 <XMarkIcon className="h-4 w-4" />
@@ -220,23 +223,26 @@ export default function MetadataForm({ uploading, setUploading }: MetadataFormPr
             value={composerInput}
             onChange={(e) => setComposerInput(e.target.value)}
             onKeyDown={(e) => handleKeyDown(e, "composers", composerInput, setComposerInput)}
-            className="min-w-[100px] flex-1 bg-transparent text-gray-100 outline-none"
+            className="min-w-[100px] flex-1 bg-transparent text-[var(--text-primary)] outline-none"
             placeholder={composers?.length ? "" : "请输入作曲者，按回车或逗号添加"}
           />
         </div>
       </div>
 
       <div>
-        <label htmlFor="singer" className="mb-1 block text-gray-400">
+        <label htmlFor="singer" className="mb-1 block text-[var(--text-tertiary)]">
           演唱者
         </label>
-        <div className="flex flex-wrap gap-2 rounded border border-gray-700 bg-transparent p-2">
+        <div className="flex flex-wrap gap-2 rounded border border-[var(--border-primary)] bg-transparent p-2">
           {singers?.map((singer, index) => (
-            <div key={index} className="flex items-center rounded bg-gray-700 px-2 py-1">
-              <span className="text-gray-100">{singer.name}</span>
+            <div
+              key={index}
+              className="flex items-center rounded bg-[var(--bg-secondary)] px-2 py-1"
+            >
+              <span className="text-[var(--text-primary)]">{singer.name}</span>
               <button
                 onClick={() => removeArtist(index, "singers")}
-                className="ml-1 text-gray-400 hover:text-gray-200"
+                className="ml-1 text-[var(--text-tertiary)] hover:text-[var(--text-primary)]"
                 aria-label={`移除演唱者 ${singer.name}`}
               >
                 <XMarkIcon className="h-4 w-4" />
@@ -248,7 +254,7 @@ export default function MetadataForm({ uploading, setUploading }: MetadataFormPr
             value={singerInput}
             onChange={(e) => setSingerInput(e.target.value)}
             onKeyDown={(e) => handleKeyDown(e, "singers", singerInput, setSingerInput)}
-            className="min-w-[100px] flex-1 bg-transparent text-gray-100 outline-none"
+            className="min-w-[100px] flex-1 bg-transparent text-[var(--text-primary)] outline-none"
             placeholder={singers?.length ? "" : "请输入演唱者，按回车或逗号添加"}
           />
         </div>

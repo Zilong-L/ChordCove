@@ -218,11 +218,11 @@ export default function SimpleEditor() {
   });
 
   return (
-    <div className="relative flex h-[calc(100vh-4rem)] gap-6 text-gray-200">
+    <div className="relative flex gap-6 text-[var(--text-primary)]">
       {/* Main Content */}
-      <div className="flex-1">
+      <div className="h-[calc(100vh-4rem)] flex-1 overflow-auto">
         {/* Score Display */}
-        <div className="w-full rounded-md bg-gradient-to-b from-[#212121] to-[#121212] p-8">
+        <div className="top-0 z-10 w-full rounded-md bg-gradient-to-b from-[var(--gradient-start)] to-[var(--gradient-end)] p-8">
           {/* Header Info */}
           <div className="mb-6 flex items-center gap-4">
             <KeySelector />
@@ -234,23 +234,19 @@ export default function SimpleEditor() {
               <span>Current Position:</span>
               <span>Beat {currentBeat}</span>
             </div>
-            <div className="flex items-center gap-2">
-              <span>Current Track:</span>
-              <span>{currentTrack.type} (Use ↑↓ to switch)</span>
-            </div>
             <ScorePlayer />
           </div>
 
           {/* Bar View */}
           <div className="mb-6">
-            <h3 className="mb-2 text-lg font-semibold">Bar View</h3>
+            <h3 className="mb-2 text-lg font-semibold text-[var(--text-primary)]">Bar View</h3>
             <BarView />
           </div>
         </div>
       </div>
 
       {/* Control Panel */}
-      <div className="w-64 shrink-0">
+      <div className="sticky top-0 h-screen w-64 shrink-0 overflow-auto py-4">
         <EditorControlPanel />
       </div>
     </div>

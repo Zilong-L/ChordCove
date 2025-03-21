@@ -93,37 +93,37 @@ const BaseSlotComponent = React.memo(
     return (
       <div
         ref={containerRef}
-        className="relative h-full w-full"
+        className="relative w-full"
         onContextMenu={handleContextMenu}
         data-slot-id={slot.beat}
       >
         {isFirstTrack && (
           <>
             {isStart && (
-              <div className="absolute top-[50%] h-3 w-3 -translate-x-[150%] -translate-y-1/2 rounded-full bg-green-500" />
+              <div className="absolute top-[50%] h-3 w-3 -translate-x-[150%] -translate-y-1/2 rounded-full bg-[var(--success)]" />
             )}
             {isEnd && (
-              <div className="absolute left-[50%] top-[50%] h-3 w-3 -translate-y-[40%] rounded-full bg-red-500" />
+              <div className="absolute left-[50%] top-[50%] h-3 w-3 -translate-y-[40%] rounded-full bg-[var(--error)]" />
             )}
           </>
         )}
-        <div className={`h-full w-full ${isPlaying ? "text-blue-400" : ""}`}>{children}</div>
+        <div className={`h-full w-full ${isPlaying ? "text-[var(--accent)]" : ""}`}>{children}</div>
         {menuPosition && (
           <div
-            className="context-menu absolute z-50 min-w-[120px] rounded bg-gray-800 p-2 shadow-lg"
+            className="context-menu absolute z-50 min-w-[120px] rounded bg-[var(--bg-secondary)] p-2 shadow-lg"
             style={{
               left: menuPosition.x,
               top: menuPosition.y,
             }}
           >
             <button
-              className="block w-full rounded px-2 py-1 text-left hover:bg-gray-700"
+              className="block w-full rounded px-2 py-1 text-left text-[var(--text-primary)] hover:bg-[var(--bg-hover)]"
               onClick={handleSetStart}
             >
               Set as Start
             </button>
             <button
-              className="block w-full rounded px-2 py-1 text-left hover:bg-gray-700"
+              className="block w-full rounded px-2 py-1 text-left text-[var(--text-primary)] hover:bg-[var(--bg-hover)]"
               onClick={handleSetEnd}
             >
               Set as End
@@ -199,7 +199,7 @@ export const MelodySlotComponent = React.memo(
                 {Array.from({ length: underlineCount }).map((_, i) => (
                   <div
                     key={i}
-                    className="absolute h-[1px] w-full bg-white"
+                    className="absolute h-[1px] w-full bg-[var(--text-primary)]"
                     style={{
                       top: `${i * 3}px`,
                     }}

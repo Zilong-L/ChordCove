@@ -75,7 +75,7 @@ export default function Bar({
         {editingIndex === index ? (
           <input
             type="text"
-            className="w-full rounded bg-transparent text-gray-100 outline-none"
+            className="w-full rounded bg-transparent text-[var(--text-primary)] outline-none"
             value={tempValue}
             onChange={(e) => setTempValue(e.target.value)}
             onBlur={finishEditing}
@@ -85,15 +85,16 @@ export default function Bar({
               }
             }}
             autoFocus
+            aria-label="Edit line"
           />
         ) : (
           <div className="flex">
             {plainLyrics.split("").map((char, charIndex) => {
               const chordData = chords.find((ch) => ch.position === charIndex);
               return (
-                <span key={charIndex} className="relative text-gray-100">
+                <span key={charIndex} className="relative text-[var(--text-primary)]">
                   {chordData && (
-                    <div className="absolute top-[-1.5em] font-bold text-gray-300">
+                    <div className="absolute top-[-1.5em] font-bold text-[var(--text-secondary)]">
                       {chordData.chord}
                     </div>
                   )}
@@ -108,7 +109,7 @@ export default function Bar({
       <div
         {...listeners}
         {...attributes}
-        className="absolute right-12 top-[50%] hidden -translate-y-[50%] cursor-grab text-gray-400 group-hover:block"
+        className="absolute right-12 top-[50%] hidden -translate-y-[50%] cursor-grab text-[var(--text-tertiary)] group-hover:block"
         onClick={(e) => e.stopPropagation()}
       >
         <svg
@@ -128,11 +129,12 @@ export default function Bar({
       </div>
 
       <button
-        className="absolute right-4 top-[50%] hidden -translate-y-[50%] text-gray-400 hover:cursor-pointer hover:text-gray-200 group-hover:block"
+        className="absolute right-4 top-[50%] hidden -translate-y-[50%] text-[var(--text-tertiary)] hover:cursor-pointer hover:text-[var(--text-primary)] group-hover:block"
         onClick={(e) => {
           e.stopPropagation();
           handleDelete(index);
         }}
+        aria-label="Delete line"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"

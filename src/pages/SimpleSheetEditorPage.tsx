@@ -115,13 +115,13 @@ export default function SheetEditor() {
   return (
     <div className="mx-auto h-[calc(100vh-4rem)] overflow-scroll overflow-x-hidden px-2 md:px-8 xl:max-w-[90rem]">
       <div className="flex flex-col gap-6 lg:flex-row">
-        <div className="order-2 flex flex-col lg:order-[-1] lg:w-1/4">
+        <div className="order-2 flex flex-col gap-4 lg:order-[-1] lg:w-1/4">
           <MetadataForm uploading={uploading} setUploading={setUploading} />
           {!sheetMetadata.id ? (
             <button
               onClick={handleUpload}
               disabled={uploading}
-              className="mx-auto w-[90%] justify-self-center rounded bg-[#1f1f1f] py-2 text-gray-100 shadow-inner shadow-[#1f1f1f] transition hover:bg-gray-700"
+              className="mx-auto w-[90%] justify-self-center rounded bg-[var(--bg-secondary)] py-2 text-[var(--text-primary)] shadow-inner shadow-[var(--bg-secondary)] transition hover:bg-[var(--bg-hover)]"
               title="上传乐谱"
             >
               {uploading ? "上传中..." : "上传乐谱"}
@@ -130,7 +130,7 @@ export default function SheetEditor() {
             <button
               onClick={handleSave}
               disabled={uploading}
-              className="mx-auto w-[90%] justify-self-center rounded bg-[#1f1f1f] py-2 text-gray-100 shadow-inner shadow-[#1f1f1f] transition hover:bg-gray-700"
+              className="mx-auto w-[90%] justify-self-center rounded bg-[var(--bg-secondary)] py-2 text-[var(--text-primary)] shadow-inner shadow-[var(--bg-secondary)] transition hover:bg-[var(--bg-hover)]"
               title="保存修改"
             >
               {uploading ? "保存中..." : "保存修改"}
@@ -175,13 +175,13 @@ export default function SheetEditor() {
                 });
               }
             }}
-            className="mx-auto mb-4 mt-4 h-32 w-[90%] resize-none rounded border border-gray-700 bg-transparent p-2 text-gray-100 outline-none"
+            className="mx-auto mb-4 mt-4 h-32 w-[90%] resize-none rounded border border-[var(--border-primary)] bg-transparent p-2 text-[var(--text-primary)] outline-none"
             placeholder="输入乐谱内容"
             title="乐谱内容"
             aria-label="乐谱内容"
           />
 
-          {message && <p className="mt-2 text-center text-gray-400">{message}</p>}
+          {message && <p className="mt-2 text-center text-[var(--text-tertiary)]">{message}</p>}
         </div>
       </div>
     </div>

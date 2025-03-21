@@ -64,15 +64,19 @@ export default function SheetDisplay() {
 
   if (sheetMissing) {
     return (
-      <div className="min-h-[80%] rounded-md bg-gradient-to-b from-[#212121] to-[#121212] px-8 py-12 xl:px-24">
-        {sheetMissing && <h1 className="text-center text-3xl text-white">Sheet Not Found</h1>}
+      <div className="min-h-[80%] rounded-md bg-gradient-to-b from-[var(--gradient-start)] to-[var(--gradient-end)] px-8 py-12 xl:px-24">
+        {sheetMissing && (
+          <h1 className="text-center text-3xl text-[var(--text-primary)]">Sheet Not Found</h1>
+        )}
       </div>
     );
   }
   return (
-    <div className="min-h-[80%] overflow-scroll rounded-md bg-gradient-to-b from-[#212121] to-[#121212] px-8 py-12 xl:px-24">
-      <h2 className="mb-2 min-h-16 text-center text-3xl font-bold">{sheetMetadata.title}</h2>
-      <div className="mb-6 flex items-center justify-between text-gray-100">
+    <div className="min-h-[80%] overflow-scroll rounded-md bg-gradient-to-b from-[var(--gradient-start)] to-[var(--gradient-end)] px-8 py-12 xl:px-24">
+      <h2 className="mb-2 min-h-16 text-center text-3xl font-bold text-[var(--text-primary)]">
+        {sheetMetadata.title}
+      </h2>
+      <div className="mb-6 flex items-center justify-between text-[var(--text-primary)]">
         <div className="text-lg">
           <div className="grid grid-flow-row grid-cols-[80px_50px]">
             <p>Key:</p>
@@ -112,9 +116,9 @@ export default function SheetDisplay() {
                   {plainLyrics.split("").map((char, charIndex) => {
                     const chordData = chords.find((ch) => ch.position === charIndex);
                     return (
-                      <span key={charIndex} className="relative text-gray-100">
+                      <span key={charIndex} className="relative text-[var(--text-primary)]">
                         {chordData && (
-                          <div className="absolute top-[-1.5em] font-bold text-gray-300">
+                          <div className="absolute top-[-1.5em] font-bold text-[var(--text-secondary)]">
                             {chordData.chord}
                           </div>
                         )}
