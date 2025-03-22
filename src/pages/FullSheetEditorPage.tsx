@@ -9,7 +9,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "@stores/store";
 
 import { fetchApi } from "@utils/api";
-import { SheetMetaData } from "@/types/sheet";
+import { SheetMetaData } from "#types/sheet";
 import EditorControlPanel from "@components/Editor/EditorControlPanel";
 
 const API_BACKEND_DEV = "http://localhost:8787";

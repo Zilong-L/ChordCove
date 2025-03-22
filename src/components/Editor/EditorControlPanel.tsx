@@ -19,18 +19,7 @@ import EighthNote from "@assets/musicnotes/Eighth";
 import SixteenthNote from "@assets/musicnotes/Sixteenth";
 import ThirtySecondNote from "@assets/musicnotes/Thirtysecond";
 import Dotted from "@assets/musicnotes/Dotted";
-
-// Types
-export const durationValues = {
-  1: 4, // whole note
-  2: 2, // half note
-  4: 1, // quarter note
-  8: 0.5, // eighth note
-  16: 0.25, // sixteenth note
-  32: 0.125, // thirty-second note
-} as const;
-
-export type NoteDuration = keyof typeof durationValues;
+import { type NoteDuration, durationValues } from "#types/sheet";
 
 type IconComponent = React.FC<SVGProps<SVGSVGElement>>;
 

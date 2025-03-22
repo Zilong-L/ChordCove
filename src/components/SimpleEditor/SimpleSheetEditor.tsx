@@ -21,7 +21,7 @@ import Bar, { LineItem } from "./Bar";
 import { setContent, setSimpleScore, setKey, setTempo } from "@stores/simpleScoreSlice";
 import { setSheetMetadata } from "@stores/sheetMetadataSlice";
 import { fetchApi, R2_BASE_URL, API_BASE_URL } from "@utils/api";
-import { SheetMetaData } from "@/types/sheet";
+import { SheetMetaData } from "#types/sheet";
 import { useLocation } from "react-router-dom";
 
 const midiRange = (startNote: string, endNote: string) => {

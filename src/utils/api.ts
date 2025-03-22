@@ -1,4 +1,4 @@
-import { ApiResponse } from "@/types/api";
+import { ApiResponse } from "#types/api";
 import store from "@stores/store";
 import { setAccessToken, logout } from "@stores/authSlice";
 

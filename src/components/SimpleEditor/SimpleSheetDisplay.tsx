@@ -3,7 +3,7 @@ import { RootState } from "@stores/store";
 import { setSheetMetadata } from "@stores/sheetMetadataSlice";
 import { setSimpleScore } from "@stores/simpleScoreSlice";
 import { fetchApi } from "@utils/api";
-import { SheetMetaData } from "@/types/sheet";
+import { SheetMetaData } from "#types/sheet";
 
 import { useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";

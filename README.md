@@ -4,11 +4,11 @@
 
 To maintain consistency across the codebase, follow these import path conventions:
 
-- Types: Use `@/types/...` for all type imports
+- Types: Use `#types/...` for all type imports
 
   ```typescript
-  import { SheetMetaData } from "@/types/sheet";
-  import { ApiResponse } from "@/types/api";
+  import { SheetMetaData } from "#types/sheet";
+  import { ApiResponse } from "#types/api";
   ```
 
 - Components: Use `@components/...` for component imports (without the leading slash)

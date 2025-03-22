@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { SheetMetaData } from "@/types/sheet";
+import { SheetMetaData } from "#types/sheet";
 import PlayTriangle from "./PlayTriangle";
 
 interface AlbumCardProps {

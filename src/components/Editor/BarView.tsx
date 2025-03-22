@@ -9,14 +9,22 @@ import {
 import { setEditingBeat, setEditingTrack } from "@stores/editingSlice";
 import { useMemo, useCallback } from "react";
 import React from "react";
-import type { Score, Track } from "@stores/scoreSlice";
+import type { Score, Track, TrackType } from "@stores/scoreSlice";
 import { MelodySlotComponent, ChordSlotComponent, LyricsSlotComponent } from "./SlotComponents";
 
 // Helper component to render slot content
 const SlotContent = React.memo(
-  ({ slot, isFirstTrack }: { slot: SlotView; isFirstTrack: boolean }) => {
+  ({
+    slot,
+    isFirstTrack,
+    trackType,
+  }: {
+    slot: SlotView;
+    isFirstTrack: boolean;
+    trackType: TrackType;
+  }) => {
     const keyNote = useSelector((state: RootState) => state.score.key);
-    switch (slot.type) {
+    switch (trackType) {
       case "melody":
         return <MelodySlotComponent keyNote={keyNote} slot={slot} isFirstTrack={isFirstTrack} />;
       case "chord":
@@ -34,11 +42,13 @@ const Bar = React.memo(
     editingBeat,
     onNoteClick,
     isFirstTrack,
+    trackType,
   }: {
     bar: BarView;
     editingBeat: number;
     onNoteClick: (beat: number) => void;
     isFirstTrack: boolean;
+    trackType: TrackType;
   }) => {
     const { playingBeat, playbackStartBeat, playbackEndBeat } = useSelector(
       (state: RootState) => state.editing
@@ -61,7 +71,7 @@ const Bar = React.memo(
               } ${isPlaying ? "text-[var(--text-accent)]" : ""}`}
               onClick={() => onNoteClick(slot.originalBeat)}
             >
-              <SlotContent slot={slot} isFirstTrack={isFirstTrack} />
+              <SlotContent slot={slot} isFirstTrack={isFirstTrack} trackType={trackType} />
             </div>
           );
         })}
@@ -128,6 +138,7 @@ const BarGroup = React.memo(
                   editingBeat={editingTrack === trackIndex ? editingBeat : -1}
                   onNoteClick={(beat) => onNoteClick(trackIndex, beat)}
                   isFirstTrack={trackIndex === 0}
+                  trackType={track.type}
                 />
               ) : (
                 <div className="min-w-[100px] p-1 opacity-50">

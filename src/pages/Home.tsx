@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
 import AlbumCard from "@components/basic/AlbumCard";
 import ArtistRow from "@components/basic/ArtistRow";
-import { SheetMetaData } from "@/types/sheet";
+import { SheetMetaData } from "#types/sheet";
 import { fetchApi } from "@utils/api";
-
 const API_BACKEND_DEV = "http://localhost:8787";
 const API_BACKEND = "https://chordcove-backend.875159954.workers.dev";
 

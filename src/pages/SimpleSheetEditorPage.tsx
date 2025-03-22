@@ -9,7 +9,7 @@ import { useDispatch } from "react-redux";
 import { setContent } from "@stores/simpleScoreSlice";
 import { setSheetMetadata } from "@stores/sheetMetadataSlice";
 import { fetchApi } from "@utils/api";
-import { SheetMetaData } from "@/types/sheet";
+import { SheetMetaData } from "#types/sheet";
 
 import { API_BASE_URL } from "@utils/api";
 

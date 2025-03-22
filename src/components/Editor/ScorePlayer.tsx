@@ -88,30 +88,29 @@ export default function ScorePlayer({ className = "" }: ScorePlayerProps) {
     let scheduledNotes = 0;
 
     // 收集所有轨道的音符
-    const allValidSlots = score.tracks.flatMap((track, trackIndex) => {
-      if (track.type !== "melody") return [];
-
-      return track.slots
-        .filter(
-          (slot) =>
-            slot.beat >= playbackStartBeat &&
-            (playbackEndBeat === null || slot.beat <= playbackEndBeat)
-        )
-        .map((slot) => ({ ...slot, trackIndex })); // 添加轨道索引信息
-    });
+    const allValidSlots = score.tracks
+      .filter((t) => t.type == "melody")
+      .flatMap((track) => {
+        return track.slots
+          .filter(
+            (slot) =>
+              slot.beat >= playbackStartBeat &&
+              (playbackEndBeat === null || slot.beat <= playbackEndBeat)
+          )
+          .map((slot) => ({ ...slot }));
+      });
 
     // 按照 beat 排序，确保按时间顺序播放
     const sortedSlots = allValidSlots.sort((a, b) => a.beat - b.beat);
 
-    sortedSlots.forEach((slot) => {
-      if (slot.type === "melody" && slot.note && !slot.sustain && slot.duration > 0) {
+    sortedSlots.forEach((slot: MelodySlot) => {
+      if (slot.note && !slot.sustain && slot.duration > 0) {
         // Schedule the note at the exact beat time
         console.log("Scheduling note:", {
           note: slot.note,
           beat: slot.beat,
           duration: slot.duration,
           tempo: score.tempo,
-          track: slot.trackIndex,
         });
         scheduledNotes++;
 
@@ -119,14 +118,7 @@ export default function ScorePlayer({ className = "" }: ScorePlayerProps) {
         Tone.getTransport().schedule(
           (time) => {
             dispatch(setPlayingBeat(slot.beat));
-            console.log(
-              "Playing note at time:",
-              time,
-              "note:",
-              slot.note,
-              "track:",
-              slot.trackIndex
-            );
+
             sampler.sampler.triggerAttackRelease(
               slot.note,
               beatToTime(slot.duration, score.tempo),

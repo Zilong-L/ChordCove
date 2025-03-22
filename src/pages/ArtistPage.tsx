@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import AlbumCard from "@components/basic/AlbumCard";
 import { fetchApi, API_BASE_URL } from "@utils/api";
-import { SheetMetaData } from "@/types/sheet";
+import { SheetMetaData } from "#types/sheet";
 
 interface Artist {
   id: number;
