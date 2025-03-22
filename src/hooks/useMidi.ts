@@ -32,15 +32,30 @@ declare global {
   }
 }
 
-interface NoteInfo {
+export interface NoteInfo {
   midiNumber: number;
   noteName: string;
   velocity: number;
 }
 
+// Custom Set class for NoteInfo that uses noteName for equality
+export class NoteInfoSet extends Set<NoteInfo> {
+  add(noteInfo: NoteInfo): this {
+    // Remove any existing note with the same noteName
+    for (const note of this) {
+      if (note.noteName === noteInfo.noteName) {
+        this.delete(note);
+        break;
+      }
+    }
+    super.add(noteInfo);
+    return this;
+  }
+}
+
 export function useMidi() {
   const [recentlyPressedNote, setRecentlyPressedNote] = useState<NoteInfo | null>(null);
-  const [activeNotes, setActiveNotes] = useState<Set<NoteInfo>>(new Set());
+  const [activeNotes, setActiveNotes] = useState<NoteInfoSet>(new NoteInfoSet());
   const [midiInputs, setMidiInputs] = useState<string[]>([]);
 
   useEffect(() => {
@@ -48,6 +63,10 @@ export function useMidi() {
       console.log("WebMIDI is not supported in this browser.");
       return;
     }
+
+    // Use closure to maintain state
+    let sustainActive = false;
+    const pressingNotes = new Set<number>();
 
     const handleMidiMessage = (message: MIDIMessageEvent) => {
       const [status, note, velocity] = message.data;
@@ -60,11 +79,30 @@ export function useMidi() {
         velocity,
       };
 
+      // Handle sustain pedal (control change 64)
+      if (status === 176 && note === 64) {
+        sustainActive = velocity > 0;
+
+        if (!sustainActive) {
+          // When releasing sustain, remove notes that are no longer being pressed
+          setActiveNotes((prev) => {
+            const newSet = new NoteInfoSet();
+            for (const note of prev) {
+              if (pressingNotes.has(note.midiNumber)) {
+                newSet.add(note);
+              }
+            }
+            return newSet;
+          });
+        }
+      }
       // Note on event (status: 144-159)
-      if (status >= 144 && status <= 159 && velocity > 0) {
+      else if (status >= 144 && status <= 159 && velocity > 0) {
         setRecentlyPressedNote(noteInfo);
+        pressingNotes.add(note);
         setActiveNotes((prev) => {
-          const newSet = new Set(prev);
+          const newSet = new NoteInfoSet();
+          prev.forEach((n) => newSet.add(n));
           newSet.add(noteInfo);
           return newSet;
         });
@@ -74,12 +112,16 @@ export function useMidi() {
         (status >= 128 && status <= 143) ||
         (status >= 144 && status <= 159 && velocity === 0)
       ) {
+        pressingNotes.delete(note);
+        if (sustainActive) {
+          return;
+        }
+        // Only remove from activeNotes if sustain is not active
         setActiveNotes((prev) => {
-          const newSet = new Set(prev);
-          for (const note of newSet) {
-            if (note.midiNumber === noteInfo.midiNumber) {
-              newSet.delete(note);
-              break;
+          const newSet = new NoteInfoSet();
+          for (const n of prev) {
+            if (n.noteName !== noteInfo.noteName) {
+              newSet.add(n);
             }
           }
           return newSet;
@@ -137,5 +179,6 @@ export function useMidi() {
     activeNotes,
     midiInputs,
     hasWebMidi: !!navigator.requestMIDIAccess,
+    allReleased: activeNotes.size === 0,
   };
 }

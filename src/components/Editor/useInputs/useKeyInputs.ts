@@ -27,18 +27,29 @@ export function useKeyInputs() {
   const currentBeat = editingBeat;
 
   // Handle input via keyboard
-  useHotkeys("*", (event) => {
+  useHotkeys("1,2,3,4,5,6,7", (event) => {
+    event.preventDefault();
     if (event.ctrlKey || event.altKey || event.metaKey) return;
-
-    // Get existing slot or create a new one
     const existingSlot = currentTrack.slots.find((slot) => slot.beat === currentBeat);
     if (!existingSlot) return;
 
     // Let the slot handle the input
-    const result = handleInput(existingSlot, event, score.key, lastInputNote, currentTrack.type);
-    if (!result) return;
 
-    event.preventDefault();
+    // Handle note input via keyboard with accidentals
+    let finalNote = null;
+    let pressedKey = event.key;
+    if (event.ctrlKey && event.altKey) {
+      pressedKey = "ctrl+alt+" + pressedKey;
+    }
+    const degreeIndex = keyMap[pressedKey];
+    if (degreeIndex !== undefined) {
+      const rotatedScale = getNoteInKey(score.key.split(/\d/)[0]);
+      const targetNoteLetter = rotatedScale[degreeIndex];
+      if (targetNoteLetter) {
+        finalNote = findCloestNote(lastInputNote, targetNoteLetter);
+      }
+    }
+    if (!finalNote) return;
 
     // Calculate actual duration in beats
     const baseDuration = durationValues[selectedDuration as NoteDuration];
@@ -52,24 +63,15 @@ export function useKeyInputs() {
     };
 
     if (currentTrack.type === "melody") {
-      Object.assign(updatedSlot, { note: result.content });
+      Object.assign(updatedSlot, { note: finalNote });
       // Update last input note for melody
-      dispatch(setLastInputNote(result.content));
-    } else if (currentTrack.type === "chord") {
-      Object.assign(updatedSlot, { chord: result.content });
-    } else if (currentTrack.type === "lyrics") {
-      Object.assign(updatedSlot, { lyrics: result.content });
-    }
-
-    dispatch(
-      setSlot({
-        trackId: currentTrack.id,
-        slot: updatedSlot,
-      })
-    );
-
-    // Move cursor if needed
-    if (result.shouldMoveCursor) {
+      dispatch(setLastInputNote(finalNote));
+      dispatch(
+        setSlot({
+          trackId: currentTrack.id,
+          slot: updatedSlot,
+        })
+      );
       dispatch(setEditingBeat(currentBeat + duration));
     }
   });
@@ -212,72 +214,4 @@ export function useKeyInputs() {
       })
     );
   });
-}
-
-function handleInput(
-  slot: Slot,
-  event: KeyboardEvent,
-  key: string,
-  lastInputNote: string,
-  trackType: TrackType
-): { content: string; shouldMoveCursor: boolean } | null {
-  let pressedKey: string;
-  let degreeIndex: number | undefined;
-  let rotatedScale: string[];
-  let targetNoteLetter: string | undefined;
-  let finalNote: string | null;
-
-  switch (trackType) {
-    case "melody":
-      // Handle note input via keyboard with accidentals
-      pressedKey = event.key;
-      if (event.ctrlKey && event.altKey) {
-        pressedKey = "ctrl+alt+" + pressedKey;
-      }
-      degreeIndex = keyMap[pressedKey];
-      if (degreeIndex !== undefined) {
-        rotatedScale = getNoteInKey(key.split(/\d/)[0]);
-        targetNoteLetter = rotatedScale[degreeIndex];
-        if (targetNoteLetter) {
-          finalNote = findCloestNote(lastInputNote, targetNoteLetter);
-          if (finalNote) {
-            return { content: finalNote, shouldMoveCursor: true };
-          }
-        }
-      }
-      break;
-
-    case "chord":
-      // Handle chord root notes (A-G)
-      if (/^[A-Ga-g]$/.test(event.key)) {
-        return { content: event.key.toUpperCase(), shouldMoveCursor: false };
-      }
-      // Handle chord modifiers (m, 7, maj, etc.)
-      if (/^[m7Mdij]$/.test(event.key)) {
-        return { content: event.key, shouldMoveCursor: false };
-      }
-      // Handle accidentals
-      if (event.key === "#" || event.key === "b") {
-        return { content: event.key, shouldMoveCursor: false };
-      }
-      break;
-
-    case "lyrics":
-      // Handle any printable character for lyrics
-      if (event.key.length === 1 && !event.ctrlKey && !event.altKey && !event.metaKey) {
-        return { content: event.key, shouldMoveCursor: false };
-      }
-      // Handle space
-      if (event.key === " ") {
-        return { content: " ", shouldMoveCursor: true };
-      }
-      break;
-  }
-
-  // Handle backspace for all types
-  if (event.key === "Backspace") {
-    return { content: "", shouldMoveCursor: false };
-  }
-
-  return null;
 }

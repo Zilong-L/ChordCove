@@ -6,6 +6,7 @@ import type { EditingSlotState } from "@stores/editingSlice";
 import BarView from "./BarView";
 import ScorePlayer from "./ScorePlayer";
 import { useKeyInputs } from "./useInputs/useKeyInputs";
+import useMidiInputs from "./useInputs/useMidiInputs";
 
 export default function SimpleEditor() {
   // Get states from Redux
@@ -15,7 +16,7 @@ export default function SimpleEditor() {
 
   // Use keyboard input hook
   useKeyInputs();
-
+  useMidiInputs();
   return (
     <div className="relative flex h-[calc(100vh-8rem)] w-full flex-col gap-6 overflow-y-scroll rounded-md bg-gradient-to-b from-[var(--gradient-start)] to-[var(--gradient-end)] p-8 text-[var(--text-primary)]">
       <div className="mb-6 flex items-center gap-4">

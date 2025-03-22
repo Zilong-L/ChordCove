@@ -51,6 +51,18 @@ export const slotHelpers = {
         return false;
     }
   },
+  isCorrectSlot(slot: Slot, trackType: TrackType): boolean {
+    switch (trackType) {
+      case "melody":
+        return Object.prototype.hasOwnProperty.call(slot, "note");
+      case "chord":
+        return Object.prototype.hasOwnProperty.call(slot, "chord");
+      case "lyrics":
+        return Object.prototype.hasOwnProperty.call(slot, "text");
+      default:
+        return false;
+    }
+  },
 };
 
 // Helper function to create empty slots based on track type
@@ -178,11 +190,19 @@ const scoreSlice = createSlice({
     },
 
     // Slot operations
-    setSlot(state, action: PayloadAction<{ trackId: string; slot: Slot }>) {
+    setSlot(state, action: PayloadAction<{ trackId: string; slot: Slot; modifyOnly?: boolean }>) {
       const track = state.tracks.find((t) => t.id === action.payload.trackId);
       if (!track) return;
-
-      track.slots = replaceOrInsertSlot(track.slots, action.payload.slot);
+      if (!slotHelpers.isCorrectSlot(action.payload.slot, track.type)) return;
+      if (action.payload.modifyOnly) {
+        const currentSlot = track.slots.find((s) => s.beat === action.payload.slot.beat);
+        const duration = currentSlot?.duration;
+        if (!currentSlot || !duration) return;
+        Object.assign(currentSlot, action.payload.slot);
+        currentSlot.duration = duration;
+      } else {
+        track.slots = replaceOrInsertSlot(track.slots, action.payload.slot);
+      }
       const lastSlot = track.slots[track.slots.length - 1];
       if (!slotHelpers.isEmpty(track.type, lastSlot)) {
         const emptySlot = createEmptySlot(
