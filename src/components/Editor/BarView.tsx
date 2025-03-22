@@ -128,12 +128,7 @@ const BarGroup = React.memo(
           gridColumn: `span ${colSpan}`,
         }}
       >
-        <div
-          className="grid gap-1 p-2"
-          style={{
-            gridTemplateRows: `repeat(${tracks.length}, minmax(40px, auto))`,
-          }}
-        >
+        <div className="grid gap-1 p-2">
           {showBarNumber && (
             <div className="absolute -top-4 left-0 text-xs text-[var(--text-tertiary)]">
               {barIndex + 1}
@@ -150,8 +145,10 @@ const BarGroup = React.memo(
                   trackType={track.type}
                 />
               ) : (
-                <div className="min-w-[100px] p-1 opacity-50">
-                  <div className="flex h-full items-center justify-center text-xs text-[var(--text-tertiary)]"></div>
+                <div className="min-w-[100px] p-1 opacity-0">
+                  <div className="flex h-full items-center justify-center text-xs text-[var(--text-tertiary)]">
+                    1
+                  </div>
                 </div>
               )}
             </div>

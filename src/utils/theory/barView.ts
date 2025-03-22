@@ -7,11 +7,16 @@ import type {
 } from "@stores/scoreSlice";
 
 // Create a union type for SlotView that includes originalBeat and sustain
-export type SlotView =
-  | (MelodySlot & { originalBeat: number; sustain?: boolean })
-  | (ChordSlot & { originalBeat: number; sustain?: boolean })
-  | (LyricsSlot & { originalBeat: number; sustain?: boolean })
-  | (AccompanimentSlot & { originalBeat: number; sustain?: boolean });
+interface SlotViewBase {
+  originalBeat: number;
+  sustain?: boolean;
+}
+export type MelodySlotView = MelodySlot & SlotViewBase;
+export type ChordSlotView = ChordSlot & SlotViewBase;
+export type LyricsSlotView = LyricsSlot & SlotViewBase;
+export type AccompanimentSlotView = AccompanimentSlot & SlotViewBase;
+
+export type SlotView = MelodySlotView | ChordSlotView | LyricsSlotView | AccompanimentSlotView;
 
 export interface BarView {
   startBeat: number;

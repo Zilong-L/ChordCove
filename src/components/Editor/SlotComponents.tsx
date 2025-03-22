@@ -1,6 +1,13 @@
 import React, { useCallback, useState, useEffect, useMemo } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import type { MelodySlot, ChordSlot, LyricsSlot, AccompanimentSlot } from "@stores/scoreSlice";
+import type {
+  ChordSlotView,
+  MelodySlotView,
+  LyricsSlotView,
+  AccompanimentSlotView,
+  SlotView,
+} from "@utils/theory/barView";
 import type { RootState } from "@stores/store";
 import { setPlaybackStartBeat, setPlaybackEndBeat } from "@stores/editingSlice";
 import { calculateDegree, getRelativePitchNotation } from "@utils/theory/Note";
@@ -8,7 +15,7 @@ import { getUnderlineCount, isDotted } from "@utils/theory/duration";
 import { Note, Chord } from "tonal";
 
 interface SlotProps {
-  slot: MelodySlot | ChordSlot | LyricsSlot | AccompanimentSlot;
+  slot: MelodySlot | ChordSlot | LyricsSlot | AccompanimentSlot | SlotView;
   className?: string;
   isFirstTrack?: boolean;
 }
@@ -107,7 +114,9 @@ const BaseSlotComponent = React.memo(
             )}
           </>
         )}
-        <div className={`h-full w-full ${isPlaying ? "text-[var(--accent)]" : ""}`}>{children}</div>
+        <div className={`h-full w-full text-nowrap ${isPlaying ? "text-[var(--accent)]" : ""}`}>
+          {children}
+        </div>
         {menuPosition && (
           <div
             className="context-menu absolute z-50 min-w-[120px] rounded bg-[var(--bg-secondary)] p-2 shadow-lg"
@@ -142,7 +151,7 @@ export const MelodySlotComponent = React.memo(
     isFirstTrack = false,
   }: {
     keyNote: string;
-    slot: MelodySlot;
+    slot: MelodySlotView;
     isFirstTrack?: boolean;
   }) => {
     const useRelativePitch = useSelector((state: RootState) => state.editing.useRelativePitch);
@@ -215,7 +224,7 @@ export const MelodySlotComponent = React.memo(
 );
 
 export const ChordSlotComponent = React.memo(
-  ({ slot, isFirstTrack = false }: { slot: ChordSlot; isFirstTrack?: boolean }) => {
+  ({ slot, isFirstTrack = false }: { slot: ChordSlotView; isFirstTrack?: boolean }) => {
     if (!slot.chord) {
       return (
         <BaseSlotComponent slot={slot} isFirstTrack={isFirstTrack}>
@@ -232,7 +241,7 @@ export const ChordSlotComponent = React.memo(
 );
 
 export const LyricsSlotComponent = React.memo(
-  ({ slot, isFirstTrack = false }: { slot: LyricsSlot; isFirstTrack?: boolean }) => {
+  ({ slot, isFirstTrack = false }: { slot: LyricsSlotView; isFirstTrack?: boolean }) => {
     if (!slot.text) {
       return (
         <BaseSlotComponent slot={slot} isFirstTrack={isFirstTrack}>
@@ -249,25 +258,31 @@ export const LyricsSlotComponent = React.memo(
 );
 
 export const AccompanimentSlotComponent = React.memo(
-  ({ slot, isFirstTrack = false }: { slot: AccompanimentSlot; isFirstTrack?: boolean }) => {
+  ({ slot, isFirstTrack = false }: { slot: AccompanimentSlotView; isFirstTrack?: boolean }) => {
     // Detect chord from notes
     const chordName = useMemo(() => {
-      if (!slot.notes || slot.notes.length === 0) return "";
+      if (!("notes" in slot)) return "";
+      const accompanimentSlot = slot as AccompanimentSlot & {
+        originalBeat: number;
+        sustain?: boolean;
+      };
+      if (!accompanimentSlot.notes || accompanimentSlot.notes.length === 0) return "";
+
       // Get the root note and notes without octave for chord detection
-      const notes = slot.notes.map((note) => Note.get(note).pc || "");
+      const notes = accompanimentSlot.notes.map((note: string) => Note.get(note).pc || "");
       const root = notes[0];
       if (!root) return "";
 
       // Find matching chord
       const detected = Chord.detect(notes);
       return detected.length > 0 ? detected[0] : "";
-    }, [slot.notes]);
+    }, [slot]);
 
     return (
       <BaseSlotComponent slot={slot} isFirstTrack={isFirstTrack}>
         <div className="relative flex w-full items-center">
           <div className="relative">
-            <span className="inline-block text-[var(--text-accent)]">{chordName || "..."}</span>
+            <span className="inline-block">{slot.sustain ? "-" : chordName || "..."}</span>
           </div>
         </div>
       </BaseSlotComponent>
