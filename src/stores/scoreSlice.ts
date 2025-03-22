@@ -26,6 +26,10 @@ export interface MelodySlot extends BaseSlot {
   sustain?: boolean;
 }
 
+export interface AccompanimentSlot extends BaseSlot {
+  notes: string[]; // Array of notes
+}
+
 export interface ChordSlot extends BaseSlot {
   chord: string; // Chord symbol
 }
@@ -35,7 +39,7 @@ export interface LyricsSlot extends BaseSlot {
 }
 
 // Union type for all slot types
-export type Slot = MelodySlot | ChordSlot | LyricsSlot;
+export type Slot = MelodySlot | AccompanimentSlot | ChordSlot | LyricsSlot;
 
 // Helper functions for slot operations
 export const slotHelpers = {
@@ -47,6 +51,8 @@ export const slotHelpers = {
         return !(slot as ChordSlot).chord;
       case "lyrics":
         return !(slot as LyricsSlot).text;
+      case "accompaniment":
+        return (slot as AccompanimentSlot).notes.length === 0;
       default:
         return false;
     }
@@ -59,6 +65,8 @@ export const slotHelpers = {
         return Object.prototype.hasOwnProperty.call(slot, "chord");
       case "lyrics":
         return Object.prototype.hasOwnProperty.call(slot, "text");
+      case "accompaniment":
+        return Object.prototype.hasOwnProperty.call(slot, "notes");
       default:
         return false;
     }
@@ -91,6 +99,11 @@ export function createSlot(type: TrackType, data: Partial<Slot>): Slot {
       return {
         ...baseSlot,
         text: (data as Partial<LyricsSlot>).text || "",
+      };
+    case "accompaniment":
+      return {
+        ...baseSlot,
+        notes: (data as Partial<AccompanimentSlot>).notes || [],
       };
     default:
       throw new Error(`Unknown track type: ${type}`);
@@ -169,9 +182,9 @@ const initialState: Score = {
       slots: [createEmptySlot("melody", 0, 4)],
     },
     {
-      id: "melody2",
-      type: "melody",
-      slots: [createEmptySlot("melody", 0, 4)],
+      id: "accompaniment1",
+      type: "accompaniment",
+      slots: [createEmptySlot("accompaniment", 0, 4)],
     },
   ],
 };
@@ -200,11 +213,13 @@ const scoreSlice = createSlice({
         if (!currentSlot || !duration) return;
         Object.assign(currentSlot, action.payload.slot);
         currentSlot.duration = duration;
+        return;
       } else {
         track.slots = replaceOrInsertSlot(track.slots, action.payload.slot);
       }
       const lastSlot = track.slots[track.slots.length - 1];
       if (!slotHelpers.isEmpty(track.type, lastSlot)) {
+        console.log(track.slots);
         const emptySlot = createEmptySlot(
           track.type,
           lastSlot.beat + lastSlot.duration,

@@ -1,10 +1,17 @@
-import type { Slot, MelodySlot, ChordSlot, LyricsSlot } from "@stores/scoreSlice";
+import type {
+  Slot,
+  MelodySlot,
+  ChordSlot,
+  LyricsSlot,
+  AccompanimentSlot,
+} from "@stores/scoreSlice";
 
 // Create a union type for SlotView that includes originalBeat and sustain
 export type SlotView =
   | (MelodySlot & { originalBeat: number; sustain?: boolean })
   | (ChordSlot & { originalBeat: number; sustain?: boolean })
-  | (LyricsSlot & { originalBeat: number; sustain?: boolean });
+  | (LyricsSlot & { originalBeat: number; sustain?: boolean })
+  | (AccompanimentSlot & { originalBeat: number; sustain?: boolean });
 
 export interface BarView {
   startBeat: number;

@@ -10,7 +10,12 @@ import { setEditingBeat, setEditingTrack } from "@stores/editingSlice";
 import { useMemo, useCallback } from "react";
 import React from "react";
 import type { Score, Track, TrackType } from "@stores/scoreSlice";
-import { MelodySlotComponent, ChordSlotComponent, LyricsSlotComponent } from "./SlotComponents";
+import {
+  MelodySlotComponent,
+  ChordSlotComponent,
+  LyricsSlotComponent,
+  AccompanimentSlotComponent,
+} from "./SlotComponents";
 
 // Helper component to render slot content
 const SlotContent = React.memo(
@@ -31,6 +36,10 @@ const SlotContent = React.memo(
         return <ChordSlotComponent slot={slot} isFirstTrack={isFirstTrack} />;
       case "lyrics":
         return <LyricsSlotComponent slot={slot} isFirstTrack={isFirstTrack} />;
+      case "accompaniment":
+        return <AccompanimentSlotComponent slot={slot} isFirstTrack={isFirstTrack} />;
+      default:
+        return null;
     }
   }
 );

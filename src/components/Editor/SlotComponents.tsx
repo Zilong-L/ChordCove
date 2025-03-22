@@ -1,14 +1,14 @@
-import React, { useCallback, useState, useEffect } from "react";
+import React, { useCallback, useState, useEffect, useMemo } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import type { MelodySlot, ChordSlot, LyricsSlot } from "@stores/scoreSlice";
+import type { MelodySlot, ChordSlot, LyricsSlot, AccompanimentSlot } from "@stores/scoreSlice";
 import type { RootState } from "@stores/store";
 import { setPlaybackStartBeat, setPlaybackEndBeat } from "@stores/editingSlice";
 import { calculateDegree, getRelativePitchNotation } from "@utils/theory/Note";
 import { getUnderlineCount, isDotted } from "@utils/theory/duration";
-import { Note } from "tonal";
+import { Note, Chord } from "tonal";
 
 interface SlotProps {
-  slot: MelodySlot | ChordSlot | LyricsSlot;
+  slot: MelodySlot | ChordSlot | LyricsSlot | AccompanimentSlot;
   className?: string;
   isFirstTrack?: boolean;
 }
@@ -243,6 +243,33 @@ export const LyricsSlotComponent = React.memo(
     return (
       <BaseSlotComponent slot={slot} isFirstTrack={isFirstTrack}>
         {slot.text}
+      </BaseSlotComponent>
+    );
+  }
+);
+
+export const AccompanimentSlotComponent = React.memo(
+  ({ slot, isFirstTrack = false }: { slot: AccompanimentSlot; isFirstTrack?: boolean }) => {
+    // Detect chord from notes
+    const chordName = useMemo(() => {
+      if (!slot.notes || slot.notes.length === 0) return "";
+      // Get the root note and notes without octave for chord detection
+      const notes = slot.notes.map((note) => Note.get(note).pc || "");
+      const root = notes[0];
+      if (!root) return "";
+
+      // Find matching chord
+      const detected = Chord.detect(notes);
+      return detected.length > 0 ? detected[0] : "";
+    }, [slot.notes]);
+
+    return (
+      <BaseSlotComponent slot={slot} isFirstTrack={isFirstTrack}>
+        <div className="relative flex w-full items-center">
+          <div className="relative">
+            <span className="inline-block text-[var(--text-accent)]">{chordName || "..."}</span>
+          </div>
+        </div>
       </BaseSlotComponent>
     );
   }

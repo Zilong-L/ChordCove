@@ -180,5 +180,6 @@ export function useMidi() {
     midiInputs,
     hasWebMidi: !!navigator.requestMIDIAccess,
     allReleased: activeNotes.size === 0,
+    setRecentlyPressedNote,
   };
 }
