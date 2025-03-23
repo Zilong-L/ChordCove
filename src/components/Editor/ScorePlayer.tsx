@@ -11,6 +11,7 @@ import {
   ForwardIcon,
 } from "@heroicons/react/24/solid";
 import { setEditingBeat, setPlaybackStartBeat, setPlayingBeat } from "@stores/editingSlice";
+import type { MelodySlot, AccompanimentSlot } from "@stores/scoreSlice";
 
 interface ScorePlayerProps {
   className?: string;
@@ -89,7 +90,7 @@ export default function ScorePlayer({ className = "" }: ScorePlayerProps) {
 
     // 收集所有轨道的音符
     const allValidSlots = score.tracks
-      .filter((t) => t.type == "melody")
+      .filter((t) => t.type === "melody" || t.type === "accompaniment")
       .flatMap((track) => {
         return track.slots
           .filter(
@@ -97,17 +98,29 @@ export default function ScorePlayer({ className = "" }: ScorePlayerProps) {
               slot.beat >= playbackStartBeat &&
               (playbackEndBeat === null || slot.beat <= playbackEndBeat)
           )
-          .map((slot) => ({ ...slot }));
+          .map((slot) => {
+            if (track.type === "melody") {
+              return { ...(slot as MelodySlot), trackType: track.type };
+            } else {
+              return { ...(slot as AccompanimentSlot), trackType: track.type };
+            }
+          });
       });
 
     // 按照 beat 排序，确保按时间顺序播放
     const sortedSlots = allValidSlots.sort((a, b) => a.beat - b.beat);
 
-    sortedSlots.forEach((slot: MelodySlot) => {
-      if (slot.note && !slot.sustain && slot.duration > 0) {
+    sortedSlots.forEach((slot) => {
+      const isMelodySlot = slot.trackType === "melody";
+      const isAccompanimentSlot = slot.trackType === "accompaniment";
+
+      if (
+        (isMelodySlot && (slot as MelodySlot).note && !(slot as MelodySlot).sustain) ||
+        (isAccompanimentSlot && (slot as AccompanimentSlot).notes.length > 0)
+      ) {
         // Schedule the note at the exact beat time
         console.log("Scheduling note:", {
-          note: slot.note,
+          note: isMelodySlot ? (slot as MelodySlot).note : (slot as AccompanimentSlot).notes,
           beat: slot.beat,
           duration: slot.duration,
           tempo: score.tempo,
@@ -119,11 +132,22 @@ export default function ScorePlayer({ className = "" }: ScorePlayerProps) {
           (time) => {
             dispatch(setPlayingBeat(slot.beat));
 
-            sampler.sampler.triggerAttackRelease(
-              slot.note,
-              beatToTime(slot.duration, score.tempo),
-              time
-            );
+            if (isMelodySlot) {
+              sampler.sampler.triggerAttackRelease(
+                (slot as MelodySlot).note,
+                beatToTime(slot.duration, score.tempo),
+                time
+              );
+            } else {
+              // For accompaniment, play all notes simultaneously
+              (slot as AccompanimentSlot).notes.forEach((note) => {
+                sampler.sampler.triggerAttackRelease(
+                  note,
+                  beatToTime(slot.duration, score.tempo),
+                  time
+                );
+              });
+            }
           },
           beatToTime(slot.beat, score.tempo)
         );
