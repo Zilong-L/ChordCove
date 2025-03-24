@@ -18,9 +18,8 @@ export function useKeyInputs() {
   const dispatch = useDispatch();
 
   // Get states from Redux
-  const { editingBeat, editingTrack, selectedDuration, isDotted, lastInputNote } = useSelector(
-    (state: RootState) => state.editing as EditingSlotState
-  );
+  const { editingBeat, editingTrack, selectedDuration, isDotted, lastInputNote, isRecording } =
+    useSelector((state: RootState) => state.editing as EditingSlotState);
 
   const score = useSelector((state: RootState) => state.score as Score);
   const currentTrack = score.tracks[editingTrack];
@@ -29,7 +28,7 @@ export function useKeyInputs() {
   // Handle input via keyboard
   useHotkeys("1,2,3,4,5,6,7", (event) => {
     event.preventDefault();
-    if (event.ctrlKey || event.altKey || event.metaKey) return;
+    if (event.ctrlKey || event.altKey || event.metaKey || isRecording) return;
     const existingSlot = currentTrack.slots.find((slot) => slot.beat === currentBeat);
     if (!existingSlot) return;
 
@@ -79,6 +78,7 @@ export function useKeyInputs() {
   // Add keyboard shortcuts for durations
   useHotkeys("q,w,e,r,t,y", (event, handler) => {
     event.preventDefault();
+    if (isRecording) return;
     const durationMap: Record<string, NoteDuration> = {
       q: 1, // whole note
       w: 2, // half note
@@ -93,12 +93,14 @@ export function useKeyInputs() {
 
   // Add keyboard shortcut for dotted notes
   useHotkeys("d", () => {
+    if (isRecording) return;
     dispatch(toggleDotted());
   });
 
   // Add keyboard shortcuts for navigation
   useHotkeys("left", (event) => {
     event.preventDefault();
+    if (isRecording) return;
     const currentIndex = currentTrack.slots.findIndex((slot) => slot.beat === editingBeat);
     if (currentIndex === 0) {
       dispatch(setEditingBeat(0));
@@ -112,6 +114,7 @@ export function useKeyInputs() {
 
   useHotkeys("right", (event) => {
     event.preventDefault();
+    if (isRecording) return;
     const currentIndex = currentTrack.slots.findIndex((slot) => slot.beat === editingBeat);
     if (currentIndex < currentTrack.slots.length - 1) {
       const nextIndex = currentIndex + 1;
@@ -124,6 +127,7 @@ export function useKeyInputs() {
   // Enable up/down navigation between tracks
   useHotkeys("up", (event) => {
     event.preventDefault();
+    if (isRecording) return;
     const existingSlot = currentTrack.slots.find((slot) => slot.beat === currentBeat);
     if (!existingSlot || currentTrack.type !== "melody" || !existingSlot.note) return;
 
@@ -147,6 +151,7 @@ export function useKeyInputs() {
 
   useHotkeys("down", (event) => {
     event.preventDefault();
+    if (isRecording) return;
     const existingSlot = currentTrack.slots.find((slot) => slot.beat === currentBeat);
     if (!existingSlot || currentTrack.type !== "melody") return;
 
@@ -171,6 +176,7 @@ export function useKeyInputs() {
   // Add keyboard shortcut for deleting content
   useHotkeys("backspace,delete", (event) => {
     event.preventDefault();
+    if (isRecording) return;
     const existingSlot = currentTrack.slots.find((slot) => slot.beat === currentBeat);
     if (!existingSlot) return;
 

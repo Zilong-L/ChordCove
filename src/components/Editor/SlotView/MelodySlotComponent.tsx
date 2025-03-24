@@ -19,7 +19,6 @@ export const MelodySlotComponent = React.memo(
     const useRelativePitch = useSelector((state: RootState) => state.editing.useRelativePitch);
     const underlineCount = getUnderlineCount(slot.duration);
     const hasDot = isDotted(slot.duration);
-
     const content = (() => {
       if (slot.sustain) return "-";
       if (!slot.note) return "♪";

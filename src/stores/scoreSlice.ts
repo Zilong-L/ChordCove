@@ -1,7 +1,7 @@
 // store/scoreSlice.ts
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 export type TrackType = "melody" | "accompaniment" | "lyrics" | "chord";
-
+import { sortedIndexBy } from "lodash";
 export interface Track {
   id: string;
   type: TrackType;
@@ -121,16 +121,23 @@ export function createSlot(type: TrackType, data: Partial<Slot>): Slot {
  * @returns Modified array of slots, sorted by beat
  */
 export function replaceOrInsertSlot(slots: Slot[], newSlot: Slot): Slot[] {
-  const existingIndex = slots.findIndex((s) => s.beat === newSlot.beat);
+  let existingIndex = sortedIndexBy(slots, newSlot, "beat");
 
   if (existingIndex === -1) {
     // Simple insertion
-    slots.push(newSlot);
-    return slots.sort((a, b) => a.beat - b.beat);
+    slots.push({
+      ...newSlot,
+      duration: 0,
+    });
+    slots.sort((a, b) => a.beat - b.beat);
+    existingIndex = sortedIndexBy(slots, newSlot, "beat");
+    if (existingIndex !== 0) {
+      const previousSlot = slots[existingIndex - 1];
+      previousSlot.duration = newSlot.beat - previousSlot.beat;
+    }
   }
-
   const existingSlot = slots[existingIndex];
-  const slotsCopy = [...slots];
+  const slotsCopy = slots;
 
   if (newSlot.duration === existingSlot.duration) {
     // Simple replacement
@@ -167,11 +174,11 @@ export function replaceOrInsertSlot(slots: Slot[], newSlot: Slot): Slot[] {
     slotsCopy.splice(existingIndex, currentIndex - existingIndex, newSlot);
   }
 
-  return slotsCopy.sort((a, b) => a.beat - b.beat);
+  return slotsCopy.sort((a, b) => a.beat - b.beat).filter((s) => s.duration > 0);
 }
 
 const initialState: Score = {
-  tempo: 120,
+  tempo: 60,
   key: "C3",
   tracks: [
     {
@@ -205,6 +212,7 @@ const scoreSlice = createSlice({
       const track = state.tracks.find((t) => t.id === action.payload.trackId);
       if (!track) return;
       if (!slotHelpers.isCorrectSlot(action.payload.slot, track.type)) return;
+      console.log("setSlot", action.payload.slot);
       if (action.payload.modifyOnly) {
         const currentSlot = track.slots.find((s) => s.beat === action.payload.slot.beat);
         const duration = currentSlot?.duration;
@@ -213,7 +221,9 @@ const scoreSlice = createSlice({
         currentSlot.duration = duration;
         return;
       } else {
-        track.slots = replaceOrInsertSlot(track.slots, action.payload.slot);
+        const tmp = replaceOrInsertSlot(track.slots, action.payload.slot);
+        console.log("tmp", tmp);
+        track.slots = tmp;
       }
       const lastSlot = track.slots[track.slots.length - 1];
       if (!slotHelpers.isEmpty(track.type, lastSlot)) {

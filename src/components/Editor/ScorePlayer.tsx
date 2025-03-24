@@ -248,7 +248,6 @@ export default function ScorePlayer({ className = "" }: ScorePlayerProps) {
   }, [currentNoteIndex, currentTrack.slots, dispatch, isPlaying]);
 
   useEffect(() => {
-    console.log("editing", editingTrack);
     handleStop();
   }, [editingTrack, handleStop]);
 

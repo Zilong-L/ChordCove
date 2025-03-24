@@ -81,7 +81,6 @@ const BarGroup = React.memo(
     }, [tracks, barIndex]);
 
     if (trackBars.every(({ bar }) => !bar)) return null;
-    console.log(trackBars);
     return (
       <div
         className="relative rounded border border-[var(--border-primary)] bg-[var(--bg-secondary)]"
