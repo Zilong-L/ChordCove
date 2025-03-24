@@ -115,7 +115,8 @@ function breakDownToBasicDurations(
       ...note,
       beat: currentBeat,
       duration: fitDuration,
-      sustain: note.sustain || !isFirstNote,
+      sustain: !isFirstNote,
+      originalBeat: note.originalBeat || note.beat,
     });
 
     remainingDuration = Number((remainingDuration - fitDuration).toFixed(4)); // Handle floating point precision
@@ -141,7 +142,8 @@ export function breakDownNotesWithinBar(notes: SlotView[]): SlotView[] {
         ...note,
         beat: currentBeat,
         duration: 1,
-        sustain: note.sustain || !isFirst,
+        sustain: !isFirst,
+        originalBeat: note.originalBeat || note.beat,
       });
       remainingDuration = Number((remainingDuration - 1).toFixed(4));
       currentBeat += 1;

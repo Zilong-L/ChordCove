@@ -16,6 +16,8 @@ export interface EditingSlotState {
   isDotted: boolean;
   editingMode: EditingMode;
   useRelativePitch: boolean;
+  isLyricsEditing: boolean;
+  lyricsInputValue: string;
 }
 
 const initialState: EditingSlotState = {
@@ -31,6 +33,8 @@ const initialState: EditingSlotState = {
   isDotted: false,
   editingMode: "notes",
   useRelativePitch: true,
+  isLyricsEditing: false,
+  lyricsInputValue: "",
 };
 
 const editingSlice = createSlice({
@@ -73,6 +77,12 @@ const editingSlice = createSlice({
     toggleRelativePitch: (state) => {
       state.useRelativePitch = !state.useRelativePitch;
     },
+    setLyricsEditing: (state, action: PayloadAction<boolean>) => {
+      state.isLyricsEditing = action.payload;
+    },
+    setLyricsInputValue: (state, action: PayloadAction<string>) => {
+      state.lyricsInputValue = action.payload;
+    },
   },
 });
 
@@ -89,6 +99,8 @@ export const {
   advanceEditingPosition,
   setEditingMode,
   toggleRelativePitch,
+  setLyricsEditing,
+  setLyricsInputValue,
 } = editingSlice.actions;
 
 export default editingSlice.reducer;

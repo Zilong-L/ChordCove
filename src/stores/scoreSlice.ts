@@ -23,7 +23,6 @@ export interface BaseSlot {
 // Specialized slot types
 export interface MelodySlot extends BaseSlot {
   note: string; // Single note
-  sustain?: boolean;
 }
 
 export interface AccompanimentSlot extends BaseSlot {
@@ -88,7 +87,6 @@ export function createSlot(type: TrackType, data: Partial<Slot>): Slot {
       return {
         ...baseSlot,
         note: (data as Partial<MelodySlot>).note || "",
-        sustain: (data as Partial<MelodySlot>).sustain || false,
       };
     case "chord":
       return {

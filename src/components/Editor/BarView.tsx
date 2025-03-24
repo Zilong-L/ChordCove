@@ -1,67 +1,28 @@
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@stores/store";
-import {
-  splitNotesIntoBars,
-  breakDownNotesWithinBar,
-  type BarView,
-  type SlotView,
-} from "@utils/theory/barView";
+import { splitNotesIntoBars, breakDownNotesWithinBar, type BarView } from "@utils/theory/barView";
 import { setEditingBeat, setEditingTrack } from "@stores/editingSlice";
 import { useMemo, useCallback } from "react";
 import React from "react";
 import type { Score, Track, TrackType } from "@stores/scoreSlice";
-import {
-  MelodySlotComponent,
-  ChordSlotComponent,
-  LyricsSlotComponent,
-  AccompanimentSlotComponent,
-} from "./SlotComponents";
-
-// Helper component to render slot content
-const SlotContent = React.memo(
-  ({
-    slot,
-    isFirstTrack,
-    trackType,
-  }: {
-    slot: SlotView;
-    isFirstTrack: boolean;
-    trackType: TrackType;
-  }) => {
-    const keyNote = useSelector((state: RootState) => state.score.key);
-    switch (trackType) {
-      case "melody":
-        return <MelodySlotComponent keyNote={keyNote} slot={slot} isFirstTrack={isFirstTrack} />;
-      case "chord":
-        return <ChordSlotComponent slot={slot} isFirstTrack={isFirstTrack} />;
-      case "lyrics":
-        return <LyricsSlotComponent slot={slot} isFirstTrack={isFirstTrack} />;
-      case "accompaniment":
-        return <AccompanimentSlotComponent slot={slot} isFirstTrack={isFirstTrack} />;
-      default:
-        return null;
-    }
-  }
-);
+import { SlotController } from "./SlotView";
 
 // Bar component to handle individual bars
 const Bar = React.memo(
   ({
     bar,
-    editingBeat,
-    onNoteClick,
     isFirstTrack,
     trackType,
+    editingBeat,
+    onNoteClick,
   }: {
     bar: BarView;
-    editingBeat: number;
-    onNoteClick: (beat: number) => void;
     isFirstTrack: boolean;
     trackType: TrackType;
+    editingBeat: number;
+    onNoteClick: (beat: number) => void;
   }) => {
-    const { playingBeat, playbackStartBeat, playbackEndBeat } = useSelector(
-      (state: RootState) => state.editing
-    );
+    const { playingBeat } = useSelector((state: RootState) => state.editing);
     const slots = useMemo(() => breakDownNotesWithinBar(bar.notes), [bar.notes]);
 
     return (
@@ -80,7 +41,7 @@ const Bar = React.memo(
               } ${isPlaying ? "text-[var(--text-accent)]" : ""}`}
               onClick={() => onNoteClick(slot.originalBeat)}
             >
-              <SlotContent slot={slot} isFirstTrack={isFirstTrack} trackType={trackType} />
+              <SlotController slot={slot} isFirstTrack={isFirstTrack} trackType={trackType} />
             </div>
           );
         })}
@@ -120,7 +81,7 @@ const BarGroup = React.memo(
     }, [tracks, barIndex]);
 
     if (trackBars.every(({ bar }) => !bar)) return null;
-
+    console.log(trackBars);
     return (
       <div
         className="relative rounded border border-[var(--border-primary)] bg-[var(--bg-secondary)]"
@@ -159,6 +120,7 @@ const BarGroup = React.memo(
   }
 );
 
+// Main BarView component
 export default function BarView() {
   const dispatch = useDispatch();
   const { editingBeat, editingTrack } = useSelector((state: RootState) => state.editing);
@@ -190,7 +152,6 @@ export default function BarView() {
 
     return spans;
   }, [score.tracks, maxBarsPerTrack]);
-
   const handleNoteClick = useCallback(
     (trackIndex: number, beat: number) => {
       dispatch(setEditingTrack(trackIndex));

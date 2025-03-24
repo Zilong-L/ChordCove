@@ -7,13 +7,13 @@ import BarView from "./BarView";
 import ScorePlayer from "./ScorePlayer";
 import { useKeyInputs } from "./useInputs/useKeyInputs";
 import useMidiInputs from "./useInputs/useMidiInputs";
-
+import { LyricsInputModal } from "./LyricsInputModal";
 export default function SimpleEditor() {
   // Get states from Redux
   const { editingBeat } = useSelector((state: RootState) => state.editing as EditingSlotState);
 
   const score = useSelector((state: RootState) => state.score as Score);
-
+  console.log(score);
   // Use keyboard input hook
   useKeyInputs();
   useMidiInputs();
@@ -37,6 +37,7 @@ export default function SimpleEditor() {
         <h3 className="mb-2 text-lg font-semibold text-[var(--text-primary)]">Bar View</h3>
         <BarView />
       </div>
+      <LyricsInputModal />
     </div>
   );
 }
