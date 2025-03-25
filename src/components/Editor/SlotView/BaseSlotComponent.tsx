@@ -1,18 +1,18 @@
 import React, { useCallback, useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import type { MelodySlot, ChordSlot, LyricsSlot, AccompanimentSlot } from "@stores/scoreSlice";
 import type {
-  ChordSlotView,
-  MelodySlotView,
-  LyricsSlotView,
-  AccompanimentSlotView,
-  SlotView,
-} from "@utils/theory/barView";
+  MelodySlot,
+  ChordSlot,
+  LyricsSlot,
+  AccompanimentSlot,
+  NotesSlot,
+} from "@stores/scoreSlice";
+import type { SlotView } from "@utils/theory/barView";
 import type { RootState } from "@stores/store";
 import { setPlaybackStartBeat, setPlaybackEndBeat } from "@stores/editingSlice";
 
 export interface SlotProps {
-  slot: MelodySlot | ChordSlot | LyricsSlot | AccompanimentSlot | SlotView;
+  slot: MelodySlot | ChordSlot | LyricsSlot | AccompanimentSlot | NotesSlot | SlotView;
   className?: string;
   isFirstTrack?: boolean;
 }

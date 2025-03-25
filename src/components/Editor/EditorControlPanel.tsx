@@ -177,6 +177,7 @@ export default function EditorControlPanel() {
           {score.tracks.map((track, index) => (
             <div
               key={track.id}
+              onClick={() => dispatch(setEditingTrack(index))}
               className={`flex items-center justify-between rounded p-2 ${
                 editingTrack === index
                   ? "bg-[var(--bg-selected)] text-[var(--text-selected)]"
@@ -202,15 +203,21 @@ export default function EditorControlPanel() {
           </button>
           <button
             className="] rounded border border-[var(--border)] bg-[var(--bg-secondary)] p-2 text-sm"
-            onClick={() => handleAddTrack("chords")}
+            onClick={() => handleAddTrack("notes")}
           >
-            Add Chord
+            Add Notes
           </button>
           <button
             className="] rounded border border-[var(--border)] bg-[var(--bg-secondary)] p-2 text-sm"
             onClick={() => handleAddTrack("lyrics")}
           >
             Add Lyrics
+          </button>
+          <button
+            className="] rounded border border-[var(--border)] bg-[var(--bg-secondary)] p-2 text-sm"
+            onClick={() => handleAddTrack("accompaniment")}
+          >
+            Add Accompaniment
           </button>
         </div>
       </div>

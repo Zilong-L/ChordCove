@@ -4,16 +4,15 @@ import type { RootState } from "@stores/store";
 import type {
   SlotView,
   MelodySlotView,
-  ChordSlotView,
   LyricsSlotView,
   AccompanimentSlotView,
+  NotesSlotView,
 } from "@utils/theory/barView";
 import { MelodySlotComponent } from "./MelodySlotComponent";
-import { ChordSlotComponent } from "./ChordSlotComponent";
 import { LyricsSlotComponent } from "./LyricsSlotComponent";
 import { AccompanimentSlotComponent } from "./AccompanimentSlotComponent";
-
-type TrackType = "melody" | "chord" | "lyrics" | "accompaniment";
+import { NotesSlotComponent } from "./NotesSlotComponent";
+type TrackType = "melody" | "lyrics" | "accompaniment" | "notes";
 
 export const SlotController = React.memo(
   ({
@@ -36,8 +35,6 @@ export const SlotController = React.memo(
             isFirstTrack={isFirstTrack}
           />
         );
-      case "chord":
-        return <ChordSlotComponent slot={slot as ChordSlotView} isFirstTrack={isFirstTrack} />;
       case "lyrics":
         return <LyricsSlotComponent slot={slot as LyricsSlotView} isFirstTrack={isFirstTrack} />;
       case "accompaniment":
@@ -47,6 +44,8 @@ export const SlotController = React.memo(
             isFirstTrack={isFirstTrack}
           />
         );
+      case "notes":
+        return <NotesSlotComponent slot={slot as NotesSlotView} isFirstTrack={isFirstTrack} />;
       default:
         return null;
     }

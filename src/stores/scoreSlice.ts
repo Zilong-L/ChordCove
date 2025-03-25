@@ -1,7 +1,6 @@
 // store/scoreSlice.ts
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-export type TrackType = "melody" | "accompaniment" | "lyrics" | "chord";
-import { sortedIndexBy } from "lodash";
+export type TrackType = "melody" | "accompaniment" | "lyrics" | "notes";
 export interface Track {
   id: string;
   type: TrackType;
@@ -25,6 +24,9 @@ export interface MelodySlot extends BaseSlot {
   note: string; // Single note
 }
 
+export interface NoteSlot extends BaseSlot {
+  note: string;
+}
 export interface AccompanimentSlot extends BaseSlot {
   notes: string[]; // Array of notes
 }
@@ -38,7 +40,7 @@ export interface LyricsSlot extends BaseSlot {
 }
 
 // Union type for all slot types
-export type Slot = MelodySlot | AccompanimentSlot | ChordSlot | LyricsSlot;
+export type Slot = MelodySlot | NotesSlot | AccompanimentSlot | ChordSlot | LyricsSlot;
 
 // Helper functions for slot operations
 export const slotHelpers = {
@@ -46,8 +48,8 @@ export const slotHelpers = {
     switch (type) {
       case "melody":
         return !(slot as MelodySlot).note;
-      case "chord":
-        return !(slot as ChordSlot).chord;
+      case "notes":
+        return !(slot as NotesSlot).notes.length;
       case "lyrics":
         return !(slot as LyricsSlot).text;
       case "accompaniment":
@@ -60,8 +62,8 @@ export const slotHelpers = {
     switch (trackType) {
       case "melody":
         return Object.prototype.hasOwnProperty.call(slot, "note");
-      case "chord":
-        return Object.prototype.hasOwnProperty.call(slot, "chord");
+      case "notes":
+        return Object.prototype.hasOwnProperty.call(slot, "notes");
       case "lyrics":
         return Object.prototype.hasOwnProperty.call(slot, "text");
       case "accompaniment":
@@ -88,10 +90,10 @@ export function createSlot(type: TrackType, data: Partial<Slot>): Slot {
         ...baseSlot,
         note: (data as Partial<MelodySlot>).note || "",
       };
-    case "chord":
+    case "notes":
       return {
         ...baseSlot,
-        chord: (data as Partial<ChordSlot>).chord || "",
+        note: (data as Partial<NoteSlot>).note || "",
       };
     case "lyrics":
       return {
@@ -121,16 +123,17 @@ export function createSlot(type: TrackType, data: Partial<Slot>): Slot {
  * @returns Modified array of slots, sorted by beat
  */
 export function replaceOrInsertSlot(slots: Slot[], newSlot: Slot): Slot[] {
-  let existingIndex = sortedIndexBy(slots, newSlot, "beat");
-
+  let existingIndex = slots.findIndex((s) => s.beat === newSlot.beat);
+  console.log(newSlot);
   if (existingIndex === -1) {
+    console.log("pushing");
     // Simple insertion
     slots.push({
       ...newSlot,
       duration: 0,
     });
     slots.sort((a, b) => a.beat - b.beat);
-    existingIndex = sortedIndexBy(slots, newSlot, "beat");
+    existingIndex = slots.findIndex((s) => s.beat === newSlot.beat);
     if (existingIndex !== 0) {
       const previousSlot = slots[existingIndex - 1];
       previousSlot.duration = newSlot.beat - previousSlot.beat;
@@ -206,7 +209,17 @@ const scoreSlice = createSlice({
     setKey(state, action: PayloadAction<string>) {
       state.key = action.payload;
     },
-
+    pushSlot(state, action: PayloadAction<{ trackId: string; slot: Slot }>) {
+      const track = state.tracks.find((t) => t.id === action.payload.trackId);
+      if (!track) return;
+      const starttingbeat = action.payload.slot.beat;
+      const duration = action.payload.slot.duration;
+      track.slots = track.slots.filter(
+        (s) => s.beat + s.duration <= starttingbeat || s.beat >= starttingbeat + duration || s.dirty
+      );
+      //remove overlapping slots
+      track.slots.push(action.payload.slot);
+    },
     // Slot operations
     setSlot(state, action: PayloadAction<{ trackId: string; slot: Slot; modifyOnly?: boolean }>) {
       const track = state.tracks.find((t) => t.id === action.payload.trackId);
@@ -222,7 +235,6 @@ const scoreSlice = createSlice({
         return;
       } else {
         const tmp = replaceOrInsertSlot(track.slots, action.payload.slot);
-        console.log("tmp", tmp);
         track.slots = tmp;
       }
       const lastSlot = track.slots[track.slots.length - 1];
@@ -247,6 +259,13 @@ const scoreSlice = createSlice({
         track.slots = emptySlot ? [emptySlot] : [];
       }
     },
+    clearDirtyBit(state) {
+      for (const track of state.tracks) {
+        for (const slot of track.slots) {
+          slot.dirty = false;
+        }
+      }
+    },
 
     clearScore(state) {
       state.tracks.forEach((track) => {
@@ -267,6 +286,15 @@ const scoreSlice = createSlice({
   },
 });
 
-export const { setTempo, setKey, setSlot, clearTrack, clearScore, addTrack, removeTrack } =
-  scoreSlice.actions;
+export const {
+  setTempo,
+  setKey,
+  setSlot,
+  clearTrack,
+  clearScore,
+  addTrack,
+  removeTrack,
+  pushSlot,
+  clearDirtyBit,
+} = scoreSlice.actions;
 export default scoreSlice.reducer;

@@ -72,6 +72,31 @@ const BarGroup = React.memo(
     const trackBars = useMemo(() => {
       return tracks.map((track, trackIndex) => {
         const bars = splitNotesIntoBars(track.slots);
+
+        if (track.type === "notes" && bars[barIndex]) {
+          const originalbar = bars[barIndex];
+          console.log("original", originalbar);
+          const newNotes = originalbar.notes.reduce((acc, cur) => {
+            const existingSlot = acc.find((slot) => slot.beat === cur.beat);
+            const { note, ...withoutNote } = cur;
+            // if (note === "") return acc;
+            if (existingSlot) {
+              existingSlot.notes.push(note);
+            } else {
+              acc.push({ ...withoutNote, notes: [cur.note] });
+            }
+            return acc;
+          }, []);
+          // Group notes by beat
+          console.log(newNotes);
+          return {
+            track,
+            bar: { ...bars[barIndex], notes: newNotes },
+            trackIndex,
+          };
+        } else if (track.type === "accompaniment") {
+          console.log(bars[barIndex]);
+        }
         return {
           track,
           bar: bars[barIndex],
@@ -80,7 +105,6 @@ const BarGroup = React.memo(
       });
     }, [tracks, barIndex]);
 
-    if (trackBars.every(({ bar }) => !bar)) return null;
     return (
       <div
         className="relative rounded border border-[var(--border-primary)] bg-[var(--bg-secondary)]"

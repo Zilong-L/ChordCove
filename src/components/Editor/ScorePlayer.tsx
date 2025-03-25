@@ -11,7 +11,7 @@ import {
   ForwardIcon,
 } from "@heroicons/react/24/solid";
 import { setEditingBeat, setPlaybackStartBeat, setPlayingBeat } from "@stores/editingSlice";
-import type { MelodySlot, AccompanimentSlot } from "@stores/scoreSlice";
+import type { MelodySlot, AccompanimentSlot, NoteSlot } from "@stores/scoreSlice";
 
 interface ScorePlayerProps {
   className?: string;
@@ -90,7 +90,7 @@ export default function ScorePlayer({ className = "" }: ScorePlayerProps) {
 
     // 收集所有轨道的音符
     const allValidSlots = score.tracks
-      .filter((t) => t.type === "melody" || t.type === "accompaniment")
+      .filter((t) => t.type != "lyrics")
       .flatMap((track) => {
         return track.slots
           .filter(
@@ -99,8 +99,8 @@ export default function ScorePlayer({ className = "" }: ScorePlayerProps) {
               (playbackEndBeat === null || slot.beat <= playbackEndBeat)
           )
           .map((slot) => {
-            if (track.type === "melody") {
-              return { ...(slot as MelodySlot), trackType: track.type };
+            if (track.type === "melody" || track.type === "notes") {
+              return { ...(slot as MelodySlot | NoteSlot), trackType: track.type };
             } else {
               return { ...(slot as AccompanimentSlot), trackType: track.type };
             }
@@ -111,7 +111,7 @@ export default function ScorePlayer({ className = "" }: ScorePlayerProps) {
     const sortedSlots = allValidSlots.sort((a, b) => a.beat - b.beat);
 
     sortedSlots.forEach((slot) => {
-      const isMelodySlot = slot.trackType === "melody";
+      const isMelodySlot = slot.trackType === "melody" || slot.trackType === "notes";
       const isAccompanimentSlot = slot.trackType === "accompaniment";
 
       if (

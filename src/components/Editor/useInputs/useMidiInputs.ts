@@ -42,6 +42,7 @@ export default function useMidiInputs() {
   const currentBeatRef = useRef(edit.editingBeat);
   const selectedDurationRef = useRef(selectedDuration);
   const isDottedRef = useRef(isDotted);
+  const isRecordingRef = useRef(edit.isRecording);
 
   // Update refs when values change
   useEffect(() => {
@@ -49,7 +50,15 @@ export default function useMidiInputs() {
     currentBeatRef.current = edit.editingBeat;
     selectedDurationRef.current = selectedDuration;
     isDottedRef.current = isDotted;
-  }, [score.tracks, edit.editingTrack, edit.editingBeat, selectedDuration, isDotted]);
+    isRecordingRef.current = edit.isRecording;
+  }, [
+    score.tracks,
+    edit.editingTrack,
+    edit.editingBeat,
+    selectedDuration,
+    isDotted,
+    edit.isRecording,
+  ]);
 
   const handleMidiMessageForMelody = (message: MIDIMessageEvent) => {
     const [status, note, velocity] = message.data;
@@ -153,6 +162,9 @@ export default function useMidiInputs() {
   })();
 
   const handleMidiMessage = (message: MIDIMessageEvent) => {
+    if (isRecordingRef.current) {
+      return;
+    }
     switch (currentTrackRef.current.type) {
       case "melody":
         handleMidiMessageForMelody(message);
