@@ -5,9 +5,7 @@ import { setTokens } from "@stores/authSlice";
 import { fetchApi } from "@utils/api";
 import { LoginResponse } from "#types/api";
 
-const API_BACKEND_DEV = "http://localhost:8787";
-const API_BACKEND = "https://chordcove-backend.875159954.workers.dev";
-const API_BASE_URL = window.location.hostname === "localhost" ? API_BACKEND_DEV : API_BACKEND;
+import { API_BASE_URL } from "@utils/api";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");

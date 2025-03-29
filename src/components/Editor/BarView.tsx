@@ -25,13 +25,19 @@ const Bar = React.memo(
     const { playingBeat } = useSelector((state: RootState) => state.editing);
     const slots = useMemo(() => breakDownNotesWithinBar(bar.notes), [bar.notes]);
 
+    // Calculate total duration of the bar
+    const totalDuration = useMemo(() => {
+      return slots.reduce((sum, slot) => sum + slot.duration, 0) || 4; // Default to 4 if empty
+    }, [slots]);
+
     return (
-      <div
-        className={`grid auto-cols-fr grid-flow-col ${slots.length > 16 ? "min-w-[200px]" : "min-w-[100px]"}`}
-      >
+      <div className="flex min-w-[100px]">
         {slots.map((slot, index) => {
           const isEditing = editingBeat === slot.beat;
           const isPlaying = playingBeat === slot.beat;
+
+          // Calculate width percentage based on duration
+          const widthPercentage = (slot.duration / totalDuration) * 100;
 
           return (
             <div
@@ -39,6 +45,7 @@ const Bar = React.memo(
               className={`relative flex cursor-pointer items-center px-0.5 py-0.5 text-sm hover:bg-[var(--bg-hover)] ${
                 isEditing ? "bg-[var(--bg-active)]" : ""
               } ${isPlaying ? "text-[var(--text-accent)]" : ""}`}
+              style={{ width: `${widthPercentage}%` }}
               onClick={() => onNoteClick(slot.originalBeat)}
             >
               <SlotController slot={slot} isFirstTrack={isFirstTrack} trackType={trackType} />
@@ -107,19 +114,14 @@ const BarGroup = React.memo(
 
     return (
       <div
-        className="relative rounded border border-[var(--border-primary)] bg-[var(--bg-secondary)]"
+        className="] relative rounded border border-[var(--border-primary)]"
         style={{
           gridColumn: `span ${colSpan}`,
         }}
       >
         <div className="grid gap-1 p-2">
-          {showBarNumber && (
-            <div className="absolute -top-4 left-0 text-xs text-[var(--text-tertiary)]">
-              {barIndex + 1}
-            </div>
-          )}
           {trackBars.map(({ track, bar, trackIndex }) => (
-            <div key={track.id} className={`relative ${trackIndex === editingTrack ? "z-10" : ""}`}>
+            <div key={track.id} className={`relative`}>
               {bar ? (
                 <Bar
                   bar={bar}
@@ -188,7 +190,7 @@ export default function BarView() {
 
   return (
     <div className="w-full overflow-x-visible p-4">
-      <div className="relative grid auto-rows-fr grid-cols-4 gap-4">
+      <div className="relative grid auto-rows-fr grid-cols-4 gap-2">
         {barIndices.map((barIndex) => (
           <BarGroup
             key={barIndex}

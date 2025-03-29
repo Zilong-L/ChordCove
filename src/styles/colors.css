@@ -11,7 +11,7 @@
   --success: #a6d96a;
   --error: #543005;
   --text-accent: var(--success);
-
+  --border-color: mix(var(--bg-primary), var(--bg-selected), 50%);
   /* Dark Theme (default) */
   &:not(.light) {
     /* Background Colors */
@@ -25,7 +25,7 @@
 
     
     /* Text Colors */
-    --text-primary: #ffffff;
+    --text-primary: #dddddd;
     --text-secondary: #dfdfdf;
     --text-tertiary: #a1a1aa;
     --text-disabled: #666666;
@@ -38,7 +38,7 @@
     --interactive-active: #191919;
     
     /* Border Colors */
-    --border-primary: #1f1f1f;
+    --border-primary: #333333;
     --border-secondary: #333333;
     
     /* Component Specific */

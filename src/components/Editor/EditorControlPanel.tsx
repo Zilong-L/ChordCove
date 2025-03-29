@@ -5,6 +5,7 @@ import {
   toggleDotted,
   toggleRelativePitch,
   setEditingTrack,
+  setShowLyrics,
 } from "@stores/editingSlice";
 import type { EditingSlotState } from "@stores/editingSlice";
 import { createEmptySlot, type TrackType } from "@stores/scoreSlice";
@@ -34,7 +35,7 @@ const durationIcons: Record<NoteDuration, IconComponent> = {
 
 export default function EditorControlPanel() {
   const dispatch = useDispatch();
-  const { selectedDuration, isDotted, editingTrack, useRelativePitch } = useSelector(
+  const { selectedDuration, isDotted, editingTrack, useRelativePitch, showLyrics } = useSelector(
     (state: RootState) => state.editing as EditingSlotState
   );
   const score = useSelector((state: RootState) => state.score);
@@ -122,53 +123,60 @@ export default function EditorControlPanel() {
       <div>
         <div className="mb-2 text-sm text-[var(--text-tertiary)]">Keyboard Shortcuts</div>
         <div className="space-y-2 rounded bg-[var(--bg-secondary)] p-3 text-sm">
-          {currentTrack.type === "melody" && (
-            <>
-              <div className="flex justify-between">
-                <span>Q W E R T Y</span>
-                <span className="text-[var(--text-tertiary)]">Duration</span>
-              </div>
-              <div className="flex justify-between">
-                <span>D</span>
-                <span className="text-[var(--text-tertiary)]">Toggle Dotted</span>
-              </div>
-            </>
-          )}
+          <>
+            <div className="flex justify-between">
+              <span>Q W E R T Y</span>
+              <span className="text-[var(--text-tertiary)]">Duration</span>
+            </div>
+            <div className="flex justify-between">
+              <span>D</span>
+              <span className="text-[var(--text-tertiary)]">Toggle Dotted</span>
+            </div>
+          </>
+
           <div className="flex justify-between">
             <span>← →</span>
             <span className="text-[var(--text-tertiary)]">Navigate Slots</span>
           </div>
           <div className="flex justify-between">
-            <span>Delete/Backspace</span>
+            <span>Delete</span>
             <span className="text-[var(--text-tertiary)]">Delete Content</span>
           </div>
-          {currentTrack.type === "lyrics" && (
-            <div className="flex justify-between">
-              <span>Enter</span>
-              <span className="text-[var(--text-tertiary)]">Add Lyrics</span>
-            </div>
-          )}
+
+          <div className="flex justify-between">
+            <span>L</span>
+            <span className="text-[var(--text-tertiary)]">Add Lyrics (for melody)</span>
+          </div>
         </div>
       </div>
 
       {/* Notation Settings - Only show for melody tracks */}
-      {currentTrack.type === "melody" && (
-        <div>
-          <div className="mb-2 text-sm text-[var(--text-tertiary)]">Notation Settings</div>
-          <div className="space-y-2">
-            <button
-              className={`flex items-center gap-2 rounded border border-[var(--border)] px-3 py-2 ${
-                useRelativePitch
-                  ? "bg-[var(--bg-selected)] text-[var(--text-selected)]"
-                  : "bg-[var(--bg-secondary)]"
-              }`}
-              onClick={() => dispatch(toggleRelativePitch())}
-            >
-              <span className="text-sm">Relative Pitch</span>
-            </button>
-          </div>
+
+      <div>
+        <div className="mb-2 text-sm text-[var(--text-tertiary)]">Notation Settings</div>
+        <div className="space-y-2">
+          <button
+            className={`flex items-center gap-2 rounded border border-[var(--border)] px-3 py-2 ${
+              useRelativePitch
+                ? "bg-[var(--bg-selected)] text-[var(--text-selected)]"
+                : "bg-[var(--bg-secondary)]"
+            }`}
+            onClick={() => dispatch(toggleRelativePitch())}
+          >
+            <span className="text-sm">Relative Pitch</span>
+          </button>
+          <button
+            className={`flex items-center gap-2 rounded border border-[var(--border)] px-3 py-2 ${
+              showLyrics
+                ? "bg-[var(--bg-selected)] text-[var(--text-selected)]"
+                : "bg-[var(--bg-secondary)]"
+            }`}
+            onClick={() => dispatch(setShowLyrics(!showLyrics))}
+          >
+            <span className="text-sm">Show Lyrics</span>
+          </button>
         </div>
-      )}
+      </div>
 
       {/* Track Controls */}
       <div className="mt-4 rounded bg-[var(--bg-secondary)]">
@@ -201,18 +209,12 @@ export default function EditorControlPanel() {
           >
             Add Melody
           </button>
-          <button
+          {/* <button
             className="] rounded border border-[var(--border)] bg-[var(--bg-secondary)] p-2 text-sm"
             onClick={() => handleAddTrack("notes")}
           >
             Add Notes
-          </button>
-          <button
-            className="] rounded border border-[var(--border)] bg-[var(--bg-secondary)] p-2 text-sm"
-            onClick={() => handleAddTrack("lyrics")}
-          >
-            Add Lyrics
-          </button>
+          </button> */}
           <button
             className="] rounded border border-[var(--border)] bg-[var(--bg-secondary)] p-2 text-sm"
             onClick={() => handleAddTrack("accompaniment")}

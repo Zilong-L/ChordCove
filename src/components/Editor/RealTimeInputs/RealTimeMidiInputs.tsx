@@ -7,6 +7,7 @@ import { useMetronome } from "./useMetronome";
 import { pushSlot, clearDirtyBit, setSlot } from "@stores/scoreSlice";
 import { useEffect, useRef } from "react";
 import { Note } from "tonal";
+import { scorePlaybackService } from "@utils/sounds/ScorePlaybackService";
 
 // WebMidi types
 interface MIDIMessageEvent {
@@ -70,6 +71,7 @@ export default function RealTimeInput() {
   const score = useSelector((state: RootState) => state.score);
   const editing = useSelector((state: RootState) => state.editing);
   const editingBeat = editing.editingBeat;
+  const editingTrack = editing.editingTrack;
   const isRecording = editing.isRecording;
   const currentTrack = score.tracks[editing.editingTrack];
   const [startingTime, setStartingTime] = useState<number | null>(null);
@@ -81,6 +83,24 @@ export default function RealTimeInput() {
   useEffect(() => {
     currentTrackRef.current = score.tracks[editing.editingTrack];
   }, [score.tracks, editing.editingTrack]);
+
+  // Control playback based on recording state changes
+  useEffect(() => {
+    if (isRecording) {
+      const accompanimentTracks = score.tracks.filter((_, index) => index !== editingTrack);
+      scorePlaybackService.setup(accompanimentTracks, score.tempo).then(() => {
+        scorePlaybackService.play(editingBeat);
+      });
+
+      return () => {
+        if (!isRecording) {
+          scorePlaybackService.dispose();
+        }
+      };
+    } else {
+      scorePlaybackService.stop();
+    }
+  }, [isRecording, editingTrack, editingBeat, score.tempo]);
 
   const calculateBeatPosition = useCallback(
     (timestamp: number) => {
@@ -203,37 +223,7 @@ export default function RealTimeInput() {
       }
     };
   })();
-  const handleMidiMessageForAccompaniment = (() => {
-    let pressingNote: ActiveNote | null = null;
 
-    return (message: MIDIMessageEvent) => {
-      const [status, note, velocity] = message.data;
-
-      // 处理音符按下
-      if (status === 144 && velocity > 0) {
-        if (pressingNote) {
-          const beatPosition = calculateBeatPositionRef.current(pressingNote.startTime);
-          const durationInBeats = msToBeatsRef.current(performance.now() - pressingNote.startTime);
-          const noteLetter = Note.fromMidi(pressingNote.noteMidi);
-          updateMelodyTrackRef.current(beatPosition, durationInBeats, noteLetter);
-        }
-        pressingNote = { startTime: performance.now(), noteMidi: note };
-        console.log("pressingNote", pressingNote);
-      }
-      // 处理音符释放
-      else if (status === 128 || (status === 144 && velocity === 0)) {
-        if (pressingNote && note == pressingNote.noteMidi) {
-          const beatPosition = calculateBeatPositionRef.current(pressingNote.startTime);
-          const durationInBeats = msToBeatsRef.current(performance.now() - pressingNote.startTime);
-          const noteLetter = Note.fromMidi(pressingNote.noteMidi);
-          console.log("pressing", performance.now() - pressingNote.startTime);
-          console.log("updateMelodyTrack", beatPosition, durationInBeats, noteLetter);
-          updateMelodyTrackRef.current(beatPosition, durationInBeats, noteLetter);
-          pressingNote = null;
-        }
-      }
-    };
-  })();
   const handleMidiMessageForNotes = (() => {
     let pressingNotes: ActiveNote[] = [];
     let sustainedNotes: ActiveNote[] = [];
@@ -280,6 +270,7 @@ export default function RealTimeInput() {
       console.log(pressingNotes, sustainedNotes);
     };
   })();
+
   const handleMidiMessage = (message: MIDIMessageEvent) => {
     switch (currentTrackRef.current.type) {
       case "notes":
@@ -346,28 +337,34 @@ export default function RealTimeInput() {
       <div className="flex items-center gap-4">
         <button
           onClick={handleStartAndStop}
-          className="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
+          className={`rounded px-4 py-2 text-[var(--text-primary)] transition-colors ${
+            isRecording
+              ? "bg-[var(--bg-danger)] hover:bg-[var(--bg-danger-hover)]"
+              : "bg-[var(--bg-button)] hover:bg-[var(--bg-button-hover)]"
+          }`}
         >
           {isRecording ? "Stop" : "Start"} Recording
         </button>
-        <span>Tempo: {score.tempo} BPM</span>
+        <span className="text-[var(--text-primary)]">Tempo: {score.tempo} BPM</span>
         <div className="flex items-center gap-2">
-          <label htmlFor="inputOffset">Input Offset (ms):</label>
+          <label htmlFor="inputOffset" className="text-[var(--text-primary)]">
+            Input Offset (ms):
+          </label>
           <input
             id="inputOffset"
             type="number"
             value={inputOffset}
             onChange={(e) => setInputOffset(Number(e.target.value))}
-            className="w-20 rounded border px-2 py-1"
+            className="w-20 rounded border border-[var(--border-primary)] bg-[var(--bg-secondary)] px-2 py-1 text-[var(--text-primary)] focus:border-[var(--border-focus)] focus:outline-none"
           />
         </div>
         <div className="flex items-center gap-2">
-          <label className="flex items-center gap-2">
+          <label className="flex items-center gap-2 text-[var(--text-primary)]">
             Snap to:
             <select
               value={snapType}
               onChange={(e) => setSnapType(e.target.value as SnapType)}
-              className="rounded border px-2 py-1"
+              className="rounded border border-[var(--border-primary)] bg-[var(--bg-secondary)] px-2 py-1 text-[var(--text-primary)] focus:border-[var(--border-focus)] focus:outline-none"
             >
               <option value="none">Off</option>
               <option value="eighth">8th Notes</option>

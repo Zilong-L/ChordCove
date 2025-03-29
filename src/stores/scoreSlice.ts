@@ -1,6 +1,8 @@
 // store/scoreSlice.ts
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-export type TrackType = "melody" | "accompaniment" | "lyrics" | "notes";
+
+export type TrackType = "melody" | "accompaniment" | "notes";
+
 export interface Track {
   id: string;
   type: TrackType;
@@ -12,7 +14,7 @@ export interface Score {
   tempo: number;
   key: string;
 }
-// Base slot type with common properties
+
 export interface BaseSlot {
   beat: number;
   duration: number;
@@ -22,25 +24,23 @@ export interface BaseSlot {
 // Specialized slot types
 export interface MelodySlot extends BaseSlot {
   note: string; // Single note
+  lyrics?: string; // Optional lyrics for the note
 }
 
-export interface NoteSlot extends BaseSlot {
-  note: string;
+export interface NotesSlot extends BaseSlot {
+  notes: string[]; // Multiple notes for chords
 }
+
 export interface AccompanimentSlot extends BaseSlot {
-  notes: string[]; // Array of notes
+  notes: string[]; // Multiple notes for accompaniment
 }
 
 export interface ChordSlot extends BaseSlot {
   chord: string; // Chord symbol
 }
 
-export interface LyricsSlot extends BaseSlot {
-  text: string; // Lyrics text
-}
-
 // Union type for all slot types
-export type Slot = MelodySlot | NotesSlot | AccompanimentSlot | ChordSlot | LyricsSlot;
+export type Slot = MelodySlot | NotesSlot | AccompanimentSlot | ChordSlot;
 
 // Helper functions for slot operations
 export const slotHelpers = {
@@ -50,8 +50,6 @@ export const slotHelpers = {
         return !(slot as MelodySlot).note;
       case "notes":
         return !(slot as NotesSlot).notes.length;
-      case "lyrics":
-        return !(slot as LyricsSlot).text;
       case "accompaniment":
         return (slot as AccompanimentSlot).notes.length === 0;
       default:
@@ -64,8 +62,6 @@ export const slotHelpers = {
         return Object.prototype.hasOwnProperty.call(slot, "note");
       case "notes":
         return Object.prototype.hasOwnProperty.call(slot, "notes");
-      case "lyrics":
-        return Object.prototype.hasOwnProperty.call(slot, "text");
       case "accompaniment":
         return Object.prototype.hasOwnProperty.call(slot, "notes");
       default:
@@ -74,9 +70,19 @@ export const slotHelpers = {
   },
 };
 
-// Helper function to create empty slots based on track type
+// Helper function to create empty slots
 export function createEmptySlot(type: TrackType, beat: number, duration: number): Slot {
-  return createSlot(type, { beat, duration });
+  const baseSlot = { beat, duration, comment: "" };
+  switch (type) {
+    case "melody":
+      return { ...baseSlot, note: "" };
+    case "notes":
+      return { ...baseSlot, notes: [] };
+    case "accompaniment":
+      return { ...baseSlot, notes: [] };
+    default:
+      throw new Error(`Unknown track type: ${type}`);
+  }
 }
 
 // Helper function to create a slot from raw data
@@ -89,16 +95,12 @@ export function createSlot(type: TrackType, data: Partial<Slot>): Slot {
       return {
         ...baseSlot,
         note: (data as Partial<MelodySlot>).note || "",
+        lyrics: (data as Partial<MelodySlot>).lyrics,
       };
     case "notes":
       return {
         ...baseSlot,
-        note: (data as Partial<NoteSlot>).note || "",
-      };
-    case "lyrics":
-      return {
-        ...baseSlot,
-        text: (data as Partial<LyricsSlot>).text || "",
+        notes: (data as Partial<NotesSlot>).notes || [],
       };
     case "accompaniment":
       return {

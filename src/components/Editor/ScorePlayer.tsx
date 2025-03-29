@@ -1,8 +1,6 @@
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@stores/store";
-import { getSamplerInstance } from "@utils/sounds/Toneloader";
-import * as Tone from "tone";
 import {
   PlayIcon,
   StopIcon,
@@ -10,8 +8,8 @@ import {
   BackwardIcon,
   ForwardIcon,
 } from "@heroicons/react/24/solid";
-import { setEditingBeat, setPlaybackStartBeat, setPlayingBeat } from "@stores/editingSlice";
-import type { MelodySlot, AccompanimentSlot, NoteSlot } from "@stores/scoreSlice";
+import { setEditingBeat, setPlayingBeat } from "@stores/editingSlice";
+import { scorePlaybackService } from "@utils/sounds/ScorePlaybackService";
 
 interface ScorePlayerProps {
   className?: string;
@@ -23,19 +21,11 @@ export default function ScorePlayer({ className = "" }: ScorePlayerProps) {
   const [isPaused, setIsPaused] = useState(false);
   const [currentNoteIndex, setCurrentNoteIndex] = useState(0);
 
-  // Use ref to store the loop so we can clean it up
-  const loopRef = useRef<Tone.Loop | null>(null);
-
   const score = useSelector((state: RootState) => state.score);
-  const { editingTrack, editingBeat, playbackStartBeat, playbackEndBeat } = useSelector(
+  const { editingTrack, editingBeat, isRecording } = useSelector(
     (state: RootState) => state.editing
   );
   const currentTrack = score.tracks[editingTrack];
-
-  // Convert beat position to time in seconds
-  const beatToTime = (beat: number, bpm: number) => {
-    return (beat * 60) / bpm;
-  };
 
   // Update playback start position when editing beat changes and not playing
   useEffect(() => {
@@ -45,187 +35,50 @@ export default function ScorePlayer({ className = "" }: ScorePlayerProps) {
     }
   }, [editingBeat, currentTrack.slots, isPlaying, isPaused]);
 
-  // Cleanup loop on unmount
+  // Setup playback service
   useEffect(() => {
-    return () => {
-      if (loopRef.current) {
-        loopRef.current.dispose();
-      }
-      dispatch(setPlayingBeat(null));
-    };
-  }, [dispatch]);
+    // Don't setup if recording is active
+    if (isRecording) return;
 
-  const handleStop = useCallback(() => {
-    try {
-      // Stop getTransport()
-      Tone.getTransport().stop();
+    scorePlaybackService.setup(score.tracks, score.tempo);
 
-      dispatch(setPlayingBeat(null));
-      const index = currentTrack.slots.findIndex((slot) => slot.beat >= editingBeat);
-      setCurrentNoteIndex(index === -1 ? currentTrack.slots.length - 1 : index);
-
-      setIsPlaying(false);
-      setIsPaused(false);
-    } catch (error) {
-      console.error("Error during stop:", error);
-    }
-  }, [editingBeat, currentTrack.slots, dispatch]);
-
-  // Create or update loop when notes change
-  const setupLoop = useCallback(() => {
-    // Dispose of existing loop
-    if (loopRef.current) {
-      loopRef.current.dispose();
-    }
-
-    const sampler = getSamplerInstance();
-    if (!sampler) return;
-
-    // Clear any existing events
-    Tone.getTransport().cancel();
-
-    // Schedule each note individually
-    console.log("All tracks:", score.tracks);
-    let scheduledNotes = 0;
-
-    // 收集所有轨道的音符
-    const allValidSlots = score.tracks
-      .filter((t) => t.type != "lyrics")
-      .flatMap((track) => {
-        return track.slots
-          .filter(
-            (slot) =>
-              slot.beat >= playbackStartBeat &&
-              (playbackEndBeat === null || slot.beat <= playbackEndBeat)
-          )
-          .map((slot) => {
-            if (track.type === "melody" || track.type === "notes") {
-              return { ...(slot as MelodySlot | NoteSlot), trackType: track.type };
-            } else {
-              return { ...(slot as AccompanimentSlot), trackType: track.type };
-            }
-          });
-      });
-
-    // 按照 beat 排序，确保按时间顺序播放
-    const sortedSlots = allValidSlots.sort((a, b) => a.beat - b.beat);
-
-    sortedSlots.forEach((slot) => {
-      const isMelodySlot = slot.trackType === "melody" || slot.trackType === "notes";
-      const isAccompanimentSlot = slot.trackType === "accompaniment";
-
-      if (
-        (isMelodySlot && (slot as MelodySlot).note && !(slot as MelodySlot).sustain) ||
-        (isAccompanimentSlot && (slot as AccompanimentSlot).notes.length > 0)
-      ) {
-        // Schedule the note at the exact beat time
-        console.log("Scheduling note:", {
-          note: isMelodySlot ? (slot as MelodySlot).note : (slot as AccompanimentSlot).notes,
-          beat: slot.beat,
-          duration: slot.duration,
-          tempo: score.tempo,
-        });
-        scheduledNotes++;
-
-        // 更新当前播放的 beat
-        Tone.getTransport().schedule(
-          (time) => {
-            dispatch(setPlayingBeat(slot.beat));
-
-            if (isMelodySlot) {
-              sampler.sampler.triggerAttackRelease(
-                (slot as MelodySlot).note,
-                beatToTime(slot.duration, score.tempo),
-                time
-              );
-            } else {
-              // For accompaniment, play all notes simultaneously
-              (slot as AccompanimentSlot).notes.forEach((note) => {
-                sampler.sampler.triggerAttackRelease(
-                  note,
-                  beatToTime(slot.duration, score.tempo),
-                  time
-                );
-              });
-            }
-          },
-          beatToTime(slot.beat, score.tempo)
-        );
+    scorePlaybackService.onPlaybackStateChange((state) => {
+      setIsPlaying(state.isPlaying);
+      setIsPaused(state.isPaused);
+      if (state.currentBeat === null) {
+        dispatch(setPlayingBeat(null));
       }
     });
 
-    // 如果设置了 playbackEndBeat，安排在结束时停止播放
-    if (playbackEndBeat !== null) {
-      // 在最后一个音符结束后停止
-      const lastSlot = sortedSlots[sortedSlots.length - 1];
-      if (lastSlot) {
-        const stopTime = beatToTime(lastSlot.beat + (lastSlot.duration || 1), score.tempo);
-        console.log("Scheduling stop at:", stopTime);
-        Tone.getTransport().schedule(() => {
-          handleStop();
-        }, stopTime);
+    scorePlaybackService.onPlayingBeatChange((beat) => {
+      dispatch(setPlayingBeat(beat));
+    });
+
+    return () => {
+      if (!isRecording) {
+        scorePlaybackService.dispose();
+        dispatch(setPlayingBeat(null));
       }
-    }
+    };
+  }, [score.tracks, score.tempo, dispatch, isRecording]);
 
-    console.log("Total notes scheduled:", scheduledNotes);
-
-    // Set transport tempo and start position
-    Tone.getTransport().bpm.value = score.tempo;
-    Tone.getTransport().seconds = beatToTime(playbackStartBeat, score.tempo);
-  }, [score.tracks, score.tempo, playbackEndBeat, playbackStartBeat, dispatch, handleStop]);
+  const handleStop = useCallback(() => {
+    scorePlaybackService.stop();
+    const index = currentTrack.slots.findIndex((slot) => slot.beat >= editingBeat);
+    setCurrentNoteIndex(index === -1 ? currentTrack.slots.length - 1 : index);
+  }, [editingBeat, currentTrack.slots]);
 
   const handlePlay = useCallback(async () => {
-    if (playbackStartBeat > playbackEndBeat!) {
-      console.log(playbackStartBeat, playbackEndBeat);
-      return;
-    }
     if (isPaused) {
-      setIsPaused(false);
-      setIsPlaying(true);
-      Tone.getTransport().start();
+      scorePlaybackService.play(editingBeat);
       return;
     }
-
-    try {
-      // Initialize audio context
-      await Tone.start();
-      const sampler = getSamplerInstance();
-      if (!sampler) {
-        console.error("Failed to initialize sampler");
-        return;
-      }
-
-      // Wait for samples to load
-      await Tone.loaded();
-      console.log("start");
-      // Setup the loop
-      setupLoop();
-
-      // Start transport
-      Tone.getTransport().start();
-
-      setIsPlaying(true);
-      setIsPaused(false);
-    } catch (error) {
-      console.error("Error during playback:", error);
-      handleStop();
-    }
-  }, [isPaused, setupLoop, handleStop]);
+    scorePlaybackService.play(editingBeat);
+  }, [isPaused, editingBeat]);
 
   const handlePause = useCallback(() => {
-    try {
-      // Pause getTransport()
-      Tone.getTransport().pause();
-
-      // Store current position
-      dispatch(setPlaybackStartBeat(editingBeat));
-
-      setIsPaused(true);
-      setIsPlaying(false);
-    } catch (error) {
-      console.error("Error during pause:", error);
-    }
-  }, [editingBeat, dispatch]);
+    scorePlaybackService.pause();
+  }, []);
 
   const handleStepBackward = useCallback(() => {
     if (!isPlaying && currentNoteIndex > 0) {
@@ -233,7 +86,6 @@ export default function ScorePlayer({ className = "" }: ScorePlayerProps) {
       setCurrentNoteIndex(newIndex);
       const newBeat = currentTrack.slots[newIndex].beat;
       dispatch(setEditingBeat(newBeat));
-      dispatch(setPlaybackStartBeat(newBeat));
     }
   }, [currentNoteIndex, currentTrack.slots, dispatch, isPlaying]);
 
@@ -243,13 +95,8 @@ export default function ScorePlayer({ className = "" }: ScorePlayerProps) {
       setCurrentNoteIndex(newIndex);
       const newBeat = currentTrack.slots[newIndex].beat;
       dispatch(setEditingBeat(newBeat));
-      dispatch(setPlaybackStartBeat(newBeat));
     }
   }, [currentNoteIndex, currentTrack.slots, dispatch, isPlaying]);
-
-  useEffect(() => {
-    handleStop();
-  }, [editingTrack, handleStop]);
 
   return (
     <div className={`flex items-center gap-2 ${className}`}>

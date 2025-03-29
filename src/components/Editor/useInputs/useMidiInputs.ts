@@ -80,6 +80,7 @@ export default function useMidiInputs() {
         beat: currentBeat,
         duration,
         note: noteName,
+        lyrics: existingSlot.lyrics, // Preserve existing lyrics if any
       };
       // Update last input note for melody
       dispatch(setLastInputNote(noteName));

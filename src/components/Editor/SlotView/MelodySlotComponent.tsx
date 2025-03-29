@@ -17,11 +17,12 @@ export const MelodySlotComponent = React.memo(
     isFirstTrack?: boolean;
   }) => {
     const useRelativePitch = useSelector((state: RootState) => state.editing.useRelativePitch);
+    const showLyrics = useSelector((state: RootState) => state.editing.showLyrics);
     const underlineCount = getUnderlineCount(slot.duration);
     const hasDot = isDotted(slot.duration);
     const content = (() => {
       if (slot.sustain) return "-";
-      if (!slot.note) return "♪";
+      if (!slot.note) return "0";
 
       if (useRelativePitch) {
         const degree = calculateDegree(keyNote, slot.note, "number");
@@ -50,7 +51,7 @@ export const MelodySlotComponent = React.memo(
 
     return (
       <BaseSlotComponent slot={slot} isFirstTrack={isFirstTrack}>
-        <div className="relative flex w-full items-center">
+        <div className="relative flex w-full flex-col items-center">
           {/* Note content and dot */}
           <div className="relative">
             <span className="inline-block">{content}</span>
@@ -78,6 +79,10 @@ export const MelodySlotComponent = React.memo(
               </div>
             )}
           </div>
+          {/* Lyrics display */}
+          {showLyrics && (
+            <div className="mt-2 text-sm text-gray-600">{slot.lyrics || "\u00A0"}</div>
+          )}
         </div>
       </BaseSlotComponent>
     );

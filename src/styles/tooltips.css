@@ -1,59 +1,24 @@
-button[data-tooltip]:hover::after {
+div[data-tooltip] {
+  position: relative;
+  z-index: 1;
+}
+
+div[data-tooltip]:hover {
+  z-index: 50;
+}
+
+div[data-tooltip]:hover::after {
   content: attr(data-tooltip);
   position: absolute;
-  background-color: #333;
+  background-color: #000000;
   color: #f8e5e5;
   padding: 8px;
   border-radius: 4px;
   font-size: 12px;
-  left: 150%;
-  top: 50%;
+  top: -150%;
   transform: translateY(-50%);
   white-space: nowrap;
-  z-index: 1000;
-}
-button {
-  position: relative;
-}
-button[data-tooltip]:hover::before {
-  content: "";
-  position: absolute;
-  background-color: #333;
-  width: 10px;
-  height: 10px;
-  left: 140%;
-  top: 50%;
-  transform: translateY(-50%) rotate(45deg);
-  z-index: 1000;
-  opacity: 100%;
-}
-div[data-bar-number]:hover::before {
-  content: attr(data-bar-number);
-  position: absolute;
-  background-color: #333;
-  color: #f8e5e5;
-  padding: 8px;
-  border-radius: 4px;
-  font-size: 12px;
-  left: 50%;
-  transform: translateX(-50%) translateY(-150%);
-  white-space: nowrap;
-  z-index: 1000;
-  opacity: 100%;
-  transition: all 0.3s;
-}
-div[data-bar-number]:hover::after {
-  content: "";
-  position: absolute;
-  background-color: #333;
-  color: #f8e5e5;
-  padding: 8px;
-  font-size: 12px;
-  left: 50%;
-  transform: translateX(-50%) translateY(-400%) rotateZ(45deg);
-
-  white-space: nowrap;
-  z-index: 999;
-  opacity: 100%;
-  transition: all 0.3s;
+  filter: drop-shadow(0 0 10px rgba(0, 0, 0, 0.5));
+  z-index: 9999;
+  pointer-events: none;
 }

@@ -8,15 +8,8 @@ import { SheetMetaData } from "#types/sheet";
 import { useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 export type ChordData = { chord: string; position: number };
-const API_BACKEND_DEV = "http://localhost:8787";
-const API_BACKEND = "https://chordcove-backend.875159954.workers.dev";
-const R2_BACKEND_DEV = "https://pub-c7e649783b8e4779a0bd3717e8fa77e4.r2.dev";
-const R2_BACKEND = "https://r2.barnman.cc";
 
-// 如果是在本地开发环境，使用 API_BACKEND_DEV，否则使用 API_BACKEND
-const API_BASE_URL = window.location.hostname === "localhost" ? API_BACKEND_DEV : API_BACKEND;
-const R2_BASE_URL = window.location.hostname === "localhost" ? R2_BACKEND_DEV : R2_BACKEND;
-
+import { API_BASE_URL, R2_BASE_URL } from "@utils/api";
 function parseLine(line: string) {
   const regex = /\[([^\]]+)\]/g;
   let lyricsOnly = "";

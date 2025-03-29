@@ -3,11 +3,8 @@ import AlbumCard from "@components/basic/AlbumCard";
 import ArtistRow from "@components/basic/ArtistRow";
 import { SheetMetaData } from "#types/sheet";
 import { fetchApi } from "@utils/api";
-const API_BACKEND_DEV = "http://localhost:8787";
-const API_BACKEND = "https://chordcove-backend.875159954.workers.dev";
 
-// 如果是在本地开发环境，使用 API_BACKEND_DEV，否则使用 API_BACKEND
-const API_BASE_URL = window.location.hostname === "localhost" ? API_BACKEND_DEV : API_BACKEND;
+import { API_BASE_URL } from "@utils/api";
 
 export default function HomePage() {
   const [sheets, setSheets] = useState<SheetMetaData[] | null>(null);

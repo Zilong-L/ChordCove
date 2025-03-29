@@ -16,7 +16,7 @@ export function handleApiResponse<T>(response: ApiResponse<T>): T {
 }
 
 const API_BACKEND_DEV = "http://localhost:8787";
-const API_BACKEND = "https://chordcove-backend.875159954.workers.dev";
+const API_BACKEND = "https://chordcove-backend.barnman.cc";
 
 const R2_BACKEND_DEV = "https://pub-c7e649783b8e4779a0bd3717e8fa77e4.r2.dev";
 const R2_BACKEND = "https://r2.barnman.cc";

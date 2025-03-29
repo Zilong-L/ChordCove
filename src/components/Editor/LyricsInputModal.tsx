@@ -40,19 +40,36 @@ export const LyricsInputModal = () => {
     };
   }, [isLyricsEditing]);
 
+  // Add keyboard shortcut for opening lyrics input
+  useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      if (e.key === "l" && !isLyricsEditing && currentTrack?.type === "melody") {
+        e.preventDefault();
+        dispatch(setLyricsEditing(true));
+        const currentSlot = currentTrack.slots.find((slot) => slot.beat === editingBeat);
+        dispatch(setLyricsInputValue(currentSlot?.lyrics || ""));
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyPress);
+    return () => window.removeEventListener("keydown", handleKeyPress);
+  }, [dispatch, isLyricsEditing, currentTrack, editingBeat]);
+
   const handleClose = () => {
-    if (lyricsInputValue) {
+    if (lyricsInputValue && currentTrack?.type === "melody") {
       // Save the input before closing
-      dispatch(
-        setSlot({
-          trackId: currentTrack.id,
-          slot: {
-            text: lyricsInputValue,
-            duration: newSlotDuration,
-            beat: editingBeat,
-          },
-        })
-      );
+      const currentSlot = currentTrack.slots.find((slot) => slot.beat === editingBeat);
+      if (currentSlot) {
+        dispatch(
+          setSlot({
+            trackId: currentTrack.id,
+            slot: {
+              ...currentSlot,
+              lyrics: lyricsInputValue,
+            },
+          })
+        );
+      }
     }
     dispatch(setLyricsEditing(false));
     dispatch(setLyricsInputValue(""));
@@ -62,16 +79,20 @@ export const LyricsInputModal = () => {
     if (e.key === "Enter") {
       e.preventDefault();
       // Save current input
-      dispatch(
-        setSlot({
-          trackId: currentTrack.id,
-          slot: {
-            text: lyricsInputValue,
-            duration: newSlotDuration,
-            beat: editingBeat,
-          },
-        })
-      );
+      if (currentTrack?.type === "melody") {
+        const currentSlot = currentTrack.slots.find((slot) => slot.beat === editingBeat);
+        if (currentSlot) {
+          dispatch(
+            setSlot({
+              trackId: currentTrack.id,
+              slot: {
+                ...currentSlot,
+                lyrics: lyricsInputValue,
+              },
+            })
+          );
+        }
+      }
       // Move to next position
       dispatch(setEditingBeat(editingBeat + newSlotDuration));
       // Clear input
@@ -82,7 +103,7 @@ export const LyricsInputModal = () => {
     }
   };
 
-  if (!isLyricsEditing) return null;
+  if (!isLyricsEditing || currentTrack?.type !== "melody") return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">

@@ -4,6 +4,7 @@ import type { AccompanimentSlotView, NotesSlotView } from "@utils/theory/barView
 import { BaseSlotComponent } from "./BaseSlotComponent";
 import { Chord, Note } from "tonal";
 import { AccompanimentSlot, NoteSlot } from "@stores/scoreSlice";
+import { ToanlWrapper } from "@utils/theory/ToanlWrapper";
 
 export const NotesSlotComponent = React.memo(
   ({ slot, isFirstTrack = false }: { slot: AccompanimentSlotView; isFirstTrack?: boolean }) => {
@@ -23,12 +24,14 @@ export const NotesSlotComponent = React.memo(
 
       // Find matching chord
       const detected = Chord.detect(notes);
+      console.log(detected.map(ToanlWrapper.simplifyChord));
       return detected.length > 0 ? detected[0] : "";
     }, [slot]);
+    if (chordName === "" || slot.sustain) return <div></div>;
     return (
       <BaseSlotComponent slot={slot} isFirstTrack={isFirstTrack}>
         <div className="relative flex w-full items-center">
-          <span className="inline-block">{slot.sustain ? "-" : chordName || "..."}</span>
+          <span className="inline-block"> {chordName}</span>
         </div>
       </BaseSlotComponent>
     );

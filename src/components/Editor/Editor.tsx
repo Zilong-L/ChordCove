@@ -33,7 +33,7 @@ export default function SimpleEditor() {
           <span>Beat {editingBeat}</span>
         </div>
         {/* <RealTimeInput /> */}
-        <RealTimeMidiInput />
+        {/* <RealTimeMidiInput /> */}
         <ScorePlayer />
       </div>
 
