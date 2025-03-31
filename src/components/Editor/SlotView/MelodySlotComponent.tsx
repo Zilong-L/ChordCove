@@ -80,7 +80,7 @@ export const MelodySlotComponent = React.memo(
             )}
           </div>
           {/* Lyrics display */}
-          {showLyrics && (
+          {showLyrics && !slot.sustain && (
             <div className="mt-2 text-sm text-gray-600">{slot.lyrics || "\u00A0"}</div>
           )}
         </div>
