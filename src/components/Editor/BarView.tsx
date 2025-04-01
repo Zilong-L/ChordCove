@@ -1,6 +1,11 @@
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@stores/store";
-import { splitNotesIntoBars, breakDownNotesWithinBar, type BarView } from "@utils/theory/barView";
+import {
+  splitNotesIntoBars,
+  breakDownNotesWithinBar,
+  type BarView,
+  type NotesSlotView,
+} from "@utils/theory/barView";
 import { setEditingBeat, setEditingTrack } from "@stores/editingSlice";
 import { useMemo, useCallback } from "react";
 import React from "react";
@@ -11,13 +16,11 @@ import { SlotController } from "./SlotView";
 const Bar = React.memo(
   ({
     bar,
-    isFirstTrack,
     trackType,
     editingBeat,
     onNoteClick,
   }: {
     bar: BarView;
-    isFirstTrack: boolean;
     trackType: TrackType;
     editingBeat: number;
     onNoteClick: (beat: number) => void;
@@ -48,7 +51,7 @@ const Bar = React.memo(
               style={{ width: `${widthPercentage}%` }}
               onClick={() => onNoteClick(slot.originalBeat)}
             >
-              <SlotController slot={slot} isFirstTrack={isFirstTrack} trackType={trackType} />
+              <SlotController slot={slot} trackType={trackType} />
             </div>
           );
         })}
@@ -66,7 +69,6 @@ const BarGroup = React.memo(
     editingBeat,
     onNoteClick,
     colSpan,
-    showBarNumber,
   }: {
     barIndex: number;
     tracks: Track[];
@@ -74,7 +76,6 @@ const BarGroup = React.memo(
     editingBeat: number;
     onNoteClick: (trackIndex: number, beat: number) => void;
     colSpan: number;
-    showBarNumber: boolean;
   }) => {
     const trackBars = useMemo(() => {
       return tracks.map((track, trackIndex) => {
@@ -82,27 +83,27 @@ const BarGroup = React.memo(
 
         if (track.type === "notes" && bars[barIndex]) {
           const originalbar = bars[barIndex];
-          console.log("original", originalbar);
-          const newNotes = originalbar.notes.reduce((acc, cur) => {
+          const newNotes = originalbar.notes.reduce<NotesSlotView[]>((acc, cur) => {
             const existingSlot = acc.find((slot) => slot.beat === cur.beat);
-            const { note, ...withoutNote } = cur;
-            // if (note === "") return acc;
-            if (existingSlot) {
-              existingSlot.notes.push(note);
-            } else {
-              acc.push({ ...withoutNote, notes: [cur.note] });
+            if ("notes" in cur) {
+              if (existingSlot) {
+                existingSlot.notes.push(...cur.notes);
+              } else {
+                acc.push({
+                  ...cur,
+                  notes: [...cur.notes],
+                  originalBeat: cur.beat,
+                });
+              }
             }
             return acc;
           }, []);
-          // Group notes by beat
-          console.log(newNotes);
+
           return {
             track,
             bar: { ...bars[barIndex], notes: newNotes },
             trackIndex,
           };
-        } else if (track.type === "accompaniment") {
-          console.log(bars[barIndex]);
         }
         return {
           track,
@@ -127,7 +128,6 @@ const BarGroup = React.memo(
                   bar={bar}
                   editingBeat={editingTrack === trackIndex ? editingBeat : -1}
                   onNoteClick={(beat) => onNoteClick(trackIndex, beat)}
-                  isFirstTrack={trackIndex === 0}
                   trackType={track.type}
                 />
               ) : (
@@ -200,7 +200,6 @@ export default function BarView() {
             editingBeat={editingBeat}
             onNoteClick={handleNoteClick}
             colSpan={barSpans[barIndex]}
-            showBarNumber={barIndex % 4 === 0}
           />
         ))}
       </div>

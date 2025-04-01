@@ -6,7 +6,7 @@ import { BaseSlotComponent } from "./BaseSlotComponent";
 import { ToanlWrapper } from "@utils/theory/ToanlWrapper";
 
 export const AccompanimentSlotComponent = React.memo(
-  ({ slot, isFirstTrack = false }: { slot: AccompanimentSlotView; isFirstTrack?: boolean }) => {
+  ({ slot }: { slot: AccompanimentSlotView }) => {
     // Detect chord from notes
     const chordName = useMemo(() => {
       if (!("notes" in slot)) return "";

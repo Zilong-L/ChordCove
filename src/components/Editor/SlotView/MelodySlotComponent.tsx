@@ -7,15 +7,7 @@ import { getUnderlineCount, isDotted } from "@utils/theory/duration";
 import { BaseSlotComponent } from "./BaseSlotComponent";
 
 export const MelodySlotComponent = React.memo(
-  ({
-    keyNote,
-    slot,
-    isFirstTrack = false,
-  }: {
-    keyNote: string;
-    slot: MelodySlotView;
-    isFirstTrack?: boolean;
-  }) => {
+  ({ keyNote, slot }: { keyNote: string; slot: MelodySlotView }) => {
     const useRelativePitch = useSelector((state: RootState) => state.editing.useRelativePitch);
     const showLyrics = useSelector((state: RootState) => state.editing.showLyrics);
     const underlineCount = getUnderlineCount(slot.duration);
@@ -50,7 +42,7 @@ export const MelodySlotComponent = React.memo(
     })();
 
     return (
-      <BaseSlotComponent slot={slot} isFirstTrack={isFirstTrack}>
+      <BaseSlotComponent slot={slot}>
         <div className="relative flex w-full flex-col items-center">
           {/* Note content and dot */}
           <div className="relative">

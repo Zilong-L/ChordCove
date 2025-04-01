@@ -11,7 +11,7 @@ import {
   toggleDotted,
 } from "@stores/editingSlice";
 import { RootState } from "@stores/store";
-import { Slot, type Score, setSlot, TrackType, MelodySlot } from "@stores/scoreSlice";
+import { type Score, setSlot, MelodySlot } from "@stores/scoreSlice";
 import type { EditingSlotState } from "@stores/editingSlice";
 
 export function useKeyInputs() {
@@ -129,7 +129,7 @@ export function useKeyInputs() {
     event.preventDefault();
     if (isRecording) return;
     const existingSlot = currentTrack.slots.find((slot) => slot.beat === currentBeat);
-    if (!existingSlot || currentTrack.type !== "melody" || !existingSlot.note) return;
+    if (!existingSlot || currentTrack.type !== "melody" || !("note" in existingSlot)) return;
 
     const currentNote = Note.get((existingSlot as MelodySlot).note);
     if (!currentNote.midi) return;
@@ -207,10 +207,10 @@ export function useKeyInputs() {
 
     if (currentTrack.type === "melody") {
       Object.assign(updatedSlot, { note: "" });
-    } else if (currentTrack.type === "chord") {
-      Object.assign(updatedSlot, { chord: "" });
-    } else if (currentTrack.type === "lyrics") {
-      Object.assign(updatedSlot, { lyrics: "" });
+    } else if (currentTrack.type === "notes") {
+      Object.assign(updatedSlot, { notes: [] });
+    } else if (currentTrack.type === "accompaniment") {
+      Object.assign(updatedSlot, { notes: [] });
     }
 
     dispatch(

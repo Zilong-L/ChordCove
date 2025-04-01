@@ -1,6 +1,6 @@
 import * as Tone from "tone";
 import { getSamplerInstance } from "./Toneloader";
-import type { Track, MelodySlot, AccompanimentSlot, NoteSlot } from "@stores/scoreSlice";
+import type { Track, MelodySlot, AccompanimentSlot, NotesSlot } from "@stores/scoreSlice";
 
 export interface PlaybackState {
   isPlaying: boolean;
@@ -56,17 +56,15 @@ export class ScorePlaybackService {
     // Clear any existing events
     Tone.getTransport().cancel();
 
-    const allValidSlots = this.tracks
-      .filter((t) => t.type !== "lyrics")
-      .flatMap((track) => {
-        return track.slots.map((slot) => {
-          if (track.type === "melody" || track.type === "notes") {
-            return { ...(slot as MelodySlot | NoteSlot), trackType: track.type };
-          } else {
-            return { ...(slot as AccompanimentSlot), trackType: track.type };
-          }
-        });
+    const allValidSlots = this.tracks.flatMap((track) => {
+      return track.slots.map((slot) => {
+        if (track.type === "melody" || track.type === "notes") {
+          return { ...(slot as MelodySlot | NotesSlot), trackType: track.type };
+        } else {
+          return { ...(slot as AccompanimentSlot), trackType: track.type };
+        }
       });
+    });
 
     const sortedSlots = allValidSlots.sort((a, b) => a.beat - b.beat);
 

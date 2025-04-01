@@ -8,8 +8,8 @@ import ScorePlayer from "./ScorePlayer";
 import { useKeyInputs } from "./useInputs/useKeyInputs";
 import useMidiInputs from "./useInputs/useMidiInputs";
 import { LyricsInputModal } from "./LyricsInputModal";
-import RealTimeInput from "./RealTimeInputs/RealTimeKeyInputs";
-import RealTimeMidiInput from "./RealTimeInputs/RealTimeMidiInputs";
+// import RealTimeInput from "./RealTimeInputs/RealTimeKeyInputs";
+// import RealTimeMidiInput from "./RealTimeInputs/RealTimeMidiInputs";
 
 export default function SimpleEditor() {
   // Get states from Redux

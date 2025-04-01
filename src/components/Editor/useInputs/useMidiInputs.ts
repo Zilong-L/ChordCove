@@ -1,6 +1,6 @@
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@stores/store";
-import { Score, setSlot } from "@stores/scoreSlice";
+import { MelodySlot, Score, setSlot } from "@stores/scoreSlice";
 import { useEffect, useRef } from "react";
 import { EditingSlotState, setEditingBeat, setLastInputNote } from "@stores/editingSlice";
 import { durationValues, type NoteDuration } from "#types/sheet";
@@ -68,7 +68,9 @@ export default function useMidiInputs() {
       const currentTrack = currentTrackRef.current;
       const currentBeat = currentBeatRef.current;
 
-      const existingSlot = currentTrack.slots.find((slot) => slot.beat === currentBeat);
+      const existingSlot = currentTrack.slots.find(
+        (slot) => slot.beat === currentBeat
+      ) as MelodySlot;
       if (!existingSlot) return;
 
       const baseDuration = durationValues[selectedDurationRef.current as NoteDuration];

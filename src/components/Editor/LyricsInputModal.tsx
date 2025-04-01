@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import type { RootState } from "@stores/store";
 import { setLyricsEditing, setLyricsInputValue, setEditingBeat } from "@stores/editingSlice";
-import { setSlot } from "@stores/scoreSlice";
+import { MelodySlot, setSlot } from "@stores/scoreSlice";
 import { durationValues, type NoteDuration } from "#types/sheet";
 
 export const LyricsInputModal = () => {
@@ -46,7 +46,9 @@ export const LyricsInputModal = () => {
       if (e.key === "l" && !isLyricsEditing && currentTrack?.type === "melody") {
         e.preventDefault();
         dispatch(setLyricsEditing(true));
-        const currentSlot = currentTrack.slots.find((slot) => slot.beat === editingBeat);
+        const currentSlot = currentTrack.slots.find(
+          (slot) => slot.beat === editingBeat
+        ) as MelodySlot;
         dispatch(setLyricsInputValue(currentSlot?.lyrics || ""));
       }
     };

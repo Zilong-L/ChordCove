@@ -19,6 +19,7 @@ export interface BaseSlot {
   beat: number;
   duration: number;
   comment: string;
+  dirty?: boolean;
 }
 
 // Specialized slot types

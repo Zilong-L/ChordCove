@@ -1,10 +1,4 @@
-import type {
-  Slot,
-  MelodySlot,
-  LyricsSlot,
-  AccompanimentSlot,
-  NotesSlot,
-} from "@stores/scoreSlice";
+import type { Slot, MelodySlot, AccompanimentSlot, NotesSlot } from "@stores/scoreSlice";
 
 // Create a union type for SlotView that includes originalBeat and sustain
 interface SlotViewBase {
@@ -12,10 +6,9 @@ interface SlotViewBase {
   sustain?: boolean;
 }
 export type MelodySlotView = MelodySlot & SlotViewBase;
-export type LyricsSlotView = LyricsSlot & SlotViewBase;
 export type AccompanimentSlotView = AccompanimentSlot & SlotViewBase;
 export type NotesSlotView = NotesSlot & SlotViewBase;
-export type SlotView = MelodySlotView | LyricsSlotView | AccompanimentSlotView | NotesSlotView;
+export type SlotView = MelodySlotView | AccompanimentSlotView | NotesSlotView;
 
 export interface BarView {
   startBeat: number;
@@ -61,14 +54,35 @@ export function splitNotesIntoBars(notes: Slot[], beatsPerBar: number = 4): BarV
       const currentBarEndBeat = (currentBarIndex + 1) * beatsPerBar;
       const durationInCurrentBar = Math.min(remainingDuration, currentBarEndBeat - currentBeat);
 
-      // Create the note segment
-      const slotView: SlotView = {
-        ...note,
-        beat: currentBeat,
-        duration: durationInCurrentBar,
-        originalBeat: note.beat,
-        sustain: !isFirst,
-      };
+      // Create the note segment based on its type
+      let slotView: SlotView;
+      if ("note" in note) {
+        slotView = {
+          ...note,
+          beat: currentBeat,
+          duration: durationInCurrentBar,
+          originalBeat: note.beat,
+          sustain: !isFirst,
+        } as MelodySlotView;
+      } else if ("notes" in note) {
+        slotView = {
+          ...note,
+          beat: currentBeat,
+          duration: durationInCurrentBar,
+          originalBeat: note.beat,
+          sustain: !isFirst,
+        } as NotesSlotView | AccompanimentSlotView;
+      } else {
+        // Handle chord type or any other types
+        slotView = {
+          ...note,
+          beat: currentBeat,
+          duration: durationInCurrentBar,
+          originalBeat: note.beat,
+          sustain: !isFirst,
+          notes: [], // Add empty notes array for chord type
+        } as NotesSlotView;
+      }
 
       // Add note to the appropriate bar
       if (bars[currentBarIndex]) {

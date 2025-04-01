@@ -39,7 +39,6 @@ export default function EditorControlPanel() {
     (state: RootState) => state.editing as EditingSlotState
   );
   const score = useSelector((state: RootState) => state.score);
-  const currentTrack = score.tracks[editingTrack];
 
   const handleDurationClick = (duration: NoteDuration) => {
     dispatch(setSelectedDuration(duration));

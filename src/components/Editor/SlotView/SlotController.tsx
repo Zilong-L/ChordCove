@@ -13,35 +13,16 @@ import { NotesSlotComponent } from "./NotesSlotComponent";
 type TrackType = "melody" | "accompaniment" | "notes";
 
 export const SlotController = React.memo(
-  ({
-    slot,
-    isFirstTrack,
-    trackType,
-  }: {
-    slot: SlotView;
-    isFirstTrack: boolean;
-    trackType: TrackType;
-  }) => {
+  ({ slot, trackType }: { slot: SlotView; trackType: TrackType }) => {
     const keyNote = useSelector((state: RootState) => state.score.key);
 
     switch (trackType) {
       case "melody":
-        return (
-          <MelodySlotComponent
-            keyNote={keyNote}
-            slot={slot as MelodySlotView}
-            isFirstTrack={isFirstTrack}
-          />
-        );
+        return <MelodySlotComponent keyNote={keyNote} slot={slot as MelodySlotView} />;
       case "accompaniment":
-        return (
-          <AccompanimentSlotComponent
-            slot={slot as AccompanimentSlotView}
-            isFirstTrack={isFirstTrack}
-          />
-        );
+        return <AccompanimentSlotComponent slot={slot as AccompanimentSlotView} />;
       case "notes":
-        return <NotesSlotComponent slot={slot as NotesSlotView} isFirstTrack={isFirstTrack} />;
+        return <NotesSlotComponent slot={slot as NotesSlotView} />;
       default:
         return null;
     }
