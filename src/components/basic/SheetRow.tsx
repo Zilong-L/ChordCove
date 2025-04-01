@@ -43,6 +43,7 @@ export default function SheetRow({ title, sheets }: SheetRowProps) {
         showLeftGradient={currentIndex > 0}
         itemWidth={16}
         gapWidth={0}
+        itemCounts={sheets.length}
       >
         {sheets.map((sheet) => (
           <AlbumCard key={sheet.id} sheet={sheet} widthClassName="w-[14rem]" />

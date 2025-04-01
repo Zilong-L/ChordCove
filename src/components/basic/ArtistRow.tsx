@@ -71,6 +71,7 @@ export default function ArtistRow() {
         onScroll={handleScroll}
         showLeftGradient={currentIndex > 0}
         itemWidth={14}
+        itemCounts={artists.length}
       >
         {artists.map((artist) => (
           <ArtistCard key={artist.id} artist={artist} imageClassName="w-[12rem]" />
