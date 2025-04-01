@@ -9,6 +9,7 @@ import FullSheetEditorPage from "@pages/FullSheetEditorPage";
 import LoginPage from "@pages/LoginPage";
 import RegisterPage from "@pages/RegisterPage";
 import ProtectedRoute from "@components/auth/ProtectedRoute";
+import HelpButton from "@components/HelpButton";
 import "./App.css";
 
 function App() {
@@ -51,6 +52,7 @@ function App() {
             <Route path="/demo" element={<Demo />} />
           </Routes>
         </main>
+        <HelpButton />
       </Router>
     </div>
   );

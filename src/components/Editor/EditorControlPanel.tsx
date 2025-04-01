@@ -59,19 +59,30 @@ export default function EditorControlPanel() {
     );
   };
 
-  const handleRemoveTrack = (trackIndex: number) => {
+  const handleRemoveTrack = (trackIndex: number) => (event: React.MouseEvent) => {
+    // Stop event propagation to prevent track selection
+    event.stopPropagation();
+
     // Prevent removing the last track
     if (score.tracks.length <= 1) {
       return;
     }
 
-    dispatch(removeTrack(trackIndex));
-    // If we're removing the current track or one before it, update the editing track index
-    if (editingTrack >= trackIndex) {
-      // If we're removing the last track or the current track is the last one
-      const newEditingTrack = Math.max(0, Math.min(editingTrack, score.tracks.length - 2));
-      dispatch(setEditingTrack(newEditingTrack));
+    // Calculate new editing track index
+    let newEditingTrack = editingTrack;
+    if (trackIndex === editingTrack) {
+      // If removing current track, move to previous track or first track
+      newEditingTrack = Math.max(0, editingTrack - 1);
+    } else if (trackIndex < editingTrack) {
+      // If removing track before current track, adjust index down
+      newEditingTrack = editingTrack - 1;
     }
+
+    // Update editing track first
+    dispatch(setEditingTrack(newEditingTrack));
+
+    // Then remove the track
+    dispatch(removeTrack(trackIndex));
   };
 
   return (
@@ -90,7 +101,7 @@ export default function EditorControlPanel() {
                 className={`flex items-center justify-center rounded border border-[var(--border)] p-2 transition-colors ${
                   isSelected
                     ? "bg-[var(--bg-selected)] text-[var(--text-selected)]"
-                    : "] bg-[var(--bg-secondary)] text-[var(--text-secondary)]"
+                    : "bg-[var(--bg-secondary)] text-[var(--text-secondary)]"
                 }`}
                 title={`${durationValues[durationNum]} beat${durationValues[durationNum] !== 1 ? "s" : ""}`}
               >
@@ -119,44 +130,12 @@ export default function EditorControlPanel() {
         </div>
       </div>
 
-      {/* Keyboard Shortcuts Help */}
-      <div>
-        <div className="mb-2 text-sm text-[var(--text-tertiary)]">Keyboard Shortcuts</div>
-        <div className="space-y-2 rounded bg-[var(--bg-secondary)] p-3 text-sm">
-          <>
-            <div className="flex justify-between">
-              <span>Q W E R T Y</span>
-              <span className="text-[var(--text-tertiary)]">Duration</span>
-            </div>
-            <div className="flex justify-between">
-              <span>D</span>
-              <span className="text-[var(--text-tertiary)]">Toggle Dotted</span>
-            </div>
-          </>
-
-          <div className="flex justify-between">
-            <span>← →</span>
-            <span className="text-[var(--text-tertiary)]">Navigate Slots</span>
-          </div>
-          <div className="flex justify-between">
-            <span>Delete</span>
-            <span className="text-[var(--text-tertiary)]">Delete Content</span>
-          </div>
-
-          <div className="flex justify-between">
-            <span>L</span>
-            <span className="text-[var(--text-tertiary)]">Add Lyrics (for melody)</span>
-          </div>
-        </div>
-      </div>
-
       {/* Notation Settings - Only show for melody tracks */}
-
       <div>
         <div className="mb-2 text-sm text-[var(--text-tertiary)]">Notation Settings</div>
-        <div className="space-y-2">
+        <div className="grid grid-cols-2 gap-2">
           <button
-            className={`flex items-center gap-2 rounded border border-[var(--border)] px-3 py-2 ${
+            className={`flex items-center justify-center rounded border border-[var(--border)] px-3 py-2 ${
               useRelativePitch
                 ? "bg-[var(--bg-selected)] text-[var(--text-selected)]"
                 : "bg-[var(--bg-secondary)]"
@@ -166,7 +145,7 @@ export default function EditorControlPanel() {
             <span className="text-sm">Relative Pitch</span>
           </button>
           <button
-            className={`flex items-center gap-2 rounded border border-[var(--border)] px-3 py-2 ${
+            className={`flex items-center justify-center rounded border border-[var(--border)] px-3 py-2 ${
               showLyrics
                 ? "bg-[var(--bg-selected)] text-[var(--text-selected)]"
                 : "bg-[var(--bg-secondary)]"
@@ -181,46 +160,38 @@ export default function EditorControlPanel() {
       {/* Track Controls */}
       <div className="mt-4 rounded bg-[var(--bg-secondary)]">
         <div className="mb-2 text-sm text-[var(--text-tertiary)]">Tracks</div>
-        <div className="mb-2 space-y-2">
+        <div className="mb-2 grid grid-cols-2 gap-2">
+          <button
+            className="rounded border border-[var(--border)] bg-[var(--bg-secondary)] p-2 text-sm"
+            onClick={() => handleAddTrack("melody")}
+          >
+            Add Melody
+          </button>
+          <button
+            className="rounded border border-[var(--border)] bg-[var(--bg-secondary)] p-2 text-sm"
+            onClick={() => handleAddTrack("accompaniment")}
+          >
+            Add Accompaniment
+          </button>
+        </div>
+        <div className="space-y-2">
           {score.tracks.map((track, index) => (
             <div
               key={track.id}
               onClick={() => dispatch(setEditingTrack(index))}
               className={`flex items-center justify-between rounded p-2 ${
-                editingTrack === index
-                  ? "bg-[var(--bg-selected)] text-[var(--text-selected)]"
-                  : "bg-[var(--bg-secondary)]"
+                editingTrack === index ? "bg-[var(--bg-selected)]" : "bg-[var(--bg-secondary)]"
               }`}
             >
               <span className="text-sm capitalize">{track.type}</span>
               <button
-                className="rounded border border-[var(--error)] bg-[var(--error)] px-2 py-1 text-xs text-[var(--text-selected)]"
-                onClick={() => handleRemoveTrack(index)}
+                className="rounded border border-[var(--error)] bg-[var(--error)] px-2 py-1 text-xs text-[var(--color-white)]"
+                onClick={handleRemoveTrack(index)}
               >
                 Remove
               </button>
             </div>
           ))}
-        </div>
-        <div className="grid grid-cols-2 gap-2">
-          <button
-            className="] rounded border border-[var(--border)] bg-[var(--bg-secondary)] p-2 text-sm"
-            onClick={() => handleAddTrack("melody")}
-          >
-            Add Melody
-          </button>
-          {/* <button
-            className="] rounded border border-[var(--border)] bg-[var(--bg-secondary)] p-2 text-sm"
-            onClick={() => handleAddTrack("notes")}
-          >
-            Add Notes
-          </button> */}
-          <button
-            className="] rounded border border-[var(--border)] bg-[var(--bg-secondary)] p-2 text-sm"
-            onClick={() => handleAddTrack("accompaniment")}
-          >
-            Add Accompaniment
-          </button>
         </div>
       </div>
     </div>
