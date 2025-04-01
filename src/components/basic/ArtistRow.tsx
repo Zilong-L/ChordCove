@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { fetchApi, API_BASE_URL } from "@utils/api";
 import ArtistCard from "./ArtistCard";
+import Carousel from "./Carousel";
 
 interface Artist {
   id: number;
@@ -19,6 +20,7 @@ interface Artist {
 export default function ArtistRow() {
   const [artists, setArtists] = useState<Artist[]>([]);
   const [loading, setLoading] = useState(true);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
     const fetchArtists = async () => {
@@ -34,6 +36,16 @@ export default function ArtistRow() {
 
     fetchArtists();
   }, []);
+
+  function handleScroll(direction: "left" | "right") {
+    let nextIndex = currentIndex;
+    if (direction === "left") {
+      nextIndex -= 3;
+    } else {
+      nextIndex += 3;
+    }
+    setCurrentIndex(Math.max(0, Math.min(nextIndex, artists.length - 1)));
+  }
 
   if (loading) {
     return (
@@ -52,13 +64,18 @@ export default function ArtistRow() {
   }
 
   return (
-    <div className="mb-8">
-      <h2 className="mb-6 text-3xl font-bold hover:cursor-pointer hover:underline">Artists</h2>
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
+    <div className="group relative -mx-6">
+      <h2 className="ml-6 text-3xl font-bold hover:cursor-pointer hover:underline">Artists</h2>
+      <Carousel
+        currentIndex={currentIndex}
+        onScroll={handleScroll}
+        showLeftGradient={currentIndex > 0}
+        itemWidth={14}
+      >
         {artists.map((artist) => (
-          <ArtistCard key={artist.id} artist={artist} />
+          <ArtistCard key={artist.id} artist={artist} imageClassName="w-[12rem]" />
         ))}
-      </div>
+      </Carousel>
     </div>
   );
 }
