@@ -149,30 +149,22 @@ export default function SheetEditor() {
             onChange={(e) => dispatch(setContent(e.target.value))}
             onKeyDown={(e) => {
               if (e.key === "Tab") {
-                e.preventDefault(); // Prevent default tab behavior
+                e.preventDefault();
 
-                // Get cursor position
                 const textarea = textareaRef.current;
                 if (!textarea) return;
 
-                const start = textarea.selectionStart;
-                const end = textarea.selectionEnd;
+                // 插入 [] 保留 undo 历史
+                textarea.focus();
+                document.execCommand("insertText", false, "[]");
+                // deprecated but no alternative for now.
 
-                // Get current content
-                const content = simpleScore.content;
+                // 移动光标到中间
+                const pos = textarea.selectionStart;
+                textarea.setSelectionRange(pos - 1, pos - 1);
 
-                // Insert square brackets at cursor position
-                const newContent = content.substring(0, start) + "[]" + content.substring(end);
-
-                // Update content
-                dispatch(setContent(newContent));
-
-                // Set cursor position inside brackets immediately after the update
-                requestAnimationFrame(() => {
-                  textarea.focus();
-                  textarea.selectionStart = start + 1;
-                  textarea.selectionEnd = start + 1;
-                });
+                // 同步到 Redux
+                dispatch(setContent(textarea.value));
               }
             }}
             className="mx-auto mb-4 mt-4 h-32 w-[90%] resize-none rounded border border-[var(--border-primary)] bg-transparent p-2 text-[var(--text-primary)] outline-none"
