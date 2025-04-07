@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { SheetMetaData } from "#types/sheet";
-import AlbumCard from "./AlbumCard";
-import Carousel from "./Carousel";
+import AlbumCard from "./SheetCard";
+import Carousel from "../layout/Carousel";
 
 interface SheetRowProps {
   title: string;

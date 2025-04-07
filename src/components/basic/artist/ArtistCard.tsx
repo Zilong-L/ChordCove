@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import PlayTriangle from "./PlayTriangle";
+import PlayTriangle from "../PlayTriangle";
 
 interface Artist {
   id: number;
@@ -18,7 +18,7 @@ interface ArtistCardProps {
   imageClassName?: string;
 }
 
-export default function ArtistCard({ artist, imageClassName = "16rem" }: ArtistCardProps) {
+export default function ArtistCard({ artist, imageClassName = "w-[12rem]" }: ArtistCardProps) {
   return (
     <Link
       to={`/artist/${artist.id}`}
@@ -30,11 +30,11 @@ export default function ArtistCard({ artist, imageClassName = "16rem" }: ArtistC
           <img
             src={artist.image}
             alt={artist.name}
-            className={`mb-2 aspect-square w-full rounded-full object-cover transition-opacity ${imageClassName}`}
+            className={`mb-2 aspect-square rounded-full object-cover transition-opacity ${imageClassName}`}
           />
         ) : (
           <div
-            className={`mb-2 flex aspect-square w-full items-center justify-center rounded-full bg-[var(--bg-tertiary)] transition-colors ${imageClassName}`}
+            className={`mb-2 flex aspect-square items-center justify-center rounded-full bg-[var(--bg-tertiary)] transition-colors ${imageClassName}`}
           >
             <span className="text-4xl text-[var(--text-primary)]">{artist.name[0]}</span>
           </div>

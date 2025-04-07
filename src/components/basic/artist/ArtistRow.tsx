@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { fetchApi, API_BASE_URL } from "@utils/api";
 import ArtistCard from "./ArtistCard";
-import Carousel from "./Carousel";
+import Carousel from "../layout/Carousel";
 
 interface Artist {
   id: number;

@@ -1,13 +1,13 @@
 import { Link } from "react-router-dom";
 import { SheetMetaData } from "#types/sheet";
-import PlayTriangle from "./PlayTriangle";
+import PlayTriangle from "../PlayTriangle";
 
-interface AlbumCardProps {
+interface SheetCardProps {
   sheet?: SheetMetaData;
   widthClassName?: string;
 }
 
-export default function AlbumCard({ sheet, widthClassName }: AlbumCardProps) {
+export default function SheetCard({ sheet, widthClassName }: SheetCardProps) {
   if (!sheet) {
     return (
       <div className="animate-pulse">

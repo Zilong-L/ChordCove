@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import ArtistRow from "@components/basic/ArtistRow";
-import SheetRow from "@components/basic/SheetRow";
+import ArtistRow from "@components/basic/artist/ArtistRow";
+import SheetRow from "@components/basic/sheet/SheetRow";
 import { SheetMetaData } from "#types/sheet";
 import { fetchApi } from "@utils/api";
 

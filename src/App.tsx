@@ -3,7 +3,7 @@ import Home from "@pages/Home";
 import SimpleSheetDetailsPage from "@pages/SimpleSheetDetailsPage";
 import SimpleSheetEditorPage from "@pages/SimpleSheetEditorPage";
 import ArtistPage from "@pages/ArtistPage";
-import Header from "@components/basic/Header";
+import Header from "@components/basic/layout/Header";
 import Demo from "@pages/Demo";
 import FullSheetEditorPage from "@pages/FullSheetEditorPage";
 import LoginPage from "@pages/LoginPage";

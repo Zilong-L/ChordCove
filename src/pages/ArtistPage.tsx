@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import AlbumCard from "@components/basic/AlbumCard";
+import AlbumCard from "@components/basic/sheet/SheetCard";
 import { fetchApi, API_BASE_URL } from "@utils/api";
 import { SheetMetaData } from "#types/sheet";
 

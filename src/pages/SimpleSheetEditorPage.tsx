@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import SimpleSheetEditor from "../components/SimpleEditor/SimpleSheetEditor";
-import MetadataForm from "../components/basic/MetadataForm";
+import MetadataForm from "../components/basic/sheet/MetadataForm";
 
 import { useSelector } from "react-redux";
 import { RootState } from "../stores/store";
