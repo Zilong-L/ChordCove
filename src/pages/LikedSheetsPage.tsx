@@ -6,9 +6,6 @@ import { SheetMetaData } from "#types/sheet";
 import {
   // Import icons
   HandThumbUpIcon,
-  ArrowDownTrayIcon,
-  PlayIcon,
-  EllipsisHorizontalIcon,
 } from "@heroicons/react/24/solid";
 
 export default function LikedSheetsPage() {

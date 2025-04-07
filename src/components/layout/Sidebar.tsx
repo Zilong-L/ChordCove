@@ -1,16 +1,15 @@
 import { Link } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@stores/store";
-import { HeartIcon, PencilIcon, Bars3Icon } from "@heroicons/react/24/outline";
+import { HeartIcon, PencilIcon } from "@heroicons/react/24/outline";
 import { resetSheetMetadata } from "@stores/sheetMetadataSlice";
 import { resetSimpleScore } from "@stores/simpleScoreSlice";
 
 interface SidebarProps {
   isOpen: boolean;
-  toggleSidebar: () => void;
 }
 
-export default function Sidebar({ isOpen, toggleSidebar }: SidebarProps) {
+export default function Sidebar({ isOpen }: SidebarProps) {
   const { isAuthenticated } = useSelector((state: RootState) => state.auth);
   const dispatch = useDispatch();
 

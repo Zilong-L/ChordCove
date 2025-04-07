@@ -13,7 +13,7 @@ export default function Layout() {
   return (
     <div className="relative min-h-screen bg-[var(--bg-page)]">
       <Header isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
-      <Sidebar isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
+      <Sidebar isOpen={isSidebarOpen} />
       <main
         className={`min-h-[calc(100vh-4rem)] overflow-x-hidden bg-[var(--bg-page)] transition-[padding-left] duration-300 ease-in-out ${
           isSidebarOpen ? "pl-64" : "pl-0"
