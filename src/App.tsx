@@ -11,6 +11,7 @@ import RegisterPage from "@pages/RegisterPage";
 import ProtectedRoute from "@components/auth/ProtectedRoute";
 import HelpButton from "@components/HelpButton";
 import LikedSheetsPage from "@pages/LikedSheetsPage";
+import MySheetsPage from "@pages/MySheetsPage";
 import "./App.css";
 
 function App() {
@@ -54,6 +55,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <LikedSheetsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/my-sheets"
+            element={
+              <ProtectedRoute>
+                <MySheetsPage />
               </ProtectedRoute>
             }
           />

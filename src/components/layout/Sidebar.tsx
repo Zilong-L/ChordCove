@@ -1,7 +1,12 @@
 import { Link } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@stores/store";
-import { HeartIcon, PencilIcon } from "@heroicons/react/24/outline";
+import {
+  HeartIcon,
+  PencilIcon,
+  MusicalNoteIcon,
+  GlobeAsiaAustraliaIcon,
+} from "@heroicons/react/24/outline";
 import { resetSheetMetadata } from "@stores/sheetMetadataSlice";
 import { resetSimpleScore } from "@stores/simpleScoreSlice";
 
@@ -21,30 +26,49 @@ export default function Sidebar({ isOpen }: SidebarProps) {
     >
       <div className="flex h-16 items-center px-4"></div>
       <ul className="space-y-2 px-4 pb-4">
-        {isAuthenticated && (
-          <li>
-            <Link
-              to="/liked"
-              className="flex cursor-pointer items-center gap-2 rounded p-4 hover:bg-[var(--bg-hover)]"
-            >
-              <HeartIcon className="h-5 w-5" />
-              喜欢
-            </Link>
-          </li>
-        )}
-        <li className="cursor-pointer rounded hover:bg-[var(--bg-hover)]">
+        <li>
           <Link
-            to="/create"
-            onClick={() => {
-              dispatch(resetSimpleScore());
-              dispatch(resetSheetMetadata());
-            }}
+            to="/"
             className="flex cursor-pointer items-center gap-2 rounded p-4 hover:bg-[var(--bg-hover)]"
           >
-            <PencilIcon className="h-5 w-5" />
-            创建乐谱
+            <GlobeAsiaAustraliaIcon className="h-5 w-5" />
+            Explore
           </Link>
         </li>
+        <Link
+          to="/create"
+          onClick={() => {
+            dispatch(resetSimpleScore());
+            dispatch(resetSheetMetadata());
+          }}
+          className="flex cursor-pointer items-center gap-2 rounded p-4 hover:bg-[var(--bg-hover)]"
+        >
+          <PencilIcon className="h-5 w-5" />
+          创建乐谱
+        </Link>
+        {isAuthenticated && (
+          <>
+            <li>
+              <Link
+                to="/my-sheets"
+                className="flex cursor-pointer items-center gap-2 rounded p-4 hover:bg-[var(--bg-hover)]"
+              >
+                <MusicalNoteIcon className="h-5 w-5" />
+                我的谱子
+              </Link>
+            </li>
+            <li>
+              <Link
+                to="/liked"
+                className="flex cursor-pointer items-center gap-2 rounded p-4 hover:bg-[var(--bg-hover)]"
+              >
+                <HeartIcon className="h-5 w-5" />
+                喜欢
+              </Link>
+            </li>
+          </>
+        )}
+        <li className="cursor-pointer rounded hover:bg-[var(--bg-hover)]"></li>
       </ul>
     </aside>
   );

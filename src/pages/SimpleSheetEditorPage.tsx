@@ -113,7 +113,7 @@ export default function SheetEditor() {
   };
 
   return (
-    <div className="mx-auto h-[calc(100vh-4rem)] overflow-scroll overflow-x-hidden px-2 md:px-8 xl:max-w-[90rem]">
+    <div className="mx-auto h-[calc(100vh-4rem)] overflow-hidden px-2 md:px-8 xl:max-w-[90rem]">
       <div className="flex flex-col gap-6 lg:flex-row">
         <div className="order-2 flex flex-col gap-4 lg:order-[-1] lg:w-1/4">
           <MetadataForm uploading={uploading} setUploading={setUploading} />

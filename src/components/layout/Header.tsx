@@ -64,7 +64,7 @@ export default function Header({ toggleSidebar }: HeaderProps) {
         </Link>
       )}
       <ThemeToggle />
-      <div className="flex items-center gap-4">
+      <div className="mr-24 flex items-center">
         {/* Assume UserMenu or other trailing items might go here */}
         {/* <UserMenu /> */}
       </div>
