@@ -1,25 +1,9 @@
 import React from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import SheetLineDisplay from "./SheetLineDisplay";
 
 export type ChordData = { chord: string; position: number };
-
-function parseLine(line: string) {
-  const regex = /\[([^\]]+)\]/g;
-  let lyricsOnly = "";
-  const chords: ChordData[] = [];
-  let lastIndex = 0;
-  let match;
-
-  while ((match = regex.exec(line)) !== null) {
-    lyricsOnly += line.substring(lastIndex, match.index);
-    chords.push({ chord: match[1], position: lyricsOnly.length });
-    lastIndex = match.index + match[0].length;
-  }
-
-  lyricsOnly += line.substring(lastIndex);
-  return { lyrics: lyricsOnly, chords };
-}
 
 export type LineItem = {
   id: string;
@@ -56,15 +40,13 @@ export default function Bar({
     zIndex: isDragging ? 100 : "auto",
   };
 
-  const { lyrics: plainLyrics, chords } = parseLine(item.text);
-
   return (
     <div
       ref={setNodeRef}
       style={style}
       className={
         "group relative flex min-h-[4rem] items-center rounded-md p-2 pt-[2rem] " +
-        (plainLyrics.length > 10 ? "col-span-2" : "")
+        (item.text.replace(/\[.*?\]/g, "").length > 10 ? "col-span-2" : "")
       }
       onClick={() => {
         setEditingIndex(index);
@@ -88,68 +70,7 @@ export default function Bar({
             aria-label="Edit line"
           />
         ) : (
-          <div className="flex">
-            {(() => {
-              const elements = [];
-              // Use original lyrics length for position calculation
-              const originalLyricsLength = plainLyrics.length;
-              // Determine the maximum position index to iterate through
-              // If lyrics exist, iterate up to and including the position *after* the last character.
-              // If lyrics are empty, only consider position 0.
-              const maxPosition = originalLyricsLength > 0 ? originalLyricsLength : 0;
-
-              // Iterate through positions 0 to maxPosition
-              for (let pos = 0; pos <= maxPosition; pos++) {
-                // Skip iteration if lyrics are empty and position is > 0
-                if (originalLyricsLength === 0 && pos > 0) continue;
-
-                // Get character if position is within the bounds of actual lyrics
-                const char = pos < originalLyricsLength ? plainLyrics[pos] : null;
-                // Find all chords associated with the current position
-                const chordsAtPosition = chords.filter((ch) => ch.position === pos);
-
-                // Only render a span if there's a character or chords at this position
-                if (char !== null || chordsAtPosition.length > 0) {
-                  elements.push(
-                    <span key={`pos-${pos}`} className="relative text-[var(--text-primary)]">
-                      {/* Render chords if any exist for this position */}
-                      {chordsAtPosition.length > 0 && (
-                        <div className="absolute left-0 top-[-1.5em] flex gap-1 font-bold text-[var(--text-secondary)]">
-                          {chordsAtPosition.map((cd, idx) => (
-                            <span key={idx}>{cd.chord}</span>
-                          ))}
-                        </div>
-                      )}
-                      {/* Render the character, replacing space with nbsp.
-                          If no character exists (pos === originalLyricsLength) but chords do,
-                          render an invisible placeholder to anchor the chords. */}
-                      {char !== null ? (
-                        char === " " ? (
-                          "\u00A0"
-                        ) : (
-                          char
-                        )
-                      ) : chordsAtPosition.length > 0 ? (
-                        <span className="invisible">\u200B</span>
-                      ) : null}
-                    </span>
-                  );
-                }
-              }
-
-              // Special case: If the input line was empty or only whitespace, and no chords, render a placeholder.
-              // Otherwise, empty lines wouldn't be visible.
-              if (elements.length === 0 && item.text.trim() === "") {
-                elements.push(
-                  <span key="empty-placeholder" className="text-[var(--text-primary)]">
-                    \u00A0
-                  </span>
-                );
-              }
-
-              return elements;
-            })()}
-          </div>
+          <SheetLineDisplay text={item.text} />
         )}
       </div>
 

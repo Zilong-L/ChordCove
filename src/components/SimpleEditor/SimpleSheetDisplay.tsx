@@ -7,25 +7,9 @@ import { SheetMetaData } from "#types/sheet";
 
 import { useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
-export type ChordData = { chord: string; position: number };
+import SheetLineDisplay from "./SheetLineDisplay";
 
 import { API_BASE_URL, R2_BASE_URL } from "@utils/api";
-function parseLine(line: string) {
-  const regex = /\[([^\]]+)\]/g;
-  let lyricsOnly = "";
-  const chords: ChordData[] = [];
-  let lastIndex = 0;
-  let match;
-
-  while ((match = regex.exec(line)) !== null) {
-    lyricsOnly += line.substring(lastIndex, match.index);
-    chords.push({ chord: match[1], position: lyricsOnly.length });
-    lastIndex = match.index + match[0].length;
-  }
-
-  lyricsOnly += line.substring(lastIndex);
-  return { lyrics: lyricsOnly, chords };
-}
 
 export default function SheetDisplay() {
   const sheetId = useLocation().pathname.split("/").pop();
@@ -97,33 +81,9 @@ export default function SheetDisplay() {
         </div>
       </div>
       <div className="grid grid-cols-2 content-start gap-2 md:grid-cols-4">
-        {lines.map((line, idx) => {
-          const { lyrics: plainLyrics, chords } = parseLine(line);
-          return (
-            <div
-              key={idx}
-              className={`relative flex min-h-[4rem] items-center rounded-md p-2 pt-[2rem] ${plainLyrics.length > 10 ? "col-span-2" : ""}`}
-            >
-              <div className="flex-grow">
-                <div className="flex">
-                  {plainLyrics.split("").map((char, charIndex) => {
-                    const chordData = chords.find((ch) => ch.position === charIndex);
-                    return (
-                      <span key={charIndex} className="relative text-[var(--text-primary)]">
-                        {chordData && (
-                          <div className="absolute top-[-1.5em] font-bold text-[var(--text-secondary)]">
-                            {chordData.chord}
-                          </div>
-                        )}
-                        {char === " " ? "\u00A0" : char}
-                      </span>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
-          );
-        })}
+        {lines.map((line, idx) => (
+          <SheetLineDisplay key={idx} text={line} />
+        ))}
       </div>
     </div>
   );
