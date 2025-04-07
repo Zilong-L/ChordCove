@@ -10,6 +10,7 @@ import LoginPage from "@pages/LoginPage";
 import RegisterPage from "@pages/RegisterPage";
 import ProtectedRoute from "@components/auth/ProtectedRoute";
 import HelpButton from "@components/HelpButton";
+import LikedSheetsPage from "@pages/LikedSheetsPage";
 import "./App.css";
 
 function App() {
@@ -50,6 +51,14 @@ function App() {
             />
             <Route path="/sheet/full/:id" element={<SimpleSheetDetailsPage />} />
             <Route path="/demo" element={<Demo />} />
+            <Route
+              path="/liked"
+              element={
+                <ProtectedRoute>
+                  <LikedSheetsPage />
+                </ProtectedRoute>
+              }
+            />
           </Routes>
         </main>
         <HelpButton />

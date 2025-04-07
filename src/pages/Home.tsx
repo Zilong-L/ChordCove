@@ -1,4 +1,9 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { RootState } from "@stores/store";
+import { HeartIcon } from "@heroicons/react/24/outline";
+
 import ArtistRow from "@components/basic/artist/ArtistRow";
 import SheetRow from "@components/basic/sheet/SheetRow";
 import { SheetMetaData } from "#types/sheet";
@@ -8,6 +13,7 @@ import { API_BASE_URL } from "@utils/api";
 
 export default function HomePage() {
   const [sheets, setSheets] = useState<SheetMetaData[] | null>(null);
+  const { isAuthenticated } = useSelector((state: RootState) => state.auth);
 
   useEffect(() => {
     // Using the new fetchApi utility to handle the .data property in the response
@@ -25,6 +31,17 @@ export default function HomePage() {
           <li className="cursor-pointer rounded p-2 hover:bg-[var(--bg-hover)]">All Sheets</li>
           <li className="cursor-pointer rounded p-2 hover:bg-[var(--bg-hover)]">Popular</li>
           <li className="cursor-pointer rounded p-2 hover:bg-[var(--bg-hover)]">Recent Uploads</li>
+          {isAuthenticated && (
+            <li>
+              <Link
+                to="/liked"
+                className="flex cursor-pointer items-center gap-2 rounded p-2 hover:bg-[var(--bg-hover)]"
+              >
+                <HeartIcon className="h-5 w-5" />
+                喜欢
+              </Link>
+            </li>
+          )}
         </ul>
       </aside>
 
