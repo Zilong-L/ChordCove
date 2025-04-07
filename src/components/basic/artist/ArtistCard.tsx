@@ -19,6 +19,11 @@ interface ArtistCardProps {
 }
 
 export default function ArtistCard({ artist, imageClassName = "w-[12rem]" }: ArtistCardProps) {
+  const distinctSet = new Set();
+  artist.sheets.forEach((sheet) => {
+    distinctSet.add(sheet.id);
+  });
+
   return (
     <Link
       to={`/artist/${artist.id}`}
@@ -42,7 +47,7 @@ export default function ArtistCard({ artist, imageClassName = "w-[12rem]" }: Art
       </div>
       <h3 className="truncate px-2 font-medium text-[var(--text-primary)]">{artist.name}</h3>
       <p className="text-sm text-[var(--text-tertiary)]">
-        {artist.sheets.length} {artist.sheets.length === 1 ? "sheet" : "sheets"}
+        {distinctSet.size} {distinctSet.size === 1 ? "sheet" : "sheets"}
       </p>
     </Link>
   );
