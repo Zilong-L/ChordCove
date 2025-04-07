@@ -10,6 +10,7 @@ export interface SheetMetaData {
   uploader: string;
   uploaderId: number;
   coverImage: string;
+  bvid?: string;
   singers?: Array<{
     id: number;
     name: string;

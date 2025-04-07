@@ -14,7 +14,7 @@ interface MetadataFormProps {
 export default function MetadataForm({ uploading, setUploading }: MetadataFormProps) {
   const sheetMetadata = useSelector((state: RootState) => state.sheetMetadata);
   const auth = useSelector((state: RootState) => state.auth);
-  const { title, composers, singers, coverImage } = sheetMetadata;
+  const { title, composers, singers, coverImage, bvid } = sheetMetadata;
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -258,6 +258,20 @@ export default function MetadataForm({ uploading, setUploading }: MetadataFormPr
             placeholder={singers?.length ? "" : "请输入演唱者，按回车或逗号添加"}
           />
         </div>
+      </div>
+
+      <div>
+        <label htmlFor="bvid" className="mb-1 block text-[var(--text-tertiary)]">
+          Bilibili 视频 ID (可选)
+        </label>
+        <input
+          id="bvid"
+          type="text"
+          value={bvid}
+          onChange={(e) => dispatch(setSheetMetadata({ ...sheetMetadata, bvid: e.target.value }))}
+          placeholder="例如：BV1xx411c7mu"
+          className="w-full rounded border border-[var(--border-primary)] bg-transparent p-2 text-[var(--text-primary)] placeholder-[var(--text-tertiary)]"
+        />
       </div>
     </div>
   );

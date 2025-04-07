@@ -2,9 +2,10 @@ import { useSelector } from "react-redux";
 import { RootState } from "@stores/store";
 
 export default function ReadOnlyMetadataForm() {
-  const { title, composers, singers, uploader, coverImage } = useSelector(
+  const { title, composers, singers, uploader, coverImage, bvid } = useSelector(
     (state: RootState) => state.sheetMetadata
   );
+
   return (
     <div className="space-y-4 rounded-lg bg-gradient-to-b from-[var(--gradient-start)] to-[var(--gradient-end)] p-4">
       <div>
@@ -79,6 +80,13 @@ export default function ReadOnlyMetadataForm() {
             {uploader}
           </div>
         </div>
+      )}
+      {bvid && (
+        <iframe
+          src={`//player.bilibili.com/player.html?bvid=${bvid}&autoPlay=0`}
+          allowFullScreen
+          className="w-full rounded-lg border border-[var(--border-primary)] bg-transparent p-2 text-[var(--text-primary)]"
+        ></iframe>
       )}
     </div>
   );
