@@ -37,7 +37,7 @@ export default function ArtistPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-[var(--gradient-start)] to-[var(--gradient-end)] p-8 text-[var(--text-primary)]">
+      <div className="min-h-screen bg-[var(--bg-page)] from-[var(--gradient-start)] to-[var(--gradient-end)] p-8 text-[var(--text-primary)]">
         <div className="mx-auto max-w-7xl">
           <div className="animate-pulse">
             <div className="mb-4 h-32 w-32 rounded-full bg-[var(--bg-quaternary)]"></div>
@@ -56,7 +56,7 @@ export default function ArtistPage() {
 
   if (error || !artist) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-[var(--gradient-start)] to-[var(--gradient-end)] p-8 text-[var(--text-primary)]">
+      <div className="min-h-screen bg-[var(--bg-page)] from-[var(--gradient-start)] to-[var(--gradient-end)] p-8 text-[var(--text-primary)]">
         <div className="mx-auto max-w-7xl text-center">
           <h1 className="mb-4 text-2xl font-bold">Error</h1>
           <p>{error || "Artist not found"}</p>
@@ -66,7 +66,7 @@ export default function ArtistPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[var(--gradient-start)] to-[var(--gradient-end)] p-8 text-[var(--text-primary)]">
+    <div className="min-h-screen bg-[var(--bg-page)] from-[var(--gradient-start)] to-[var(--gradient-end)] p-8 text-[var(--text-primary)]">
       <div className="mx-auto max-w-7xl">
         <div className="mb-8 flex items-center gap-6">
           {artist.image ? (

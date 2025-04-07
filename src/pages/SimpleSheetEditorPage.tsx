@@ -167,7 +167,7 @@ export default function SheetEditor() {
                 dispatch(setContent(textarea.value));
               }
             }}
-            className="mx-auto mb-4 mt-4 h-32 w-[90%] resize-none rounded border border-[var(--border-primary)] bg-transparent p-2 text-[var(--text-primary)] outline-none"
+            className="mx-auto mb-4 mt-4 h-64 w-[90%] resize-none rounded border border-[var(--border-primary)] bg-transparent p-2 text-[var(--text-primary)] outline-none"
             placeholder="输入乐谱内容"
             title="乐谱内容"
             aria-label="乐谱内容"

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { SheetMetaData } from "#types/sheet";
 import AlbumCard from "./SheetCard";
-import Carousel from "../layout/Carousel";
+import Carousel from "../../layout/Carousel";
 
 interface SheetRowProps {
   title: string;
@@ -36,7 +36,7 @@ export default function SheetRow({ title, sheets }: SheetRowProps) {
 
   return (
     <div className="group relative -mx-6">
-      <h2 className="ml-6 text-3xl font-bold hover:cursor-pointer hover:underline">{title}</h2>
+      <h2 className="mb-6 ml-6 text-3xl font-bold hover:cursor-pointer hover:underline">{title}</h2>
       <Carousel
         currentIndex={currentIndex}
         onScroll={handleScroll}

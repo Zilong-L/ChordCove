@@ -220,7 +220,7 @@ export default function SheetRenderer() {
     );
   }
   return (
-    <div className="min-h-[700px] w-full overflow-auto rounded-md bg-gradient-to-b from-[var(--gradient-start)] to-[var(--gradient-end)]">
+    <div className="min-h-[700px] w-full overflow-y-hidden rounded-md bg-gradient-to-b from-[var(--gradient-start)] to-[var(--gradient-end)]">
       <div className="px-8 py-12 xl:px-24">
         <h2 className="mb-2 min-h-16 text-center text-3xl font-bold text-[var(--text-primary)]">
           {sheetMetadata.title}

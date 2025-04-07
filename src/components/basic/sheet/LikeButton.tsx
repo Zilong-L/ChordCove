@@ -6,9 +6,10 @@ import { fetchApi, API_BASE_URL } from "@utils/api"; // Import fetchApi and API_
 interface LikeButtonProps {
   sheetId: string;
   onLikeToggle?: (liked: boolean) => void;
+  initialState?: boolean;
 }
 
-const LikeButton: React.FC<LikeButtonProps> = ({ sheetId, onLikeToggle }) => {
+const LikeButton: React.FC<LikeButtonProps> = ({ sheetId, onLikeToggle, initialState }) => {
   const [liked, setLiked] = useState<boolean | null>(null);
   const [isLoading, setIsLoading] = useState(false); // For toggle action
   const [isFetchingStatus, setIsFetchingStatus] = useState(true); // For initial status fetch
@@ -36,12 +37,21 @@ const LikeButton: React.FC<LikeButtonProps> = ({ sheetId, onLikeToggle }) => {
       }
     };
 
+    if (initialState !== undefined) {
+      setLiked(initialState);
+      setIsFetchingStatus(false);
+
+      console.log("initialState", initialState);
+      return;
+    }
     if (sheetId) {
       fetchLikeStatus();
     }
-  }, [sheetId]);
+  }, [sheetId, initialState]);
 
-  const toggleLike = async () => {
+  const toggleLike = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation();
+    e.preventDefault();
     if (isLoading || liked === null || isFetchingStatus) return;
     setIsLoading(true);
     const previousLikedState = liked;

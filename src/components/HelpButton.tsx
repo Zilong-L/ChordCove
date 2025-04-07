@@ -11,7 +11,7 @@ export default function HelpButton() {
     <>
       <div className="fixed bottom-6 right-6 z-40">
         <Menu as="div" className="relative inline-block text-left">
-          <Menu.Button className="items-center justify-center rounded-full bg-[var(--main)] text-[bg-primary] shadow-lg hover:bg-[var(--accent-blue-hover)] focus:outline-none">
+          <Menu.Button className="items-center justify-center rounded-full bg-[var(--text-primary)] text-[var(--bg-page)] shadow-lg hover:bg-[var(--accent-blue-hover)] focus:outline-none">
             <QuestionMarkCircleIcon className="h-6 w-6" />
           </Menu.Button>
 

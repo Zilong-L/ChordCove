@@ -45,7 +45,7 @@ export default function Bar({
       ref={setNodeRef}
       style={style}
       className={
-        "group relative flex min-h-[4rem] items-center rounded-md p-2 pt-[2rem] " +
+        "group relative flex min-h-[4rem] items-center rounded-md p-2 " +
         (item.text.replace(/\[.*?\]/g, "").length > 10 ? "col-span-2" : "")
       }
       onClick={() => {
@@ -53,7 +53,7 @@ export default function Bar({
         setTempValue(item.text);
       }}
     >
-      <div className="flex-grow">
+      <div className="flex-grow self-end">
         {editingIndex === index ? (
           <input
             type="text"

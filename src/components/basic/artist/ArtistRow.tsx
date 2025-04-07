@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { fetchApi, API_BASE_URL } from "@utils/api";
 import ArtistCard from "./ArtistCard";
-import Carousel from "../layout/Carousel";
+import Carousel from "../../layout/Carousel";
 
 interface Artist {
   id: number;
@@ -65,7 +65,7 @@ export default function ArtistRow() {
 
   return (
     <div className="group relative -mx-6">
-      <h2 className="ml-6 text-3xl font-bold hover:cursor-pointer hover:underline">Artists</h2>
+      <h2 className="mb-6 ml-6 text-3xl font-bold hover:cursor-pointer hover:underline">Artists</h2>
       <Carousel
         currentIndex={currentIndex}
         onScroll={handleScroll}

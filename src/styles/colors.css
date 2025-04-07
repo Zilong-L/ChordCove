@@ -15,7 +15,7 @@
   /* Dark Theme (default) */
   &:not(.light) {
     /* Background Colors */
-    --bg-page: #000000;
+    --bg-page: #030303;
     --bg-primary: #212121;
     --bg-secondary: #1f1f1f;
     --bg-tertiary: #2a2a2a;

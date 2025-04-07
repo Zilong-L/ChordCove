@@ -10,13 +10,13 @@ export default function SheetEditor() {
   const sheetMetadata = useSelector((state: RootState) => state.sheetMetadata);
 
   return (
-    <div className="overflow-ys-scroll mx-auto h-[calc(100vh-4rem)] overflow-x-hidden px-2 md:px-8 xl:max-w-[90rem]">
+    <div className="mx-auto h-[calc(100vh-4rem)] overflow-y-hidden px-2 md:px-8 xl:max-w-[90rem]">
       <div className="flex flex-col gap-6 lg:flex-row">
         <div className="order-2 flex flex-col lg:order-[-1] lg:w-1/4">
           <ReadOnlyMetadataForm />
         </div>
 
-        <div className="relative flex h-[90vh] flex-col lg:w-3/4">
+        <div className="relative flex h-[90vh] flex-col overflow-x-hidden lg:w-3/4">
           <SimpleSheetDisplay />
           <div className="absolute right-8 top-4 flex flex-col gap-2 text-[var(--text-tertiary)]">
             <Link

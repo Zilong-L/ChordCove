@@ -23,15 +23,15 @@ export default function Carousel({
   const totalItemWidth = itemWidth + gapWidth; // Total width including gap
 
   return (
-    <div className="relative">
+    <div className="relative overflow-hidden">
       {showLeftGradient && (
-        <div className="pointer-events-none absolute left-0 z-[99] h-full w-24 bg-gradient-to-r from-[var(--bg-primary)] to-transparent blur-[1px]" />
+        <div className="pointer-events-none absolute left-0 z-[99] h-full w-24 bg-gradient-to-r from-[var(--bg-page)] to-transparent blur-[1px]" />
       )}
-      <div className="pointer-events-none absolute right-0 z-[99] h-full w-24 bg-gradient-to-l from-[var(--bg-primary)] to-transparent blur-[1px]" />
+      <div className="pointer-events-none absolute right-0 z-[99] h-full w-24 bg-gradient-to-l from-[var(--bg-page)] to-transparent blur-[1px]" />
       <div className="width-[100%] overflow-x-visible">
         {currentIndex > 0 && (
           <button
-            className="absolute left-4 top-1/2 z-[100] flex h-12 w-12 -translate-y-1/2 translate-x-0 items-center justify-center rounded-full bg-transparent opacity-0 transition-all duration-500 ease-in-out group-hover:translate-x-1/3 group-hover:opacity-100"
+            className="absolute left-4 top-1/2 z-[100] flex h-12 w-12 -translate-y-1/2 translate-x-0 items-center justify-center rounded-full bg-transparent opacity-0 transition-transform duration-500 ease-in-out group-hover:translate-x-1/3 group-hover:opacity-100"
             disabled={currentIndex === 0}
             onClick={() => onScroll("left")}
           >
@@ -41,7 +41,7 @@ export default function Carousel({
         )}
         {currentIndex < itemCounts - 1 && (
           <button
-            className="absolute right-4 top-1/2 z-[100] flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-transparent opacity-0 transition-all duration-500 ease-in-out group-hover:-translate-x-1/3 group-hover:opacity-100"
+            className="absolute right-4 top-1/2 z-[100] flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-transparent opacity-0 transition-transform duration-500 ease-in-out group-hover:-translate-x-1/3 group-hover:opacity-100"
             onClick={() => onScroll("right")}
           >
             <span className="sr-only">Right</span>

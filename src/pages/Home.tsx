@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import { useSelector } from "react-redux";
-import { RootState } from "@stores/store";
-import { HeartIcon } from "@heroicons/react/24/outline";
+// import { Link } from "react-router-dom"; // No longer needed here
+// import { useSelector } from "react-redux"; // Moved to Sidebar
+// import { RootState } from "@stores/store"; // Moved to Sidebar
+// import { HeartIcon, PencilIcon } from "@heroicons/react/24/outline"; // Moved to Sidebar
 
 import ArtistRow from "@components/basic/artist/ArtistRow";
 import SheetRow from "@components/basic/sheet/SheetRow";
@@ -10,46 +10,36 @@ import { SheetMetaData } from "#types/sheet";
 import { fetchApi } from "@utils/api";
 
 import { API_BASE_URL } from "@utils/api";
+// import { resetSheetMetadata } from "@stores/sheetMetadataSlice"; // Moved to Sidebar
+// import { resetSimpleScore } from "@stores/simpleScoreSlice"; // Moved to Sidebar
+// import { useDispatch } from "react-redux"; // Moved to Sidebar
 
 export default function HomePage() {
   const [sheets, setSheets] = useState<SheetMetaData[] | null>(null);
-  const { isAuthenticated } = useSelector((state: RootState) => state.auth);
+  // const { isAuthenticated } = useSelector((state: RootState) => state.auth); // Moved
+  // const dispatch = useDispatch(); // Moved
 
   useEffect(() => {
-    // Using the new fetchApi utility to handle the .data property in the response
     fetchApi<SheetMetaData[]>(`${API_BASE_URL}/api/recent-sheets`)
       .then((data) => setSheets(data))
       .catch((err) => console.error("Error fetching sheets:", err));
   }, []);
 
   return (
-    <div className="flex h-[calc(100vh-4rem)] bg-gradient-to-b from-[var(--gradient-start)] to-[var(--gradient-end)] text-[var(--text-primary)]">
-      {/* 左侧栏（占 20% 宽度） */}
-      <aside className="w-1/5 border-r border-[var(--border-primary)] p-4">
-        <h2 className="mb-4 text-xl font-bold">Navigation</h2>
-        <ul className="space-y-2">
-          <li className="cursor-pointer rounded p-2 hover:bg-[var(--bg-hover)]">All Sheets</li>
-          <li className="cursor-pointer rounded p-2 hover:bg-[var(--bg-hover)]">Popular</li>
-          <li className="cursor-pointer rounded p-2 hover:bg-[var(--bg-hover)]">Recent Uploads</li>
-          {isAuthenticated && (
-            <li>
-              <Link
-                to="/liked"
-                className="flex cursor-pointer items-center gap-2 rounded p-2 hover:bg-[var(--bg-hover)]"
-              >
-                <HeartIcon className="h-5 w-5" />
-                喜欢
-              </Link>
-            </li>
-          )}
-        </ul>
-      </aside>
+    // Outer div removed, handled by Layout
+    // <div className="flex h-[calc(100vh-4rem)] bg-[var(--bg-page)] text-[var(--text-primary)]">
+    <>
+      {/* Sidebar (<aside>) removed, handled by Layout/Sidebar */}
 
-      {/* 右侧栏（占 80% 宽度） */}
-      <main className="w-4/5 overflow-scroll overflow-x-hidden p-6">
+      {/* Main content area - wrapper changed from <main> to <div>, layout classes removed */}
+      {/* Padding is now applied by Layout's main > div */}
+      <div className="text-[var(--text-primary)]">
+        {/* Background div remains relative to this container */}
+        <div className="absolute left-[-400px] top-[-400px] h-[1000px] w-[1000px] bg-[radial-gradient(circle,_var(--bg-primary),var(--bg-page)_71%)]"></div>
         <SheetRow title="Recent Uploads" sheets={sheets} />
         <ArtistRow />
-      </main>
-    </div>
+      </div>
+    </>
+    // </div>
   );
 }

@@ -49,7 +49,7 @@ export default function SheetDisplay() {
     );
   }
   return (
-    <div className="min-h-[80%] overflow-scroll rounded-md bg-gradient-to-b from-[var(--gradient-start)] to-[var(--gradient-end)] px-8 py-12 xl:px-24">
+    <div className="min-h-[80%] overflow-scroll overflow-x-hidden rounded-md bg-gradient-to-b from-[var(--gradient-start)] to-[var(--gradient-end)] px-8 py-12 xl:px-24">
       <h2 className="mb-2 min-h-16 text-center text-3xl font-bold text-[var(--text-primary)]">
         {sheetMetadata.title}
       </h2>
