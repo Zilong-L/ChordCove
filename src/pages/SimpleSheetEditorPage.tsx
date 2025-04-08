@@ -139,9 +139,7 @@ export default function SheetEditor() {
         </div>
 
         <div className="flex h-[90vh] flex-col lg:w-3/4">
-          <div className="flex h-full overflow-y-scroll">
-            <SimpleSheetEditor />
-          </div>
+          <SimpleSheetEditor />
 
           <textarea
             ref={textareaRef}
@@ -167,7 +165,7 @@ export default function SheetEditor() {
                 dispatch(setContent(textarea.value));
               }
             }}
-            className="mx-auto mb-4 mt-4 h-64 w-[90%] resize-none rounded border border-[var(--border-primary)] bg-transparent p-2 text-[var(--text-primary)] outline-none"
+            className="mx-auto mb-4 mt-4 min-h-48 w-[90%] resize-none rounded border border-[var(--border-primary)] bg-transparent p-2 text-[var(--text-primary)] outline-none"
             placeholder="输入乐谱内容"
             title="乐谱内容"
             aria-label="乐谱内容"
