@@ -1,22 +1,18 @@
-import { Bars3Icon, HomeIcon } from "@heroicons/react/24/outline";
+import { Bars3Icon } from "@heroicons/react/24/outline";
 import { useSelector } from "react-redux";
 import { logout } from "@stores/authSlice";
 import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import { RootState } from "@stores/store";
 import ThemeToggle from "@components/ThemeToggle";
+import { useUiStore } from "@stores/uiStore";
 // import SearchBar from "@components/basic/search/SearchBar"; // Assuming search is in header
 // import UserMenu from "@components/basic/user/UserMenu"; // Assuming user menu is in header
 
-interface HeaderProps {
-  isSidebarOpen: boolean; // Although not used in this snippet, kept per plan
-  toggleSidebar: () => void;
-}
-
-export default function Header({ toggleSidebar }: HeaderProps) {
-  // const { isSidebarOpen } = props; // Example if needed
+export default function Header() {
   const { isAuthenticated } = useSelector((state: RootState) => state.auth);
   const dispatch = useDispatch();
+  const toggleSidebar = useUiStore((state) => state.toggleMobileSidebar);
 
   const handleLogout = () => {
     dispatch(logout());
@@ -26,22 +22,15 @@ export default function Header({ toggleSidebar }: HeaderProps) {
       <div className="flex items-center gap-4">
         <button
           onClick={toggleSidebar}
-          className="fixed left-4 top-5 z-[100] text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+          className="top-5 z-[100] ml-[1rem] text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
           aria-label="Toggle sidebar"
         >
           <Bars3Icon className="h-6 w-6" />
         </button>
-        <Link
-          to="/"
-          className="ml-12 text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
-          aria-label="Home"
-        >
-          <HomeIcon className="h-6 w-6" />
-        </Link>
+
         {/* Assume Logo or other leading items might go here */}
         {/* <Link to="/" className="text-xl font-bold">ChordCove</Link> */}
       </div>
-
       <div className="flex flex-grow items-center justify-center px-4">
         {/* Assume SearchBar is centered */}
         {/* <SearchBar /> */}
@@ -64,7 +53,7 @@ export default function Header({ toggleSidebar }: HeaderProps) {
         </Link>
       )}
       <ThemeToggle />
-      <div className="mr-24 flex items-center">
+      <div className="flex items-center md:mr-24">
         {/* Assume UserMenu or other trailing items might go here */}
         {/* <UserMenu /> */}
       </div>
