@@ -18,11 +18,9 @@ import { SortableContext, arrayMove, rectSortingStrategy } from "@dnd-kit/sortab
 export type ChordData = { chord: string; position: number };
 
 import Bar, { LineItem } from "./Bar";
-import { setContent, setSimpleScore, setKey, setTempo } from "@stores/simpleScoreSlice";
-import { setSheetMetadata } from "@stores/sheetMetadataSlice";
-import { fetchApi, R2_BASE_URL, API_BASE_URL } from "@utils/api";
-import { SheetMetaData } from "#types/sheet";
-import { useLocation } from "react-router-dom";
+import { setContent, setKey, setTempo } from "@stores/simpleScoreSlice";
+
+// import { useLocation } from "react-router-dom";
 
 const midiRange = (startNote: string, endNote: string) => {
   const startMidi = Note.midi(startNote)!;
@@ -120,9 +118,9 @@ function TempoInput({ currentTempo, onTempoChange }: TempoInputProps) {
 export default function SheetRenderer() {
   const sheetMetadata = useSelector((state: RootState) => state.sheetMetadata);
   const simpleScore = useSelector((state: RootState) => state.simpleScore);
-  const [sheetMissing, setSheetMissing] = useState(false);
-  const location = useLocation();
-  const sheetId = location.pathname.split("/").pop();
+  const [sheetMissing, _] = useState(false);
+  // const location = useLocation();
+  // const sheetId = location.pathname.split("/").pop();
   console.log(sheetMetadata);
   const dispatch = useDispatch();
   const lyrics = simpleScore.content;
@@ -189,27 +187,7 @@ export default function SheetRenderer() {
     }
     setEditingIndex(null);
   };
-  useEffect(() => {
-    if (location.pathname.includes("create")) {
-      return;
-    }
-    (async () => {
-      try {
-        const sheetMetadata = await fetchApi<SheetMetaData>(
-          `${API_BASE_URL}/api/get-sheet-metadata/${sheetId}`
-        );
-        dispatch(setSheetMetadata(sheetMetadata));
-        const sheetData = await fetch(`${R2_BASE_URL}/sheets/${sheetMetadata.id}.json`).then(
-          (res) => res.json()
-        );
-        dispatch(setSimpleScore(sheetData));
-      } catch (error) {
-        console.error("Error fetching sheet:", error);
-        setSheetMissing(true);
-      }
-    })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+
   if (sheetMissing) {
     return (
       <div className="min-h-[700px] w-full rounded-md bg-gradient-to-b from-[var(--gradient-start)] to-[var(--gradient-end)] px-8 py-12 xl:px-24">

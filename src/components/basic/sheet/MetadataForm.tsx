@@ -1,17 +1,19 @@
-import React, { useRef, useState, KeyboardEvent } from "react";
+import React, { useRef, useState, KeyboardEvent, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { setSheetMetadata } from "@stores/sheetMetadataSlice";
 import { RootState } from "@stores/store";
 import { XMarkIcon } from "@heroicons/react/20/solid";
 import { fetchApi, API_BASE_URL } from "@utils/api";
+import { getLocalSheetData } from "@lib/localsheet";
 
 interface MetadataFormProps {
   uploading: boolean;
   setUploading: React.Dispatch<React.SetStateAction<boolean>>;
+  localKey?: string;
 }
 
-export default function MetadataForm({ uploading, setUploading }: MetadataFormProps) {
+export default function MetadataForm({ uploading, setUploading, localKey }: MetadataFormProps) {
   const sheetMetadata = useSelector((state: RootState) => state.sheetMetadata);
   const auth = useSelector((state: RootState) => state.auth);
   const { title, composers, singers, coverImage, bvid } = sheetMetadata;
@@ -21,6 +23,38 @@ export default function MetadataForm({ uploading, setUploading }: MetadataFormPr
   const [isDragging, setIsDragging] = useState(false);
   const [singerInput, setSingerInput] = useState("");
   const [composerInput, setComposerInput] = useState("");
+
+  useEffect(() => {
+    const loadLocalData = async () => {
+      if (localKey) {
+        const localData = await getLocalSheetData(localKey);
+        if (localData) {
+          dispatch(
+            setSheetMetadata({
+              id: localData.metadata.serverId || "",
+              title: localData.metadata.title || "",
+              composers:
+                localData.metadata.composers?.map((composer) => ({
+                  ...composer,
+                  role: "COMPOSER",
+                })) || [],
+              singers:
+                localData.metadata.singers?.map((singer) => ({
+                  ...singer,
+                  role: "SINGER",
+                })) || [],
+              coverImage: localData.metadata.coverImage || "",
+              bvid: localData.metadata.bvid || "",
+              uploader: localData.metadata.uploader || "",
+              uploaderId: localData.metadata.uploaderId || 0,
+            })
+          );
+        }
+      }
+    };
+
+    loadLocalData();
+  }, [localKey, dispatch]);
 
   const handleImageUpload = async (file: File) => {
     if (!auth.isAuthenticated) {

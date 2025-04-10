@@ -66,6 +66,14 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/editor/:localKey"
+            element={
+              <ProtectedRoute>
+                <SimpleSheetEditorPage />
+              </ProtectedRoute>
+            }
+          />
         </Route>
       </Routes>
       <HelpButton />

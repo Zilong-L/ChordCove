@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@stores/store";
 import {
@@ -10,20 +10,53 @@ import {
 import { resetSheetMetadata } from "@stores/sheetMetadataSlice";
 import { resetSimpleScore } from "@stores/simpleScoreSlice";
 import { useUiStore } from "@stores/uiStore";
+import { v4 as uuidv4 } from "uuid";
+import { addLocalSheet } from "../../lib/localsheet";
 
 export default function Sidebar() {
   const { isAuthenticated } = useSelector((state: RootState) => state.auth);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const isSidebarOpen = useUiStore((state) => state.isMobileSidebarOpen);
+
+  const handleCreateSheet = async () => {
+    try {
+      dispatch(resetSimpleScore());
+      dispatch(resetSheetMetadata());
+
+      const localKey = uuidv4();
+
+      const initialMetadata = {
+        title: "未命名乐谱",
+      };
+
+      const initialContent = {
+        key: "C3",
+        tempo: 120,
+        timeSignature: "4/4",
+        content: "[I]你存在，我[IV]深深地脑海里",
+      };
+
+      await addLocalSheet({
+        localKey,
+        metadata: initialMetadata,
+        content: initialContent,
+      });
+
+      console.log(`Created local draft with key: ${localKey}`);
+
+      navigate(`/editor/${localKey}`);
+    } catch (error) {
+      console.error("Failed to create sheet draft:", error);
+    }
+  };
 
   return (
     <aside
       className={
         `fixed left-0 top-0 z-10 h-screen overflow-hidden border-r border-[var(--border-primary)] ` +
         `bg-[var(--bg-page)] text-[var(--text-primary)] transition-[width] duration-300 ease-in-out` +
-        // Mobile behavior: slides in/out
         ` ${isSidebarOpen ? "w-64 translate-x-0" : "w-0"} ` +
-        // Desktop behavior: resizes, always visible, shrink to content when closed
         ` md:translate-x-0 ${isSidebarOpen ? "md:w-64" : "md:w-[5.5rem]"}`
       }
     >
@@ -38,17 +71,16 @@ export default function Sidebar() {
             <span className="whitespace-nowrap">Explore</span>
           </Link>
         </li>
-        <Link
-          to="/create"
-          onClick={() => {
-            dispatch(resetSimpleScore());
-            dispatch(resetSheetMetadata());
-          }}
-          className="flex cursor-pointer items-center gap-8 rounded p-4 hover:bg-[var(--bg-hover)]"
-        >
-          <PencilIcon className="h-6 w-6 flex-shrink-0" />
-          <span className="whitespace-nowrap">创建乐谱</span>
-        </Link>
+        <li>
+          <button
+            onClick={handleCreateSheet}
+            className="flex w-full cursor-pointer items-center gap-8 rounded p-4 text-left hover:bg-[var(--bg-hover)]"
+            aria-label="创建乐谱"
+          >
+            <PencilIcon className="h-6 w-6 flex-shrink-0" />
+            <span className="whitespace-nowrap">创建乐谱</span>
+          </button>
+        </li>
         {isAuthenticated && (
           <>
             <li>

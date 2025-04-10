@@ -1,9 +1,16 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
-
+import checker from "vite-plugin-checker";
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react(),
+    checker({
+      typescript: {
+        tsconfigPath: "tsconfig.app.json",
+      },
+    }),
+  ],
   resolve: {
     alias: {
       "@components": "/src/components",
@@ -12,6 +19,7 @@ export default defineConfig({
       "@assets": "/src/assets",
       "@utils": "/src/utils",
       "@hooks": "/src/hooks",
+      "@lib": "/src/lib",
       "#types": "/src/types",
     },
   },
