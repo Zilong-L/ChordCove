@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import MetadataForm from "../components/basic/sheet/MetadataForm";
+// import MetadataForm from "../components/basic/sheet/MetadataForm";
 import Editor from "@components/Editor/Editor";
 
 // redux states
@@ -11,7 +11,6 @@ import { RootState } from "@stores/store";
 import { fetchApi } from "@utils/api";
 import { SheetMetaData } from "#types/sheet";
 import EditorControlPanel from "@components/Editor/EditorControlPanel";
-
 import { API_BASE_URL } from "@utils/api";
 export default function FullSheetEditorPage() {
   const [uploading, setUploading] = useState(false);
@@ -73,7 +72,7 @@ export default function FullSheetEditorPage() {
     <div className="mx-auto px-2 md:px-8 xl:max-w-[90vw]">
       <div className="flex flex-col gap-6 xl:flex-row xl:items-start">
         <div className="order-2 flex flex-col xl:order-[-1] xl:w-1/5">
-          <MetadataForm uploading={uploading} setUploading={setUploading} />
+          {/* <MetadataForm uploading={uploading} setPendingImage={setPendingImage} /> */}
           <button
             onClick={handleUpload}
             disabled={uploading}

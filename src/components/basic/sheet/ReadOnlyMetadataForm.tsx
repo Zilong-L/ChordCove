@@ -15,7 +15,7 @@ export default function ReadOnlyMetadataForm() {
         >
           {coverImage ? (
             <img
-              src={coverImage}
+              src={coverImage || undefined}
               alt={`Cover for ${title}`}
               className="h-full w-full object-cover"
             />

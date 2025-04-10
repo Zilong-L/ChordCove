@@ -10,6 +10,7 @@ const initialState: SheetMetaData = {
   uploader: "",
   uploaderId: -1,
   coverImage: "",
+  bvid: "",
 };
 
 const sheetMetadataSlice = createSlice({
@@ -17,7 +18,10 @@ const sheetMetadataSlice = createSlice({
   initialState,
   reducers: {
     setSheetMetadata(_, action: PayloadAction<SheetMetaData>) {
-      return action.payload;
+      return {
+        ...initialState,
+        ...action.payload,
+      };
     },
     resetSheetMetadata: () => {
       return initialState;

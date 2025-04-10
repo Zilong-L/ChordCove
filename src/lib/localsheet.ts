@@ -222,20 +222,9 @@ export async function updateLocalSheetAfterSync(
   localKey: string,
   serverData: {
     id: string;
-    title: string;
-    composers?: Artist[];
-    singers?: Artist[];
-    uploader?: string;
-    uploaderId?: number;
     coverImage?: string;
-    bvid?: string;
-    createdAt: number;
+    createdAt?: number;
     lastModified: number;
-    // Include all necessary content fields from server response:
-    key: string;
-    tempo: number;
-    timeSignature: string;
-    content: string;
   }
 ): Promise<void> {
   const db = await getDB();
@@ -258,32 +247,14 @@ export async function updateLocalSheetAfterSync(
   const updatedMetadata: LocalSheetMetadata = {
     ...currentMetadata,
     serverId: serverData.id,
-    title: serverData.title,
-    composers: serverData.composers || currentMetadata.composers,
-    singers: serverData.singers || currentMetadata.singers,
-    uploader: serverData.uploader || currentMetadata.uploader,
-    uploaderId: serverData.uploaderId || currentMetadata.uploaderId,
     coverImage: serverData.coverImage || currentMetadata.coverImage,
     createdAt: serverData.createdAt || currentMetadata.createdAt,
-    bvid: serverData.bvid || currentMetadata.bvid,
     serverModifiedAt: serverModifiedTime,
     localLastSavedAt: serverModifiedTime, // Align local save time with successful sync time
   };
 
-  // Update Content
-  const updatedContent: LocalSheetContent = {
-    ...currentContent, // Preserve localKey
-    key: serverData.key,
-    tempo: serverData.tempo,
-    timeSignature: serverData.timeSignature,
-    content: serverData.content,
-  };
-
-  await Promise.all([
-    metadataStore.put(updatedMetadata),
-    contentStore.put(updatedContent),
-    tx.done,
-  ]);
+  await metadataStore.put(updatedMetadata);
+  await tx.done;
 }
 
 export async function deleteLocalSheet(localKey: string): Promise<void> {

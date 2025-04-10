@@ -4,7 +4,10 @@ import type { SimpleScore } from "../types/sheet";
 
 // 🎼 初始状态
 const initialTimeSignature = "4/4";
-
+export interface PendingImage {
+  file: File;
+  hash: string;
+}
 const initialState: SimpleScore = {
   key: "C3",
   tempo: 120,

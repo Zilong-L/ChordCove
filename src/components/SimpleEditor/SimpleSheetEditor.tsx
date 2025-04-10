@@ -20,8 +20,6 @@ export type ChordData = { chord: string; position: number };
 import Bar, { LineItem } from "./Bar";
 import { setContent, setKey, setTempo } from "@stores/simpleScoreSlice";
 
-// import { useLocation } from "react-router-dom";
-
 const midiRange = (startNote: string, endNote: string) => {
   const startMidi = Note.midi(startNote)!;
   const endMidi = Note.midi(endNote)!;
@@ -119,9 +117,6 @@ export default function SheetRenderer() {
   const sheetMetadata = useSelector((state: RootState) => state.sheetMetadata);
   const simpleScore = useSelector((state: RootState) => state.simpleScore);
   const [sheetMissing, _] = useState(false);
-  // const location = useLocation();
-  // const sheetId = location.pathname.split("/").pop();
-  console.log(sheetMetadata);
   const dispatch = useDispatch();
   const lyrics = simpleScore.content;
 

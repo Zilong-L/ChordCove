@@ -10,10 +10,8 @@ import { RootState } from "../stores/store";
 import { useDispatch } from "react-redux";
 import { setContent, setSimpleScore } from "@stores/simpleScoreSlice";
 import { setSheetMetadata } from "@stores/sheetMetadataSlice";
-import { fetchApi } from "@utils/api";
+import { fetchApi, API_BASE_URL } from "@utils/api";
 import { SheetMetaData } from "#types/sheet";
-
-import { API_BASE_URL } from "@utils/api";
 
 // Import IndexedDB functions
 import {
@@ -34,6 +32,11 @@ interface SaveSheetResponse extends SheetMetaData {
   lastModified: number;
 }
 
+interface PendingImage {
+  file: File;
+  hash: string;
+}
+
 export default function SheetEditor() {
   const { localKey } = useParams<{ localKey: string }>();
   const [isLoading, setIsLoading] = useState(true);
@@ -42,6 +45,7 @@ export default function SheetEditor() {
   const [message, setMessage] = useState("");
   const [isInitialized, setIsInitialized] = useState(false);
   const [isPreview, setIsPreview] = useState(false);
+  const [pendingImage, setPendingImage] = useState<PendingImage | null>(null);
 
   const navigate = useNavigate();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -169,7 +173,35 @@ export default function SheetEditor() {
     isLoading,
   ]);
 
-  // Unified save/sync to server function (replaces handleSave and handleUpload)
+  // Function to extract hash from coverImage URL
+  const getHashFromUrl = (url: string): string | null => {
+    const match = url.match(/\/([a-f0-9]{64})\.webp$/);
+    return match ? match[1] : null;
+  };
+
+  // Function to handle image upload
+  const handleImageUpload = async (file: File, hash: string): Promise<string> => {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("sha256", hash);
+
+    const response = await fetchApi<{ data: { coverImage: string } }>(
+      `${API_BASE_URL}/api/upload-image`,
+      {
+        method: "POST",
+        body: formData,
+      }
+    );
+    console.log(response);
+
+    if (!response || !response.data.coverImage) {
+      throw new Error("Image upload failed");
+    }
+
+    return response.data.coverImage;
+  };
+
+  // Unified save/sync to server function
   const handleSync = async () => {
     if (!auth.isAuthenticated) {
       setMessage("请先登录");
@@ -189,28 +221,36 @@ export default function SheetEditor() {
 
     setUploading(true);
     setMessage("");
-    console.log("ee");
-    // Prepare request body
-    const requestBody = {
-      // Include serverId if it exists (for updates)
-      id: sheetMetadata.id || undefined,
-
-      // Include metadata
-      title: sheetMetadata.title,
-      composers: sheetMetadata.composers,
-      singers: sheetMetadata.singers,
-      coverImage: sheetMetadata.coverImage,
-      bvid: sheetMetadata.bvid,
-
-      // Include score data
-      key: simpleScore.key,
-      tempo: simpleScore.tempo,
-      timeSignature: simpleScore.timeSignature,
-      content: simpleScore.content,
-    };
 
     try {
-      // Use our new unified endpoint
+      // Handle image upload if needed
+      let finalCoverImage = sheetMetadata.coverImage;
+      if (pendingImage) {
+        const currentHash = sheetMetadata.coverImage
+          ? getHashFromUrl(sheetMetadata.coverImage)
+          : null;
+
+        // Only upload if the hash is different
+        if (currentHash !== pendingImage.hash) {
+          finalCoverImage = await handleImageUpload(pendingImage.file, pendingImage.hash);
+        }
+      }
+
+      // Prepare request body
+      const requestBody = {
+        id: sheetMetadata.id || undefined,
+        title: sheetMetadata.title,
+        composers: sheetMetadata.composers,
+        singers: sheetMetadata.singers,
+        coverImage: finalCoverImage,
+        bvid: sheetMetadata.bvid,
+        key: simpleScore.key,
+        tempo: simpleScore.tempo,
+        timeSignature: simpleScore.timeSignature,
+        content: simpleScore.content,
+      };
+
+      // Use our unified endpoint
       const data = await fetchApi<SaveSheetResponse>(`${API_BASE_URL}/api/sheets`, {
         method: "PUT",
         headers: {
@@ -219,17 +259,12 @@ export default function SheetEditor() {
         },
         body: JSON.stringify(requestBody),
       });
-
+      console.log(data);
       if (data) {
         // Update IndexedDB with server response
         await updateLocalSheetAfterSync(localKey, {
           id: data.id,
-          title: data.title,
           createdAt: data.createdAt,
-          key: data.key,
-          tempo: data.tempo,
-          timeSignature: data.timeSignature,
-          content: data.content,
           lastModified: data.lastModified,
         });
 
@@ -237,17 +272,18 @@ export default function SheetEditor() {
         dispatch(
           setSheetMetadata({
             ...sheetMetadata,
-            id: data.id, // Update with the server-provided ID
+            id: data.id,
+            coverImage: finalCoverImage,
           })
         );
 
-        // Show success message (different depending on if it was an update or create)
+        // Clear pending image after successful sync
+        setPendingImage(null);
+
         if (sheetMetadata.id) {
           setMessage(`保存成功！`);
         } else {
           setMessage(`上传成功！乐谱 ID: ${data.id}`);
-          // For a new sheet, update the ID in Redux
-          dispatch(setSheetMetadata({ ...sheetMetadata, id: data.id }));
         }
       } else if (data === false) {
         setMessage("登录已过期，请重新登录");
@@ -273,7 +309,11 @@ export default function SheetEditor() {
       <button onClick={() => setIsPreview(!isPreview)}>{isPreview ? "编辑" : "预览"}</button>
       <div className="flex flex-col gap-6 lg:flex-row">
         <div className="order-2 flex flex-col gap-4 lg:order-[-1] lg:w-1/4">
-          <MetadataForm uploading={uploading} setUploading={setUploading} localKey={localKey} />
+          <MetadataForm
+            uploading={uploading}
+            localKey={localKey}
+            setPendingImage={setPendingImage}
+          />
 
           {/* Unified save button */}
           <button

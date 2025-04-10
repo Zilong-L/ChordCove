@@ -4,25 +4,25 @@ import { useDispatch, useSelector } from "react-redux";
 import { setSheetMetadata } from "@stores/sheetMetadataSlice";
 import { RootState } from "@stores/store";
 import { XMarkIcon } from "@heroicons/react/20/solid";
-import { fetchApi, API_BASE_URL } from "@utils/api";
 import { getLocalSheetData } from "@lib/localsheet";
 
 interface MetadataFormProps {
   uploading: boolean;
-  setUploading: React.Dispatch<React.SetStateAction<boolean>>;
   localKey?: string;
+  setPendingImage?: (data: { file: File; hash: string } | null) => void;
 }
 
-export default function MetadataForm({ uploading, setUploading, localKey }: MetadataFormProps) {
+export default function MetadataForm({ uploading, localKey, setPendingImage }: MetadataFormProps) {
   const sheetMetadata = useSelector((state: RootState) => state.sheetMetadata);
   const auth = useSelector((state: RootState) => state.auth);
-  const { title, composers, singers, coverImage, bvid } = sheetMetadata;
+  const { title = "", composers = [], singers = [], coverImage = "", bvid = "" } = sheetMetadata;
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [singerInput, setSingerInput] = useState("");
   const [composerInput, setComposerInput] = useState("");
+  const [previewImage, setPreviewImage] = useState<string | null>(coverImage || null);
 
   useEffect(() => {
     const loadLocalData = async () => {
@@ -56,49 +56,43 @@ export default function MetadataForm({ uploading, setUploading, localKey }: Meta
     loadLocalData();
   }, [localKey, dispatch]);
 
-  const handleImageUpload = async (file: File) => {
+  useEffect(() => {
+    // Reset preview image when coverImage changes from parent
+    if (coverImage) {
+      setPreviewImage(coverImage);
+    }
+  }, [coverImage]);
+
+  const handleImageSelect = async (file: File) => {
     if (!auth.isAuthenticated) {
       alert("请先登录");
       navigate("/login");
       return;
     }
 
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        dispatch(setSheetMetadata({ ...sheetMetadata, coverImage: reader.result as string }));
-      };
-      reader.readAsDataURL(file);
-    }
-    if (!file) return;
-    setUploading(true);
-    const formData = new FormData();
-    formData.append("file", file);
-    try {
-      const response = await fetchApi<{ coverImage: string }>(`${API_BASE_URL}/api/upload-image`, {
-        method: "POST",
-        body: formData,
-      });
+    // Calculate SHA-256 hash of the file
+    const arrayBuffer = await file.arrayBuffer();
+    const hashBuffer = await crypto.subtle.digest("SHA-256", arrayBuffer);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const hashHex = hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
 
-      if (response.coverImage) {
-        dispatch(setSheetMetadata({ ...sheetMetadata, coverImage: response.coverImage }));
-      }
-    } catch (error) {
-      console.error("Image upload failed:", error);
-      if ((error as Error).message === "Unauthorized") {
-        alert("登录已过期，请重新登录");
-        navigate("/login");
-      } else {
-        alert("上传失败，请重试");
-      }
+    // Create preview
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setPreviewImage(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+
+    // Set pending image for parent component
+    if (setPendingImage) {
+      setPendingImage({ file, hash: hashHex });
     }
-    setUploading(false);
   };
 
   const handleFileInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      handleImageUpload(file);
+      handleImageSelect(file);
     }
   };
 
@@ -121,7 +115,7 @@ export default function MetadataForm({ uploading, setUploading, localKey }: Meta
 
     const file = e.dataTransfer.files[0];
     if (file && file.type.startsWith("image/")) {
-      handleImageUpload(file);
+      handleImageSelect(file);
     } else {
       alert("请上传图片文件");
     }
@@ -183,8 +177,12 @@ export default function MetadataForm({ uploading, setUploading, localKey }: Meta
           role="button"
           aria-label="上传封面图片"
         >
-          {coverImage ? (
-            <img src={coverImage} alt="封面图片" className="h-full w-full object-cover" />
+          {previewImage ? (
+            <img
+              src={previewImage || undefined}
+              alt="封面图片"
+              className="h-full w-full object-cover"
+            />
           ) : (
             <div className="text-center text-[var(--text-tertiary)]">
               <svg
