@@ -58,7 +58,7 @@ const MySheetsPage: React.FC = () => {
   const renderServerContent = () => {
     if (isLoadingServer) {
       return (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 2xl:grid-cols-8">
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6"> {/* Max 6 cols */}
           {[...Array(4)].map((_, i) => (
             <div key={i} className="animate-pulse">
               <div className="mb-2 aspect-square rounded-lg bg-[var(--bg-tertiary)]"></div>
@@ -90,7 +90,7 @@ const MySheetsPage: React.FC = () => {
     }
 
     return (
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 2xl:grid-cols-8">
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6"> {/* Max 6 cols */}
         {serverSheets.map((sheet) => (
           <SheetCard key={sheet.id} sheet={sheet} />
         ))}
@@ -101,7 +101,7 @@ const MySheetsPage: React.FC = () => {
   const renderLocalContent = () => {
     if (isLoadingLocal) {
       return (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 2xl:grid-cols-8">
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6"> {/* Max 6 cols */}
           {[...Array(2)].map((_, i) => (
             <div key={i} className="animate-pulse">
               <div className="mb-2 aspect-square rounded-lg bg-[var(--bg-tertiary)]"></div>
@@ -122,7 +122,7 @@ const MySheetsPage: React.FC = () => {
     }
 
     return (
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 2xl:grid-cols-8">
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6"> {/* Max 6 cols */}
         {localSheets.map((sheet) => (
           <LocalSheetCard key={sheet.localKey} sheet={sheet} />
         ))}
