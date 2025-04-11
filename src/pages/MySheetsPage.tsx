@@ -4,62 +4,9 @@ import { SheetMetaData } from "#types/sheet";
 import SheetCard from "@components/basic/sheet/SheetCard";
 import { Link } from "react-router-dom";
 import { getAllLocalSheetMetadata, LocalSheetMetadata } from "../lib/localsheet";
+import { PlusIcon, DocumentIcon, ExclamationTriangleIcon } from "@heroicons/react/24/outline";
 
-interface LocalSheetCardProps {
-  sheet: LocalSheetMetadata;
-}
-
-// A simpler card for local drafts
-const LocalSheetCard: React.FC<LocalSheetCardProps> = ({ sheet }) => {
-  // Calculate how long ago the sheet was saved
-  const getRelativeTime = (timestamp: number): string => {
-    const now = Date.now();
-    const diffSeconds = Math.round((now - timestamp) / 1000);
-
-    if (diffSeconds < 60) return `${diffSeconds}秒前`;
-
-    const diffMinutes = Math.round(diffSeconds / 60);
-    if (diffMinutes < 60) return `${diffMinutes}分钟前`;
-
-    const diffHours = Math.round(diffMinutes / 60);
-    if (diffHours < 24) return `${diffHours}小时前`;
-
-    const diffDays = Math.round(diffHours / 24);
-    return `${diffDays}天前`;
-  };
-
-  // Get sync status
-  const getSyncStatus = (sheet: LocalSheetMetadata): string => {
-    if (!sheet.serverId) return "草稿";
-    console.log(sheet.serverModifiedAt, sheet.localLastSavedAt);
-    if (sheet.serverModifiedAt && sheet.localLastSavedAt > sheet.serverModifiedAt) {
-      return "本地已编辑";
-    }
-    return "已同步";
-  };
-
-  return (
-    <Link to={`/editor/${sheet.localKey}`} className="block">
-      <div className="overflow-hidden rounded-lg border border-[var(--border-primary)] bg-[var(--bg-secondary)] transition-shadow hover:shadow-md">
-        <div className="flex aspect-[1.5/1] items-center justify-center bg-[var(--bg-tertiary)] p-4">
-          <div className="text-center">
-            <span className="block truncate text-xl font-semibold">
-              {sheet.title || "未命名乐谱"}
-            </span>
-            <span className="mt-2 inline-block rounded-full bg-[var(--bg-page)] px-3 py-1 text-xs">
-              {getSyncStatus(sheet)}
-            </span>
-          </div>
-        </div>
-        <div className="p-3">
-          <p className="text-sm text-[var(--text-secondary)]">
-            更新于: {getRelativeTime(sheet.localLastSavedAt)}
-          </p>
-        </div>
-      </div>
-    </Link>
-  );
-};
+import LocalSheetCard from "@components/basic/sheet/LocalSheetCard";
 
 const MySheetsPage: React.FC = () => {
   const [serverSheets, setServerSheets] = useState<SheetMetaData[]>([]);
@@ -111,7 +58,7 @@ const MySheetsPage: React.FC = () => {
   const renderServerContent = () => {
     if (isLoadingServer) {
       return (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 2xl:grid-cols-8">
           {[...Array(4)].map((_, i) => (
             <div key={i} className="animate-pulse">
               <div className="mb-2 aspect-square rounded-lg bg-[var(--bg-tertiary)]"></div>
@@ -125,22 +72,25 @@ const MySheetsPage: React.FC = () => {
 
     if (error) {
       return (
-        <div className="flex h-64 items-center justify-center rounded border border-red-300 bg-red-50 p-4 text-red-500">
-          Error: {error}
+        <div className="flex h-64 flex-col items-center justify-center gap-2 rounded border border-red-300 bg-red-50 p-4 text-red-500">
+          <ExclamationTriangleIcon className="h-10 w-10 text-red-400 mb-2" />
+          <span className="font-semibold">出错了</span>
+          <span className="text-sm">Error: {error}</span>
         </div>
       );
     }
 
     if (serverSheets.length === 0) {
       return (
-        <div className="py-5 text-center text-[var(--text-secondary)]">
+        <div className="flex flex-col items-center justify-center py-10 text-[var(--text-secondary)]">
+          <DocumentIcon className="mb-2 h-10 w-10 text-[var(--text-tertiary)]" />
           <p>你还没有上传任何谱子。</p>
         </div>
       );
     }
 
     return (
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 2xl:grid-cols-8">
         {serverSheets.map((sheet) => (
           <SheetCard key={sheet.id} sheet={sheet} />
         ))}
@@ -151,7 +101,7 @@ const MySheetsPage: React.FC = () => {
   const renderLocalContent = () => {
     if (isLoadingLocal) {
       return (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 2xl:grid-cols-8">
           {[...Array(2)].map((_, i) => (
             <div key={i} className="animate-pulse">
               <div className="mb-2 aspect-square rounded-lg bg-[var(--bg-tertiary)]"></div>
@@ -172,7 +122,7 @@ const MySheetsPage: React.FC = () => {
     }
 
     return (
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 2xl:grid-cols-8">
         {localSheets.map((sheet) => (
           <LocalSheetCard key={sheet.localKey} sheet={sheet} />
         ))}
@@ -185,7 +135,7 @@ const MySheetsPage: React.FC = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="mb-6 flex items-center justify-between">
+      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <h1 className="text-3xl font-bold text-[var(--text-primary)]">我的谱子</h1>
         <Link
           to="#"
@@ -196,14 +146,16 @@ const MySheetsPage: React.FC = () => {
               button.click();
             }
           }}
-          className="rounded bg-[var(--bg-secondary)] px-4 py-2 text-[var(--text-primary)] hover:bg-[var(--bg-hover)]"
+          className="group inline-flex items-center gap-2 rounded-lg bg-[var(--bg-secondary)] px-5 py-2.5 text-[var(--text-primary)] shadow-sm transition hover:bg-[var(--bg-hover)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
         >
-          创建新谱子
+          <PlusIcon className="h-5 w-5 text-[var(--primary)] transition group-hover:scale-110" />
+          <span className="font-medium">创建新谱子</span>
         </Link>
       </div>
 
       {hasNoSheets ? (
-        <div className="py-10 text-center text-[var(--text-secondary)]">
+        <div className="flex flex-col items-center justify-center py-10 text-[var(--text-secondary)]">
+          <DocumentIcon className="mb-2 h-10 w-10 text-[var(--text-tertiary)]" />
           <p>你还没有上传或创建任何谱子。</p>
           <button
             onClick={() => {
@@ -212,9 +164,10 @@ const MySheetsPage: React.FC = () => {
                 button.click();
               }
             }}
-            className="mt-4 inline-block rounded bg-[var(--bg-secondary)] px-6 py-2 text-[var(--text-primary)] hover:bg-[var(--bg-hover)]"
+            className="mt-4 inline-flex items-center gap-2 rounded-lg bg-[var(--bg-secondary)] px-6 py-2 text-[var(--text-primary)] shadow-sm transition hover:bg-[var(--bg-hover)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
           >
-            创建你的第一个谱子
+            <PlusIcon className="h-5 w-5 text-[var(--primary)]" />
+            <span className="font-medium">创建你的第一个谱子</span>
           </button>
         </div>
       ) : (

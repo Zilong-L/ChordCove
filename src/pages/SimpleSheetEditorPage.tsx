@@ -306,7 +306,34 @@ export default function SheetEditor() {
 
   return (
     <div className="mx-auto h-[calc(100vh-4rem)] overflow-scroll px-2 md:px-8 xl:max-w-[90rem]">
-      <button onClick={() => setIsPreview(!isPreview)}>{isPreview ? "编辑" : "预览"}</button>
+      <div className="flex items-center justify-center mb-4">
+        <div className="relative inline-block w-20 h-10">
+          <input
+            type="checkbox"
+            id="toggle-preview"
+            checked={isPreview}
+            onChange={() => setIsPreview(!isPreview)}
+            className="sr-only"
+          />
+          <div
+            className={`block h-10 rounded-full transition-colors duration-200 ease-in-out ${
+              isPreview ? "bg-[var(--play-button-bg)]" : "bg-[var(--bg-tertiary)]"
+            }`}
+          ></div>
+          <div
+            className={`dot absolute left-1 top-1 h-8 w-8 rounded-full bg-white transition-transform duration-200 ease-in-out transform ${
+              isPreview ? "translate-x-10" : ""
+            }`}
+          ></div>
+          <label
+            htmlFor="toggle-preview"
+            className="absolute inset-0 flex items-center justify-between text-sm text-[var(--text-primary)]"
+          >
+            <span className="pl-2">编辑</span>
+            <span className="pr-2">预览</span>
+          </label>
+        </div>
+      </div>
       <div className="flex flex-col gap-6 lg:flex-row">
         <div className="order-2 flex flex-col gap-4 lg:order-[-1] lg:w-1/4">
           <MetadataForm

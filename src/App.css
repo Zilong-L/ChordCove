@@ -1,6 +1,4 @@
 @import "./styles/colors.css";
 @import "./styles/scrollbar.css";
 @import "./styles/tooltips.css";
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";

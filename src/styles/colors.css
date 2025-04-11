@@ -15,12 +15,12 @@
   /* Dark Theme (default) */
   &:not(.light) {
     /* Background Colors */
-    --bg-page: #030303;
-    --bg-primary: #212121;
-    --bg-secondary: #1f1f1f;
-    --bg-tertiary: #2a2a2a;
-    --bg-quaternary: #3a3a3a;
-    --bg-hover: #333333;
+    --bg-page: #0a0a0a;
+    --bg-primary: #282828;
+    --bg-secondary: #262626;
+    --bg-tertiary: #323232;
+    --bg-quaternary: #424242;
+    --bg-hover: #3a3a3a;
     --bg-selected: #aaaaaa;
 
     
@@ -47,8 +47,8 @@
     --editor-active: #1e40af;
     
     /* Play Button Colors */
-    --play-button-bg: #166534;
-    --play-button-hover: #15803d;
+    --play-button-bg: #2d7d46;
+    --play-button-hover: #259d54;
     --play-button-icon: #000000;
     
     /* Overlay Colors */
@@ -63,12 +63,12 @@
   /* Light Theme */
   &.light {
     /* Background Colors */
-    --bg-page: #ffffff;
-    --bg-primary: #f8f8f8;
-    --bg-secondary: #f1f1f1;
-    --bg-tertiary: #e5e5e5;
-    --bg-quaternary: #d4d4d4;
-    --bg-hover: #ebebeb;
+    --bg-page: #f5f5f5;
+    --bg-primary: #f0f0f0;
+    --bg-secondary: #e9e9e9;
+    --bg-tertiary: #dfdfdf;
+    --bg-quaternary: #cfcfcf;
+    --bg-hover: #e5e5e5;
     --bg-selected: #aaaaaa;
     
     /* Text Colors */
@@ -93,8 +93,8 @@
     --editor-active: #60a5fa;
     
     /* Play Button Colors */
-    --play-button-bg: #bbf7d0;
-    --play-button-hover: #86efac;
+    --play-button-bg: #99e6b3;
+    --play-button-hover: #6fd893;
     --play-button-icon: #166534;
     
     /* Overlay Colors */
