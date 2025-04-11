@@ -331,8 +331,8 @@ export default function SheetEditor() {
             htmlFor="toggle-preview"
             className="absolute inset-0 flex items-center justify-between text-sm text-[var(--text-primary)]"
           >
-            <span className="pl-2">编辑</span>
-            <span className="pr-2">预览</span>
+            <span className="pl-3">编辑</span> {/* Increased left padding */}
+            <span className="pr-3">预览</span> {/* Increased right padding */}
           </label>
         </div>
         </div>
