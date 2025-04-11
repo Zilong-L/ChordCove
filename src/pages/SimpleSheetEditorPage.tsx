@@ -306,10 +306,12 @@ export default function SheetEditor() {
 
   return (
     <div className="mx-auto h-[calc(100vh-4rem)] overflow-scroll px-2 md:px-8 xl:max-w-[90rem]">
-      <div className="flex items-center justify-center mb-4">
-        <div className="relative inline-block w-20 h-10">
-          <input
-            type="checkbox"
+      {/* New container for top controls, aligned to the right */}
+      <div className="flex justify-end mb-4">
+        <div className="flex items-center"> {/* Removed justify-center */}
+          <div className="relative inline-block w-20 h-10"> {/* Keep the toggle switch structure */}
+            <input
+              type="checkbox"
             id="toggle-preview"
             checked={isPreview}
             onChange={() => setIsPreview(!isPreview)}
@@ -333,7 +335,9 @@ export default function SheetEditor() {
             <span className="pr-2">预览</span>
           </label>
         </div>
+        </div>
       </div>
+
       <div className="flex flex-col gap-6 lg:flex-row">
         <div className="order-2 flex flex-col gap-4 lg:order-[-1] lg:w-1/4">
           <MetadataForm
