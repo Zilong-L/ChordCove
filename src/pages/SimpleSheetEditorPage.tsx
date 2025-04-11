@@ -323,16 +323,16 @@ export default function SheetEditor() {
             }`}
           ></div>
           <div
-            className={`dot absolute left-1 top-1 h-8 w-8 rounded-full bg-white transition-transform duration-200 ease-in-out transform ${
+            className={`dot absolute left-1 top-1 h-8 w-8 rounded-full bg-white transition-transform duration-200 ease-in-out transform z-10 ${ // Added z-10
               isPreview ? "translate-x-10" : ""
             }`}
           ></div>
           <label
             htmlFor="toggle-preview"
-            className="absolute inset-0 flex items-center justify-between text-sm text-[var(--text-primary)]"
+            className="absolute inset-0 flex items-center justify-between px-3 text-sm text-[var(--text-primary)]" // Added px-3 for padding
           >
-            <span className="pl-3">编辑</span> {/* Increased left padding */}
-            <span className="pr-3">预览</span> {/* Increased right padding */}
+            <span>编辑</span> {/* Removed padding from spans */}
+            <span>预览</span> {/* Removed padding from spans */}
           </label>
         </div>
         </div>
