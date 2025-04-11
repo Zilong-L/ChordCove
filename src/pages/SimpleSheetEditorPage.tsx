@@ -2,7 +2,6 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { debounce } from "lodash";
 import SimpleSheetEditor from "../components/SimpleEditor/SimpleSheetEditor";
-import SheetDisplay from "../components/SimpleEditor/SimpleSheetDisplay";
 import MetadataForm from "../components/basic/sheet/MetadataForm";
 
 import { useSelector } from "react-redux";
@@ -44,7 +43,6 @@ export default function SheetEditor() {
   const [uploading, setUploading] = useState(false);
   const [message, setMessage] = useState("");
   const [isInitialized, setIsInitialized] = useState(false);
-  const [isPreview, setIsPreview] = useState(false);
   const [pendingImage, setPendingImage] = useState<PendingImage | null>(null);
 
   const navigate = useNavigate();
@@ -306,37 +304,6 @@ export default function SheetEditor() {
 
   return (
     <div className="mx-auto h-[calc(100vh-4rem)] overflow-scroll px-2 md:px-8 xl:max-w-[90rem]">
-      {/* New container for top controls, aligned to the right */}
-      <div className="flex justify-end mb-4">
-        <div className="flex items-center"> {/* Removed justify-center */}
-          <div className="relative inline-block w-20 h-10"> {/* Keep the toggle switch structure */}
-            <input
-              type="checkbox"
-            id="toggle-preview"
-            checked={isPreview}
-            onChange={() => setIsPreview(!isPreview)}
-            className="sr-only"
-          />
-          <div
-            className={`block h-10 rounded-full transition-colors duration-200 ease-in-out ${
-              isPreview ? "bg-[var(--play-button-bg)]" : "bg-[var(--bg-tertiary)]"
-            }`}
-          ></div>
-          <div
-            className={`dot absolute left-1 top-1 h-8 w-8 rounded-full bg-white transition-transform duration-200 ease-in-out transform z-10 ${ // Added z-10
-              isPreview ? "translate-x-10" : ""
-            }`}
-          ></div>
-          <label
-            htmlFor="toggle-preview"
-            className="absolute inset-0 flex items-center justify-between px-3 text-sm text-[var(--text-primary)]" // Added px-3 for padding
-          >
-            <span>编辑</span> {/* Removed padding from spans */}
-            <span>预览</span> {/* Removed padding from spans */}
-          </label>
-        </div>
-        </div>
-      </div>
 
       <div className="flex flex-col gap-6 lg:flex-row">
         <div className="order-2 flex flex-col gap-4 lg:order-[-1] lg:w-1/4">
@@ -357,15 +324,10 @@ export default function SheetEditor() {
           </button>
         </div>
 
-        {isPreview ? (
-          <div className="flex h-[90vh] flex-col lg:w-3/4">
-            <SheetDisplay />
-          </div>
-        ) : (
-          <div className="flex h-[90vh] flex-col lg:w-3/4">
-            <SimpleSheetEditor />
-            <textarea
-              ref={textareaRef}
+        <div className="flex h-[90vh] flex-col lg:w-3/4">
+          <SimpleSheetEditor />
+          <textarea
+            ref={textareaRef}
               value={simpleScore.content}
               onChange={(e) => dispatch(setContent(e.target.value))}
               onKeyDown={(e) => {
@@ -395,7 +357,6 @@ export default function SheetEditor() {
             />
             {message && <p className="mt-2 text-center text-[var(--text-tertiary)]">{message}</p>}
           </div>
-        )}
       </div>
     </div>
   );
