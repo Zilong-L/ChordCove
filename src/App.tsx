@@ -40,7 +40,7 @@ function App() {
               </ProtectedRoute>
             }
           />
-          <Route path="/sheet/:id" element={<SimpleSheetDetailsPage />} />
+          <Route path="/sheet/simple/:id" element={<SimpleSheetDetailsPage />} />
           <Route
             path="/create/full"
             element={

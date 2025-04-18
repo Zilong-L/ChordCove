@@ -22,7 +22,9 @@ export default function SheetCard({ sheet, widthClassName }: SheetCardProps) {
 
   return (
     <Link
-      to={`/sheet/${sheet.id}`}
+      to={sheet.sheetType === 'simple' 
+        ? `/sheet/simple/${sheet.id}` 
+        : `/sheet/full/${sheet.id}`}
       className="group/inner relative rounded-lg p-4 hover:bg-[var(--bg-hover)]"
     >
       <PlayTriangle containerClassName="absolute bottom-20 group-hover/inner:opacity-100 group-hover/inner:translate-y-[15%] right-4 z-10" />

@@ -5,6 +5,7 @@ import type { SheetMetaData } from "../types/sheet";
 const initialState: SheetMetaData = {
   id: "",
   title: "",
+  sheetType: "simple",
   composers: [],
   singers: [],
   uploader: "",

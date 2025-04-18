@@ -47,6 +47,7 @@ export default function MetadataForm({ uploading, localKey, setPendingImage }: M
               bvid: localData.metadata.bvid || "",
               uploader: localData.metadata.uploader || "",
               uploaderId: localData.metadata.uploaderId || 0,
+              sheetType: localData.metadata.sheetType || "simple",
             })
           );
         }

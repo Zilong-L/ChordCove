@@ -38,6 +38,8 @@ export function EditSheetButton({ loading }: { loading: boolean }) {
         uploader: sheetMetadata.uploader || "",
         uploaderId: sheetMetadata.uploaderId || -1,
         bvid: sheetMetadata.bvid || "",
+        sheetType: "simple" as const
+        
       };
 
       // Prepare content to save

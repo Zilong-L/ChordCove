@@ -75,6 +75,7 @@ export default function SheetEditor() {
             setSheetMetadata({
               id: data.metadata.serverId || "",
               title: data.metadata.title,
+              sheetType: "simple",
               composers: [],
               singers: [],
               uploader: "",
@@ -115,7 +116,7 @@ export default function SheetEditor() {
       if (!key || isLoading) return;
       setIsSavingLocally(true);
       try {
-        await updateLocalSheetMetadata(key, { title });
+        await updateLocalSheetMetadata(key, { title,sheetType: "simple" });
         console.log("Metadata saved locally");
       } catch (err) {
         console.error("Failed to save metadata locally:", err);

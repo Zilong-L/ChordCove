@@ -7,6 +7,7 @@ export interface SimpleScore {
 export interface SheetMetaData {
   id: string;
   title: string;
+  sheetType: 'simple' | 'full';
   uploader: string;
   uploaderId: number;
   coverImage: string;

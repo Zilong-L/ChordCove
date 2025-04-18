@@ -28,6 +28,7 @@ export default function Sidebar() {
 
       const initialMetadata = {
         title: "未命名乐谱",
+        sheetType: "simple" as const,
       };
 
       const initialContent = {
