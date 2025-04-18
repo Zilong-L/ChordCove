@@ -24,14 +24,7 @@ function App() {
         <Route element={<Layout />}>
           <Route path="/" element={<Home />} />
           <Route path="/artist/:id" element={<ArtistPage />} />
-          <Route
-            path="/create"
-            element={
-              <ProtectedRoute>
-                <SimpleSheetEditorPage />
-              </ProtectedRoute>
-            }
-          />
+
           <Route
             path="/edit/:id"
             element={
@@ -67,7 +60,7 @@ function App() {
             }
           />
           <Route
-            path="/editor/:localKey"
+            path="/editor/simple/:localKey"
             element={
               <ProtectedRoute>
                 <SimpleSheetEditorPage />

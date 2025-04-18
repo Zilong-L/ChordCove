@@ -46,7 +46,7 @@ export default function Sidebar() {
 
       console.log(`Created local draft with key: ${localKey}`);
 
-      navigate(`/editor/${localKey}`);
+      navigate(`/editor/simple/${localKey}`);
     } catch (error) {
       console.error("Failed to create sheet draft:", error);
     }

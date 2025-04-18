@@ -116,7 +116,7 @@ export default function SheetEditor() {
       if (!key || isLoading) return;
       setIsSavingLocally(true);
       try {
-        await updateLocalSheetMetadata(key, { title,sheetType: "simple" });
+        await updateLocalSheetMetadata(key, { title, sheetType: "simple" });
         console.log("Metadata saved locally");
       } catch (err) {
         console.error("Failed to save metadata locally:", err);
@@ -125,7 +125,7 @@ export default function SheetEditor() {
         setIsSavingLocally(false);
       }
     }, 1000),
-    [isLoading]
+    [isLoading, localKey]
   );
 
   const debouncedSaveContent = useCallback(
@@ -142,7 +142,7 @@ export default function SheetEditor() {
         setIsSavingLocally(false);
       }
     }, 1000),
-    [isLoading]
+    [isLoading, localKey]
   );
 
   // Watch for metadata changes and save locally
@@ -329,35 +329,35 @@ export default function SheetEditor() {
           <SimpleSheetEditor />
           <textarea
             ref={textareaRef}
-              value={simpleScore.content}
-              onChange={(e) => dispatch(setContent(e.target.value))}
-              onKeyDown={(e) => {
-                if (e.key === "Tab") {
-                  e.preventDefault();
+            value={simpleScore.content}
+            onChange={(e) => dispatch(setContent(e.target.value))}
+            onKeyDown={(e) => {
+              if (e.key === "Tab") {
+                e.preventDefault();
 
-                  const textarea = textareaRef.current;
-                  if (!textarea) return;
+                const textarea = textareaRef.current;
+                if (!textarea) return;
 
-                  // 插入 [] 保留 undo 历史
-                  textarea.focus();
-                  document.execCommand("insertText", false, "[]");
-                  // deprecated but no alternative for now.
+                // 插入 [] 保留 undo 历史
+                textarea.focus();
+                document.execCommand("insertText", false, "[]");
+                // deprecated but no alternative for now.
 
-                  // 移动光标到中间
-                  const pos = textarea.selectionStart;
-                  textarea.setSelectionRange(pos - 1, pos - 1);
+                // 移动光标到中间
+                const pos = textarea.selectionStart;
+                textarea.setSelectionRange(pos - 1, pos - 1);
 
-                  // 同步到 Redux
-                  dispatch(setContent(textarea.value));
-                }
-              }}
-              className="mx-auto mb-4 mt-4 min-h-48 w-[90%] resize-none rounded border border-[var(--border-primary)] bg-transparent p-2 text-[var(--text-primary)] outline-none"
-              placeholder="输入乐谱内容"
-              title="乐谱内容"
-              aria-label="乐谱内容"
-            />
-            {message && <p className="mt-2 text-center text-[var(--text-tertiary)]">{message}</p>}
-          </div>
+                // 同步到 Redux
+                dispatch(setContent(textarea.value));
+              }
+            }}
+            className="mx-auto mb-4 mt-4 min-h-48 w-[90%] resize-none rounded border border-[var(--border-primary)] bg-transparent p-2 text-[var(--text-primary)] outline-none"
+            placeholder="输入乐谱内容"
+            title="乐谱内容"
+            aria-label="乐谱内容"
+          />
+          {message && <p className="mt-2 text-center text-[var(--text-tertiary)]">{message}</p>}
+        </div>
       </div>
     </div>
   );

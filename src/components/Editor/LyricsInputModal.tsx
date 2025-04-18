@@ -23,22 +23,7 @@ export const LyricsInputModal = () => {
   const newSlotDuration = isDotted ? baseDuration * 1.5 : baseDuration;
 
   // Close modal when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      const modal = document.getElementById("lyrics-input-modal");
-      if (modal && !modal.contains(e.target as Node)) {
-        handleClose();
-      }
-    };
 
-    if (isLyricsEditing) {
-      document.addEventListener("mousedown", handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [isLyricsEditing]);
 
   // Add keyboard shortcut for opening lyrics input
   useEffect(() => {
@@ -76,7 +61,22 @@ export const LyricsInputModal = () => {
     dispatch(setLyricsEditing(false));
     dispatch(setLyricsInputValue(""));
   };
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      const modal = document.getElementById("lyrics-input-modal");
+      if (modal && !modal.contains(e.target as Node)) {
+        handleClose();
+      }
+    };
 
+    if (isLyricsEditing) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isLyricsEditing, handleClose]);
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       e.preventDefault();

@@ -39,7 +39,7 @@ export function EditSheetButton({ loading }: { loading: boolean }) {
         uploaderId: sheetMetadata.uploaderId || -1,
         bvid: sheetMetadata.bvid || "",
         sheetType: "simple" as const
-        
+
       };
 
       // Prepare content to save
@@ -60,7 +60,7 @@ export function EditSheetButton({ loading }: { loading: boolean }) {
       console.log(`Created local copy for editing with key: ${localKey}`);
 
       // Navigate to the editor with the local key
-      navigate(`/editor/${localKey}`);
+      navigate(`/editor/simple/${localKey}`);
     } catch (error) {
       console.error("Failed to create sheet copy for editing:", error);
     }

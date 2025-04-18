@@ -53,7 +53,7 @@ export default function LocalSheetCard({ sheet, widthClassName, onDelete }: Loca
         </button>
       )}
       <Link
-        to={`/editor/${sheet.localKey}`}
+        to={`/editor/simple/${sheet.localKey}`}
         className="block"
         tabIndex={-1}
       >
