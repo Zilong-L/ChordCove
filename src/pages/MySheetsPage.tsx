@@ -7,6 +7,7 @@ import { getAllLocalSheetMetadata, LocalSheetMetadata } from "../lib/localsheet"
 import { PlusIcon, DocumentIcon, ExclamationTriangleIcon } from "@heroicons/react/24/outline";
 
 import LocalSheetCard from "@components/basic/sheet/LocalSheetCard";
+import { deleteLocalSheet } from "../lib/localsheet";
 
 const MySheetsPage: React.FC = () => {
   const [serverSheets, setServerSheets] = useState<SheetMetaData[]>([]);
@@ -98,10 +99,16 @@ const MySheetsPage: React.FC = () => {
     );
   };
 
+  const handleDeleteLocalSheet = async (localKey: string) => {
+    await deleteLocalSheet(localKey);
+    // Refresh local sheets after deletion
+    setLocalSheets((prev) => prev.filter((s) => s.localKey !== localKey));
+  };
+
   const renderLocalContent = () => {
     if (isLoadingLocal) {
       return (
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6"> {/* Max 6 cols */}
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
           {[...Array(2)].map((_, i) => (
             <div key={i} className="animate-pulse">
               <div className="mb-2 aspect-square rounded-lg bg-[var(--bg-tertiary)]"></div>
@@ -122,9 +129,13 @@ const MySheetsPage: React.FC = () => {
     }
 
     return (
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6"> {/* Max 6 cols */}
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
         {localSheets.map((sheet) => (
-          <LocalSheetCard key={sheet.localKey} sheet={sheet} />
+          <LocalSheetCard
+            key={sheet.localKey}
+            sheet={sheet}
+            onDelete={handleDeleteLocalSheet}
+          />
         ))}
       </div>
     );
