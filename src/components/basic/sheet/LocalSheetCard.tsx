@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { LocalSheetMetadata } from "../../../lib/localsheet";
+import { LocalSheetMetadata } from "@utils/idb/localsheet";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 
 interface LocalSheetCardProps {

@@ -2,7 +2,7 @@ import { v4 as uuidv4 } from "uuid";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { RootState } from "@stores/store";
-import { addLocalSheet, findLocalSheetByServerId } from "../../lib/localsheet";
+import { addLocalSheet, findLocalSheetByServerId } from "@utils/idb/localsheet";
 
 // Rename for more clarity
 export function EditSheetButton({ loading }: { loading: boolean }) {

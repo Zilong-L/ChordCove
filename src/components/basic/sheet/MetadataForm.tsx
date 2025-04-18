@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { setSheetMetadata } from "@stores/sheetMetadataSlice";
 import { RootState } from "@stores/store";
 import { XMarkIcon } from "@heroicons/react/20/solid";
-import { getLocalSheetData } from "@lib/localsheet";
+import { getLocalSheetData } from "@utils/idb/localsheet";
 
 interface MetadataFormProps {
   uploading: boolean;

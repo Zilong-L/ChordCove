@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 import { RootState } from "@stores/store";
 import {
   HeartIcon,
@@ -7,46 +7,17 @@ import {
   MusicalNoteIcon,
   GlobeAsiaAustraliaIcon,
 } from "@heroicons/react/24/outline";
-import { resetSheetMetadata } from "@stores/sheetMetadataSlice";
-import { resetSimpleScore } from "@stores/simpleScoreSlice";
+import { createSimpleSheet, } from "../../utils/idb/sheetEditing";
 import { useUiStore } from "@stores/uiStore";
-import { v4 as uuidv4 } from "uuid";
-import { addLocalSheet } from "../../lib/localsheet";
-
 export default function Sidebar() {
   const { isAuthenticated } = useSelector((state: RootState) => state.auth);
-  const dispatch = useDispatch();
   const navigate = useNavigate();
   const isSidebarOpen = useUiStore((state) => state.isMobileSidebarOpen);
 
-  const handleCreateSheet = async () => {
+  const handleCreateSimpleSheet = async () => {
     try {
-      dispatch(resetSimpleScore());
-      dispatch(resetSheetMetadata());
-
-      const localKey = uuidv4();
-
-      const initialMetadata = {
-        title: "未命名乐谱",
-        sheetType: "simple" as const,
-      };
-
-      const initialContent = {
-        key: "C3",
-        tempo: 120,
-        timeSignature: "4/4",
-        content: "[I]你存在，我[IV]深深地脑海里",
-      };
-
-      await addLocalSheet({
-        localKey,
-        metadata: initialMetadata,
-        content: initialContent,
-      });
-
-      console.log(`Created local draft with key: ${localKey}`);
-
-      navigate(`/editor/simple/${localKey}`);
+      const { url } = await createSimpleSheet();
+      navigate(url);
     } catch (error) {
       console.error("Failed to create sheet draft:", error);
     }
@@ -74,7 +45,7 @@ export default function Sidebar() {
         </li>
         <li>
           <button
-            onClick={handleCreateSheet}
+            onClick={handleCreateSimpleSheet}
             className="flex w-full cursor-pointer items-center gap-8 rounded p-4 text-left hover:bg-[var(--bg-hover)]"
             aria-label="创建乐谱"
           >

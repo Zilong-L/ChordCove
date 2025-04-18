@@ -19,7 +19,7 @@ import {
   updateLocalSheetContent,
   updateLocalSheetAfterSync,
   LocalSheetContent,
-} from "../lib/localsheet";
+} from "../utils/idb/localsheet";
 
 // Define our response type that includes both metadata and score data
 interface SaveSheetResponse extends SheetMetaData {
