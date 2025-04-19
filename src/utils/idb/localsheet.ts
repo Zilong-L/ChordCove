@@ -3,7 +3,7 @@ import { openDB, DBSchema, IDBPDatabase } from "idb";
 // --- Database Definition ---
 
 const DB_NAME = "ChordCoveDB";
-const DB_VERSION = 2; // Increment version if schema changes
+const DB_VERSION = 3; // Increment version if schema changes
 const METADATA_STORE = "localMetadata";
 const CONTENT_STORE = "localContent";
 
@@ -33,12 +33,15 @@ export interface LocalSheetMetadata {
   localLastSavedAt: number; // Timestamp of the last local save action (to either store)
 }
 
+import { Score } from "../../stores/scoreSlice";
+
 export interface LocalSheetContent {
   localKey: string; // Primary key (matches localMetadata.localKey)
   key: string; // Default C3 from simpleScoreSlice?
   tempo: number; // Default 120?
   timeSignature: string; // Change to string type to match SimpleScore
   content: string; // The core "[I]...[IV]..." data
+  score?: Score;   // Full sheet score data
 }
 
 interface ChordCoveDBSchema extends DBSchema {
@@ -79,6 +82,11 @@ export function initLocalSheetDB(): Promise<IDBPDatabase<ChordCoveDBSchema>> {
       if (!db.objectStoreNames.contains(CONTENT_STORE)) {
         console.log(`Creating ${CONTENT_STORE} store`);
         db.createObjectStore(CONTENT_STORE, { keyPath: "localKey" });
+      }
+
+      // Migration from version 2 to 3 - add score field
+      if (oldVersion < 3) {
+        console.log('Migrating from version 2 to 3 - adding score field');
       }
     },
     blocked() {

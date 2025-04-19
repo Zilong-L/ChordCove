@@ -1,7 +1,12 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-// import MetadataForm from "../components/basic/sheet/MetadataForm";
+import MetadataForm from "../components/basic/sheet/MetadataForm";
+
+interface PendingImage {
+  file: File;
+  hash: string;
+}
 import Editor from "@components/Editor/Editor";
 
 // redux states
@@ -15,6 +20,7 @@ import { API_BASE_URL } from "@utils/api";
 export default function FullSheetEditorPage() {
   const [uploading, setUploading] = useState(false);
   const [message, setMessage] = useState("");
+  const [_, setPendingImage] = useState<PendingImage | null>(null);
   const navigate = useNavigate();
 
   const sheetMetadata = useSelector((state: RootState) => state.sheetMetadata);
@@ -72,15 +78,17 @@ export default function FullSheetEditorPage() {
     <div className="mx-auto px-2 md:px-8 xl:max-w-[90vw]">
       <div className="flex flex-col gap-6 xl:flex-row xl:items-start">
         <div className="order-2 flex flex-col xl:order-[-1] xl:w-1/5">
-          {/* <MetadataForm uploading={uploading} setPendingImage={setPendingImage} /> */}
+          <MetadataForm
+            uploading={uploading}
+            setPendingImage={setPendingImage}
+          />
           <button
             onClick={handleUpload}
             disabled={uploading}
-            className={`mx-auto w-[90%] justify-self-center rounded py-2 transition ${
-              uploading
-                ? "bg-[var(--bg-button-disabled)] text-[var(--text-button-disabled)]"
-                : "bg-[var(--bg-button)] text-[var(--text-button)] shadow-inner shadow-[var(--bg-button)] hover:bg-[var(--bg-button-hover)]"
-            }`}
+            className={`mx-auto w-[90%] justify-self-center rounded py-2 transition ${uploading
+              ? "bg-[var(--bg-button-disabled)] text-[var(--text-button-disabled)]"
+              : "bg-[var(--bg-button)] text-[var(--text-button)] shadow-inner shadow-[var(--bg-button)] hover:bg-[var(--bg-button-hover)]"
+              }`}
           >
             {uploading ? "上传中..." : "上传乐谱"}
           </button>

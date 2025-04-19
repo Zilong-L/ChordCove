@@ -28,7 +28,7 @@ export default function LocalSheetCard({ sheet, widthClassName, onDelete }: Loca
 
   // Get sync status
   const getSyncStatus = (sheet: LocalSheetMetadata): string => {
-    if (!sheet.serverId) return "草稿";
+    if (!sheet.serverId || !sheet.serverModifiedAt) return "草稿";
     if (sheet.serverModifiedAt && sheet.localLastSavedAt > sheet.serverModifiedAt) {
       return "本地已编辑";
     }
@@ -53,7 +53,7 @@ export default function LocalSheetCard({ sheet, widthClassName, onDelete }: Loca
         </button>
       )}
       <Link
-        to={`/editor/simple/${sheet.localKey}`}
+        to={`/editor/${sheet.sheetType}/${sheet.localKey}`}
         className="block"
         tabIndex={-1}
       >

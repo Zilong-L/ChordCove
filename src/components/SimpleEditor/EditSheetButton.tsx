@@ -17,10 +17,13 @@ export function EditSheetButton({ loading }: { loading: boolean }) {
       // Check if we already have a local copy of this sheet
       if (sheetMetadata.id) {
         const existingLocalKey = await findLocalSheetByServerId(sheetMetadata.id);
-
+        console.log(`Searching for existing local copy with server ID `, sheetMetadata);
         if (existingLocalKey) {
+          //get local metadata
+          const localMetadata = await findLocalSheetByServerId(sheetMetadata.id);
+          console.log(`Found existing local copy with key: ${existingLocalKey}`, localMetadata);
           console.log(`Found existing local copy with key: ${existingLocalKey}`);
-          navigate(`/editor/${existingLocalKey}`);
+          navigate(`/editor/${sheetMetadata.sheetType}/${existingLocalKey}`);
           return;
         }
       }

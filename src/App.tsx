@@ -35,7 +35,7 @@ function App() {
           />
           <Route path="/sheet/simple/:id" element={<SimpleSheetDetailsPage />} />
           <Route
-            path="/create/full"
+            path="/editor/full/:id"
             element={
               <ProtectedRoute>
                 <FullSheetEditorPage />

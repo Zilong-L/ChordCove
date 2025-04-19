@@ -245,6 +245,7 @@ export default function SheetEditor() {
         bvid: sheetMetadata.bvid,
         key: simpleScore.key,
         tempo: simpleScore.tempo,
+        sheetType: "simple",
         timeSignature: simpleScore.timeSignature,
         content: simpleScore.content,
       };
