@@ -8,7 +8,7 @@ import { pushSlot, clearDirtyBit, setSlot } from "@stores/scoreSlice";
 import { useEffect, useRef } from "react";
 import { Note } from "tonal";
 import { scorePlaybackService } from "@utils/sounds/ScorePlaybackService";
-
+import { getSamplerInstance } from "@utils/sounds/Toneloader";
 // WebMidi types
 interface MIDIMessageEvent {
   data: Uint8Array;
@@ -79,6 +79,7 @@ export default function RealTimeInput() {
   const [snapType, setSnapType] = useState<SnapType>("eighth");
   const currentTrackRef = useRef(score.tracks[editing.editingTrack]);
 
+  const { sampler } = getSamplerInstance()!;
   // Update refs when values change
   useEffect(() => {
     currentTrackRef.current = score.tracks[editing.editingTrack];
@@ -270,8 +271,18 @@ export default function RealTimeInput() {
       console.log(pressingNotes, sustainedNotes);
     };
   })();
-
+  const handleSound = (message: MIDIMessageEvent) => {
+    const [status, note, velocity] = message.data;
+    if (status === 144 && velocity > 0) {
+      sampler.triggerAttack(Note.fromMidi(note));
+    }
+    // 处理音符释放
+    else if (status === 128 || (status === 144 && velocity === 0)) {
+      sampler.triggerRelease(Note.fromMidi(note));
+    }
+  }
   const handleMidiMessage = (message: MIDIMessageEvent) => {
+    handleSound(message);
     switch (currentTrackRef.current.type) {
       case "notes":
         handleMidiMessageForNotes(message);
@@ -337,11 +348,10 @@ export default function RealTimeInput() {
       <div className="flex items-center gap-4">
         <button
           onClick={handleStartAndStop}
-          className={`rounded px-4 py-2 text-[var(--text-primary)] transition-colors ${
-            isRecording
-              ? "bg-[var(--bg-danger)] hover:bg-[var(--bg-danger-hover)]"
-              : "bg-[var(--bg-button)] hover:bg-[var(--bg-button-hover)]"
-          }`}
+          className={`rounded px-4 py-2 text-[var(--text-primary)] transition-colors ${isRecording
+            ? "bg-[var(--bg-danger)] hover:bg-[var(--bg-danger-hover)]"
+            : "bg-[var(--bg-button)] hover:bg-[var(--bg-button-hover)]"
+            }`}
         >
           {isRecording ? "Stop" : "Start"} Recording
         </button>

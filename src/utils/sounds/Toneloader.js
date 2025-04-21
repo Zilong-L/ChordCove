@@ -26,7 +26,7 @@ function getSamplerInstance() {
 
 // **创建新的 Sampler**
 class SamplerManager {
-  constructor(instrument = "triangle", quality = "medium", filterFreq = 1200, panVal = 0) {
+  constructor(instrument = "piano", quality = "medium", filterFreq = 1200, panVal = 0) {
     this.sampler = SampleLibrary.load({
       instruments: instrument,
       baseUrl: "/samples/",
@@ -43,7 +43,7 @@ class SamplerManager {
   }
 
   setVolume(value) {
-    this.gainNode.gain.rampTo(Math.min(1, value*0.7));
+    this.gainNode.gain.rampTo(Math.min(1, value * 0.7));
   }
 
   setFilterFrequency(freq) {

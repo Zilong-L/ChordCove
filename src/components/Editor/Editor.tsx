@@ -9,7 +9,7 @@ import { useKeyInputs } from "./useInputs/useKeyInputs";
 import useMidiInputs from "./useInputs/useMidiInputs";
 import { LyricsInputModal } from "./LyricsInputModal";
 // import RealTimeInput from "./RealTimeInputs/RealTimeKeyInputs";
-// import RealTimeMidiInput from "./RealTimeInputs/RealTimeMidiInputs";
+import RealTimeMidiInput from "./RealTimeInputs/RealTimeMidiInputs";
 
 export default function SimpleEditor() {
   // Get states from Redux
@@ -19,6 +19,7 @@ export default function SimpleEditor() {
   // Use keyboard input hook
   useKeyInputs();
   useMidiInputs();
+
   console.log(score);
   return (
     <div className="relative flex h-[calc(100vh-8rem)] w-full flex-col gap-6 overflow-y-scroll rounded-md bg-gradient-to-b from-[var(--gradient-start)] to-[var(--gradient-end)] p-8 text-[var(--text-primary)]">
@@ -33,7 +34,7 @@ export default function SimpleEditor() {
           <span>Beat {editingBeat}</span>
         </div>
         {/* <RealTimeInput /> */}
-        {/* <RealTimeMidiInput /> */}
+        <RealTimeMidiInput />
         <ScorePlayer />
       </div>
 

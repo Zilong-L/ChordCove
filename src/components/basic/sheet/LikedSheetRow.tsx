@@ -32,7 +32,7 @@ export default function LikedSheetRow({ sheet }: LikedSheetRowProps) {
           alt={`${sheet.title} cover`}
           className="h-10 w-10 rounded object-cover"
           onError={(e) => {
-            e.currentTarget.src = "/placeholder-cover.png"; // Fallback placeholder
+            e.currentTarget.src = ""; // Fallback placeholder
           }}
         />
         <div className="flex-1 overflow-hidden">
