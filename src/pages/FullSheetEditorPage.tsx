@@ -1,5 +1,6 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect, useCallback } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { debounce } from "lodash";
 
 import MetadataForm from "../components/basic/sheet/MetadataForm";
 
@@ -10,69 +11,142 @@ interface PendingImage {
 import Editor from "@components/Editor/Editor";
 
 // redux states
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { setSheetMetadata } from "@stores/sheetMetadataSlice";
+import { setScore } from "@stores/scoreSlice";
+
 import { RootState } from "@stores/store";
 
-import { fetchApi } from "@utils/api";
-import { SheetMetaData } from "#types/sheet";
 import EditorControlPanel from "@components/Editor/EditorControlPanel";
-import { API_BASE_URL } from "@utils/api";
+
+// Import IndexedDB functions
+import {
+  getLocalSheetData,
+  // updateLocalSheetMetadata,
+  updateLocalSheetContent,
+} from "../utils/idb/localsheet";
+import { Score } from "@stores/scoreSlice";
 export default function FullSheetEditorPage() {
-  const [uploading, setUploading] = useState(false);
+  const { id: localKey } = useParams<{ id: string }>();
+  const [uploading, _setUploading] = useState(false);
   const [message, setMessage] = useState("");
+  const [isSavingLocally, setIsSavingLocally] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isInitialized, setIsInitialized] = useState(false);
   const [_, setPendingImage] = useState<PendingImage | null>(null);
   const navigate = useNavigate();
 
-  const sheetMetadata = useSelector((state: RootState) => state.sheetMetadata);
-  const { title } = sheetMetadata;
+  const dispatch = useDispatch();
+  // const auth = useSelector((state: RootState) => state.auth)
+  // const sheetMetadata = useSelector((state: RootState) => state.sheetMetadata);
   const score = useSelector((state: RootState) => state.score);
-  const auth = useSelector((state: RootState) => state.auth);
 
-  const handleUpload = async () => {
-    if (!auth.isAuthenticated) {
-      setMessage("请先登录");
-      navigate("/login");
-      return;
-    }
+  // Initialize DB and load data on mount
+  useEffect(() => {
+    const loadSheet = async () => {
 
-    if (!title.trim()) {
-      setMessage("请填写曲名");
-      return;
-    }
+      console.log(localKey)
+      if (!localKey) {
+        return;
+      }
+      if (isInitialized) {
+        return; // Prevent loading data multiple times
+      }
 
-    setUploading(true);
-    setMessage("");
+      setIsLoading(true);
+      try {
+        const data = await getLocalSheetData(localKey);
+        if (data) {
+          // Update Redux store with local sheet data
+          // Here you would dispatch actions to set metadata and score
+          dispatch(
+            setSheetMetadata({
+              id: data.metadata.serverId || "",
+              title: data.metadata.title,
+              sheetType: "simple",
+              composers: [],
+              singers: [],
+              uploader: "",
+              uploaderId: -1,
+              coverImage: "",
+            })
+          );
 
-    const body = {
-      sheetMetadata,
-      scoreData: score,
+          dispatch(
+            setScore({
+              key: data.content.score!.key,
+              tempo: data.content.score!.tempo,
+              tracks: data.content.score!.tracks
+            })
+          );
+          console.log(`Loaded sheet data for localKey: ${localKey}`);
+          setIsInitialized(true);
+        } else {
+          setMessage(`未找到本地乐谱: ${localKey}`);
+        }
+      } catch (err) {
+        console.error("Failed to load local sheet:", err);
+        setMessage("无法加载乐谱数据");
+      } finally {
+        setIsLoading(false);
+      }
     };
 
-    try {
-      const data = await fetchApi<SheetMetaData>(API_BASE_URL + "/api/upload", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${auth.token}`,
-        },
-        body: JSON.stringify(body),
-      });
+    loadSheet();
+  }, [localKey, navigate, isInitialized]);
 
-      if (data) {
-        setMessage(`上传成功！乐谱 ID: ${data.id}`);
-      } else if (data === null) {
-        setMessage("登录已过期，请重新登录");
-        navigate("/login");
-      } else {
-        setMessage("上传失败，请重试");
+  // // Debounced functions for local saving
+  // const debouncedSaveMetadata = useCallback(
+  //   debounce(async (key: string, title: string) => {
+  //     if (!key || isLoading) return;
+  //     setIsSavingLocally(true);
+  //     try {
+  //       await updateLocalSheetMetadata(key, { title, sheetType: "full" });
+  //       console.log("Metadata saved locally");
+  //     } catch (err) {
+  //       console.error("Failed to save metadata locally:", err);
+  //     } finally {
+  //       setIsSavingLocally(false);
+  //     }
+  //   }, 1000),
+  //   [isLoading, localKey]
+  // );
+
+  const debouncedSaveScore = useCallback(
+    debounce(async (key: string, scoreData: Score) => {
+      if (!key || isLoading) return;
+      setIsSavingLocally(true);
+      try {
+        await updateLocalSheetContent(key, { score: scoreData });
+        console.log("Score saved locally");
+      } catch (err) {
+        console.error("Failed to save score locally:", err);
+      } finally {
+        setIsSavingLocally(false);
       }
-    } catch (err) {
-      console.error("Upload error:", err);
-      setMessage("网络错误，请稍后再试");
-    }
+    }, 1000),
+    [isLoading, localKey]
+  );
 
-    setUploading(false);
-  };
+  // Watch for metadata changes and save locally
+  // useEffect(() => {
+  //   if (!isLoading && localKey && sheetMetadata.title) {
+  //     debouncedSaveMetadata(localKey, sheetMetadata.title);
+  //   }
+  // }, [localKey, sheetMetadata.title, debouncedSaveMetadata, isLoading]);
+
+  // Watch for score changes and save locally
+  useEffect(() => {
+    if (!isLoading && localKey) {
+      console.log('saving')
+      debouncedSaveScore(localKey, score);
+    }
+  }, [localKey, score, debouncedSaveScore, isLoading]);
+
+  if (isLoading) {
+    return <div className="flex h-screen items-center justify-center">加载编辑器中...</div>;
+  }
+
 
   return (
     <div className="mx-auto px-2 md:px-8 xl:max-w-[90vw]">
@@ -83,14 +157,13 @@ export default function FullSheetEditorPage() {
             setPendingImage={setPendingImage}
           />
           <button
-            onClick={handleUpload}
-            disabled={uploading}
-            className={`mx-auto w-[90%] justify-self-center rounded py-2 transition ${uploading
+            disabled={uploading || isSavingLocally}
+            className={`mx-auto w-[90%] justify-self-center rounded py-2 transition ${uploading || isSavingLocally
               ? "bg-[var(--bg-button-disabled)] text-[var(--text-button-disabled)]"
               : "bg-[var(--bg-button)] text-[var(--text-button)] shadow-inner shadow-[var(--bg-button)] hover:bg-[var(--bg-button-hover)]"
               }`}
           >
-            {uploading ? "上传中..." : "上传乐谱"}
+            {uploading || isSavingLocally ? "处理中..." : "上传乐谱"}
           </button>
         </div>
 

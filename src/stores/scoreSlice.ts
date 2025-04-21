@@ -276,7 +276,11 @@ const scoreSlice = createSlice({
         track.slots = emptySlot ? [emptySlot] : [];
       });
     },
-
+    setScore(state, action: PayloadAction<Score>) {
+      state.key = action.payload.key;
+      state.tempo = action.payload.tempo;
+      state.tracks = action.payload.tracks;
+    },
     addTrack(state, action: PayloadAction<Track>) {
       state.tracks.push(action.payload);
     },
@@ -295,9 +299,11 @@ export const {
   setSlot,
   clearTrack,
   clearScore,
+  setScore,
   addTrack,
   removeTrack,
   pushSlot,
   clearDirtyBit,
 } = scoreSlice.actions;
+export { initialState }
 export default scoreSlice.reducer;

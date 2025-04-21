@@ -1,3 +1,4 @@
+import { initialState } from "@stores/scoreSlice"
 import { v4 as uuidv4 } from "uuid";
 import { addLocalSheet } from "./localsheet";
 
@@ -26,11 +27,7 @@ export async function createFullSheet(): Promise<{ url: string; localKey: string
             tempo: 120,
             timeSignature: "4/4",
             content: "",
-            score: {
-                tracks: [],
-                tempo: 120,
-                key: "C3"
-            }
+            score: initialState,
         },
     });
     return { url: `/editor/full/${localKey}`, localKey };
