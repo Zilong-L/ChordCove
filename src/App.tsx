@@ -28,18 +28,14 @@ function App() {
           <Route
             path="/edit/:id"
             element={
-              <ProtectedRoute>
-                <SimpleSheetEditorPage />
-              </ProtectedRoute>
+              <SimpleSheetEditorPage />
             }
           />
           <Route path="/sheet/simple/:id" element={<SimpleSheetDetailsPage />} />
           <Route
             path="/editor/full/:id"
             element={
-              <ProtectedRoute>
-                <FullSheetEditorPage />
-              </ProtectedRoute>
+              <FullSheetEditorPage />
             }
           />
           <Route path="/sheet/full/:id" element={<SimpleSheetDetailsPage />} />
@@ -54,17 +50,13 @@ function App() {
           <Route
             path="/my-sheets"
             element={
-              <ProtectedRoute>
-                <MySheetsPage />
-              </ProtectedRoute>
+              <MySheetsPage />
             }
           />
           <Route
             path="/editor/simple/:localKey"
             element={
-              <ProtectedRoute>
-                <SimpleSheetEditorPage />
-              </ProtectedRoute>
+              <SimpleSheetEditorPage />
             }
           />
         </Route>

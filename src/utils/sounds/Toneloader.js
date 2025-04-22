@@ -35,7 +35,7 @@ class SamplerManager {
 
     // 添加效果
     this.filter = new Tone.Filter({ frequency: filterFreq, type: "lowpass", rolloff: -12 });
-    this.gainNode = new Tone.Gain(0.5); // -6 dB
+    this.gainNode = new Tone.Gain(0.25); // -6 dB
     this.panner = new Tone.Panner(panVal);
 
     // 连接音频链

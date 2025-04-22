@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { debounce } from "lodash";
 
 import MetadataForm from "../components/basic/sheet/MetadataForm";
@@ -12,7 +12,6 @@ import Editor from "@components/Editor/Editor";
 
 // redux states
 import { useDispatch, useSelector } from "react-redux";
-import { setSheetMetadata } from "@stores/sheetMetadataSlice";
 import { setScore } from "@stores/scoreSlice";
 
 import { RootState } from "@stores/store";
@@ -20,11 +19,7 @@ import { RootState } from "@stores/store";
 import EditorControlPanel from "@components/Editor/EditorControlPanel";
 
 // Import IndexedDB functions
-import {
-  getLocalSheetData,
-  // updateLocalSheetMetadata,
-  updateLocalSheetContent,
-} from "../utils/idb/localsheet";
+import { getLocalSheetData, updateLocalSheetContent } from "../utils/idb/localsheet";
 import { Score } from "@stores/scoreSlice";
 export default function FullSheetEditorPage() {
   const { id: localKey } = useParams<{ id: string }>();
@@ -34,52 +29,25 @@ export default function FullSheetEditorPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isInitialized, setIsInitialized] = useState(false);
   const [_, setPendingImage] = useState<PendingImage | null>(null);
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   const dispatch = useDispatch();
-  // const auth = useSelector((state: RootState) => state.auth)
-  // const sheetMetadata = useSelector((state: RootState) => state.sheetMetadata);
   const score = useSelector((state: RootState) => state.score);
 
-  // Initialize DB and load data on mount
+  // Initialize DB and load score data on mount
   useEffect(() => {
-    const loadSheet = async () => {
-
-      console.log(localKey)
-      if (!localKey) {
-        return;
-      }
-      if (isInitialized) {
-        return; // Prevent loading data multiple times
-      }
+    const loadScore = async () => {
+      if (!localKey || isInitialized) return;
 
       setIsLoading(true);
       try {
         const data = await getLocalSheetData(localKey);
-        if (data) {
-          // Update Redux store with local sheet data
-          // Here you would dispatch actions to set metadata and score
-          dispatch(
-            setSheetMetadata({
-              id: data.metadata.serverId || "",
-              title: data.metadata.title,
-              sheetType: "simple",
-              composers: [],
-              singers: [],
-              uploader: "",
-              uploaderId: -1,
-              coverImage: "",
-            })
-          );
-
-          dispatch(
-            setScore({
-              key: data.content.score!.key,
-              tempo: data.content.score!.tempo,
-              tracks: data.content.score!.tracks
-            })
-          );
-          console.log(`Loaded sheet data for localKey: ${localKey}`);
+        if (data?.content?.score) {
+          dispatch(setScore({
+            key: data.content.score.key,
+            tempo: data.content.score.tempo,
+            tracks: data.content.score.tracks
+          }));
           setIsInitialized(true);
         } else {
           setMessage(`未找到本地乐谱: ${localKey}`);
@@ -92,26 +60,10 @@ export default function FullSheetEditorPage() {
       }
     };
 
-    loadSheet();
-  }, [localKey, navigate, isInitialized]);
+    loadScore();
+  }, [localKey, isInitialized, dispatch]);
 
-  // // Debounced functions for local saving
-  // const debouncedSaveMetadata = useCallback(
-  //   debounce(async (key: string, title: string) => {
-  //     if (!key || isLoading) return;
-  //     setIsSavingLocally(true);
-  //     try {
-  //       await updateLocalSheetMetadata(key, { title, sheetType: "full" });
-  //       console.log("Metadata saved locally");
-  //     } catch (err) {
-  //       console.error("Failed to save metadata locally:", err);
-  //     } finally {
-  //       setIsSavingLocally(false);
-  //     }
-  //   }, 1000),
-  //   [isLoading, localKey]
-  // );
-
+  // Debounced function for local score saving
   const debouncedSaveScore = useCallback(
     debounce(async (key: string, scoreData: Score) => {
       if (!key || isLoading) return;
@@ -127,13 +79,6 @@ export default function FullSheetEditorPage() {
     }, 1000),
     [isLoading, localKey]
   );
-
-  // Watch for metadata changes and save locally
-  // useEffect(() => {
-  //   if (!isLoading && localKey && sheetMetadata.title) {
-  //     debouncedSaveMetadata(localKey, sheetMetadata.title);
-  //   }
-  // }, [localKey, sheetMetadata.title, debouncedSaveMetadata, isLoading]);
 
   // Watch for score changes and save locally
   useEffect(() => {

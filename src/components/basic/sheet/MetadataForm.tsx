@@ -1,10 +1,12 @@
-import React, { useRef, useState, KeyboardEvent, useEffect } from "react";
+import React, { useRef, useState, KeyboardEvent, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { setSheetMetadata } from "@stores/sheetMetadataSlice";
 import { RootState } from "@stores/store";
 import { XMarkIcon } from "@heroicons/react/20/solid";
-import { getLocalSheetData } from "@utils/idb/localsheet";
+import { getLocalSheetData, LocalSheetMetadata, updateLocalSheetMetadata } from "@utils/idb/localsheet";
+import { debounce } from "lodash";
+import { useParams } from 'react-router-dom'
 
 interface MetadataFormProps {
   uploading: boolean;
@@ -12,7 +14,8 @@ interface MetadataFormProps {
   setPendingImage?: (data: { file: File; hash: string } | null) => void;
 }
 
-export default function MetadataForm({ uploading, localKey, setPendingImage }: MetadataFormProps) {
+export default function MetadataForm({ uploading, setPendingImage }: MetadataFormProps) {
+  const { id: localKey } = useParams<{ id: string }>();
   const sheetMetadata = useSelector((state: RootState) => state.sheetMetadata);
   const auth = useSelector((state: RootState) => state.auth);
   const { title = "", composers = [], singers = [], coverImage = "", bvid = "" } = sheetMetadata;
@@ -56,6 +59,34 @@ export default function MetadataForm({ uploading, localKey, setPendingImage }: M
 
     loadLocalData();
   }, [localKey, dispatch]);
+
+  // Debounced function for saving metadata
+  const debouncedSaveMetadata = useCallback(
+    debounce(async (key: string, metadata: Omit<LocalSheetMetadata, "localKey" | "serverModifiedAt" | "localLastSavedAt">) => {
+      if (!key) return;
+      try {
+        await updateLocalSheetMetadata(key, metadata);
+        console.log("Metadata saved locally");
+      } catch (err) {
+        console.error("Failed to save metadata locally:", err);
+      }
+    }, 1000),
+    []
+  );
+
+  // Save metadata when it changes
+  useEffect(() => {
+    if (localKey) {
+      debouncedSaveMetadata(localKey, {
+        title: sheetMetadata.title,
+        composers: sheetMetadata.composers,
+        singers: sheetMetadata.singers,
+        coverImage: sheetMetadata.coverImage,
+        bvid: sheetMetadata.bvid,
+        sheetType: "full"
+      });
+    }
+  }, [sheetMetadata, localKey, debouncedSaveMetadata]);
 
   useEffect(() => {
     // Reset preview image when coverImage changes from parent
