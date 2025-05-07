@@ -277,6 +277,96 @@ export async function deleteLocalSheet(localKey: string): Promise<void> {
   ]);
 }
 
+// --- Performance Testing-- -
+export async function updateLocalSheetContentTesting(
+  localKey: string,
+  updates: Partial<Omit<LocalSheetContent, "localKey">>
+): Promise<void> {
+  const start = performance.now();
+
+  const dbStart = performance.now();
+  const db = await getDB();
+  const dbEnd = performance.now();
+
+  const txStart = performance.now();
+  const tx = db.transaction([CONTENT_STORE, METADATA_STORE], "readwrite");
+  const contentStore = tx.objectStore(CONTENT_STORE);
+  const metadataStore = tx.objectStore(METADATA_STORE);
+  const txEnd = performance.now();
+
+  const getStart = performance.now();
+  const getRequest1 = contentStore.get(localKey); // sync part includes structured clone & validation
+  const getRequest2 = metadataStore.get(localKey); // also only returns IDBRequest
+  const getEnd = performance.now();
+
+  const currentContent = await getRequest1;
+  const currentMetadata = await getRequest2;
+
+  const now = Date.now();
+  let updateMetadata = false;
+
+  let updatedContent: LocalSheetContent | null = null;
+  let updatedMetadata: LocalSheetMetadata | null = null;
+
+  if (currentContent) {
+    updatedContent = {
+      ...currentContent,
+      ...updates,
+    };
+    const syncContentPutStart = performance.now();
+    const putContentReq = contentStore.put(updatedContent);
+    const syncContentPutEnd = performance.now();
+    console.log("contentStore.put sync call:", (syncContentPutEnd - syncContentPutStart).toFixed(2));
+
+    await putContentReq;
+    updateMetadata = true;
+  }
+
+  if (currentMetadata && updateMetadata) {
+    updatedMetadata = {
+      ...currentMetadata,
+      localLastSavedAt: now,
+    };
+
+    const syncMetadataPutStart = performance.now();
+    const putMetadataReq = metadataStore.put(updatedMetadata);
+    const syncMetadataPutEnd = performance.now();
+    console.log("metadataStore.put sync call:", (syncMetadataPutEnd - syncMetadataPutStart).toFixed(2));
+
+    const asyncMetadataPutStart = performance.now();
+    await putMetadataReq;
+    const asyncMetadataPutEnd = performance.now();
+    console.log("metadataStore.put await time:", (asyncMetadataPutEnd - asyncMetadataPutStart).toFixed(2));
+  }
+  const txDoneStart = performance.now();
+  await tx.done;
+  const txDoneEnd = performance.now();
+
+  // LocalStorage write for comparison
+  const lsStart = performance.now();
+  try {
+    if (updatedContent) {
+      localStorage.setItem(`sheet:${localKey}:content`, JSON.stringify(updatedContent));
+    }
+    if (updatedMetadata) {
+      localStorage.setItem(`sheet:${localKey}:metadata`, JSON.stringify(updatedMetadata));
+    }
+  } catch (e) {
+    console.warn("LocalStorage write failed:", e);
+  }
+  const lsEnd = performance.now();
+
+  const end = performance.now();
+
+  console.log(`[Performance] updateLocalSheetContent total: ${(end - start).toFixed(2)} ms`);
+  console.log(`  getDB:        ${(dbEnd - dbStart).toFixed(2)} ms`);
+  console.log(`  transaction:  ${(txEnd - txStart).toFixed(2)} ms`);
+  console.log(`  get content:  ${(getEnd - getStart).toFixed(2)} ms`);
+  console.log(`  tx.done:      ${(txDoneEnd - txDoneStart).toFixed(2)} ms`);
+  console.log(`  localStorage: ${(lsEnd - lsStart).toFixed(2)} ms`);
+  const blob = new Blob([JSON.stringify(updatedContent)], { type: "application/json" });
+  console.log(blob.size)
+}
 // Find a local sheet by its server ID
 export async function findLocalSheetByServerId(serverId: string): Promise<string | null> {
   if (!serverId) return null;
