@@ -24,7 +24,6 @@ export default function HomePage() {
       .then((data) => setSheets(data))
       .catch((err) => console.error("Error fetching sheets:", err));
   }, []);
-
   return (
     // Outer div removed, handled by Layout
     // <div className="flex h-[calc(100vh-4rem)] bg-[var(--bg-page)] text-[var(--text-primary)]">
@@ -35,7 +34,7 @@ export default function HomePage() {
       {/* Padding is now applied by Layout's main > div */}
       <div className="text-[var(--text-primary)]">
         {/* Background div remains relative to this container */}
-        <div className="absolute left-[-400px] top-[-400px] h-[1000px] w-[1000px] bg-[radial-gradient(circle,_var(--bg-primary),var(--bg-page)_71%)]"></div>
+        <div className="absolute top-[-400px] left-[-400px] h-[1000px] w-[1000px] bg-[radial-gradient(circle,_var(--bg-primary),var(--bg-page)_71%)]"></div>
         <SheetRow title="Recent Uploads" sheets={sheets} />
         <ArtistRow />
       </div>
