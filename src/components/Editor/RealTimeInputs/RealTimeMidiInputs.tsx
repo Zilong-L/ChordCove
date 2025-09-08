@@ -29,7 +29,7 @@ interface MIDIStateEvent {
   port: MIDIPort & MIDIInput;
 }
 
-interface _MIDIAccess {
+interface MIDIAccess {
   inputs: Map<string, MIDIInput>;
   onstatechange: ((this: MIDIAccess, ev: MIDIStateEvent) => void) | null;
 }
@@ -39,11 +39,11 @@ interface ActiveNote {
   noteMidi: number;
   startBeat?: number; // capture editing beat at note-on
 }
-type SnapType = "none" | "eighth" | "sixteenth";
+type SnapType = "whole" | "eighth" | "sixteenth";
 
 // Snap to grid based on snap type
 const snapToGrid = (beat: number, snapType: SnapType): number => {
-  if (snapType === "none") return beat;
+  if (snapType === "whole") return Math.max(1, Math.round(beat));
 
   const fraction = beat % 1; // Get the fractional part
   const wholeBeat = Math.floor(beat);
@@ -75,7 +75,6 @@ export default function RealTimeInput() {
   const editingTrack = editing.editingTrack;
   const isRecording = editing.isRecording;
   const currentTrack = score.tracks[editing.editingTrack];
-  const [_, setStartingTime] = useState<number | null>(null);
   const [snapType, setSnapType] = useState<SnapType>(
     useSelector((s: RootState) => s.editing.recordingSnapType)
   );
@@ -110,6 +109,7 @@ export default function RealTimeInput() {
     (durationMs: number): number => {
       const beatDuration = (60 / score.tempo) * 1000; // Duration of one beat in ms
       const snapedDuration = snapToGrid(durationMs / beatDuration, snapType);
+      if (snapType === "whole") return Math.max(1, Math.round(snapedDuration));
       return snapedDuration == 0 ? 0.25 : snapedDuration;
     },
     [score.tempo, snapType]
@@ -166,11 +166,9 @@ export default function RealTimeInput() {
   function handleStartAndStop() {
     if (isRecording) {
       dispatch(setRecording(false));
-      setStartingTime(null);
       dispatch(clearDirtyBit());
     } else {
       dispatch(setRecording(true));
-      setStartingTime(performance.now());
     }
   }
 
@@ -326,7 +324,7 @@ export default function RealTimeInput() {
               }}
               className="rounded border border-[var(--border-primary)] bg-[var(--bg-secondary)] px-2 py-1 text-[var(--text-primary)] focus:border-[var(--border-focus)] focus:outline-none"
             >
-              <option value="none">Off</option>
+              <option value="whole">whole</option>
               <option value="eighth">8th Notes</option>
               <option value="sixteenth">16th Notes</option>
             </select>

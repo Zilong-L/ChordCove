@@ -21,26 +21,23 @@ interface ActiveKeyPress {
   key: string;
 }
 
-type SnapType = "none" | "eighth" | "sixteenth";
+type SnapType = "whole" | "eighth" | "sixteenth";
 
 const VALID_KEYS = ["1", "2", "3", "4", "5", "6", "7"];
 
 // Snap to grid based on snap type
 const snapToGrid = (beat: number, snapType: SnapType): number => {
-  if (snapType === "none") return beat;
+  if (snapType === "whole") return Math.max(1, Math.round(beat));
 
   const fraction = beat % 1; // Get the fractional part
   const wholeBeat = Math.floor(beat);
 
-  // Snap to nearest fraction based on snap type
   let snappedFraction;
   if (snapType === "eighth") {
-    // Snap to 8th notes (0, 0.5)
     if (fraction < 0.25) snappedFraction = 0;
     else if (fraction < 0.75) snappedFraction = 0.5;
     else snappedFraction = 1;
   } else {
-    // Snap to 16th notes (0, 0.25, 0.5, 0.75)
     if (fraction < 0.125) snappedFraction = 0;
     else if (fraction < 0.375) snappedFraction = 0.25;
     else if (fraction < 0.625) snappedFraction = 0.5;
@@ -48,11 +45,7 @@ const snapToGrid = (beat: number, snapType: SnapType): number => {
     else snappedFraction = 1;
   }
 
-  return wholeBeat + snappedFraction == 0
-    ? snapType == "eighth"
-      ? 0.5
-      : 0.25
-    : wholeBeat + snappedFraction;
+  return wholeBeat + snappedFraction == 0 ? (snapType == "eighth" ? 0.5 : 0.25) : wholeBeat + snappedFraction;
 };
 
 export default function RealTimeInput() {
@@ -285,7 +278,7 @@ export default function RealTimeInput() {
               onChange={(e) => setSnapType(e.target.value as SnapType)}
               className="rounded border px-2 py-1"
             >
-              <option value="none">Off</option>
+              <option value="whole">Whole</option>
               <option value="eighth">8th Notes</option>
               <option value="sixteenth">16th Notes</option>
             </select>
@@ -300,7 +293,7 @@ export default function RealTimeInput() {
             {keyPresses.slice(-5).map((press, i) => (
               <div key={i}>
                 Key: {press.key}, Beat: {press.beatPosition.toFixed(3)}
-                {snapType !== "none" && ` (raw: ${press.rawBeatPosition.toFixed(3)})`}, Duration:{" "}
+                {snapType !== "whole" && ` (raw: ${press.rawBeatPosition.toFixed(3)})`}, Duration:{" "}
                 {press.duration.toFixed(2)}ms ({press.noteDuration})
               </div>
             ))}

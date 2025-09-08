@@ -18,7 +18,7 @@ export interface EditingSlotState {
   lyricsInputValue: string;
   isRecording: boolean;
   showLyrics: boolean; // Toggle for showing lyrics under melody track
-  recordingSnapType: "none" | "eighth" | "sixteenth";
+  recordingSnapType: "whole" | "eighth" | "sixteenth";
 }
 
 const initialState: EditingSlotState = {
@@ -82,7 +82,7 @@ const editingSlice = createSlice({
     setRecording: (state, action: PayloadAction<boolean>) => {
       state.isRecording = action.payload;
     },
-    setRecordingSnapType: (state, action: PayloadAction<"none" | "eighth" | "sixteenth">) => {
+    setRecordingSnapType: (state, action: PayloadAction<"whole" | "eighth" | "sixteenth">) => {
       state.recordingSnapType = action.payload;
     },
     setShowLyrics: (state, action: PayloadAction<boolean>) => {

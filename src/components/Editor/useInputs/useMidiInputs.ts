@@ -43,7 +43,7 @@ export default function useMidiInputs() {
   const selectedDurationRef = useRef(selectedDuration);
   const isDottedRef = useRef(isDotted);
   const isRecordingRef = useRef(edit.isRecording);
-  const recordingSnapTypeRef = useRef<"none" | "eighth" | "sixteenth">(edit.recordingSnapType);
+  const recordingSnapTypeRef = useRef<"whole" | "eighth" | "sixteenth">(edit.recordingSnapType);
 
   const { sampler } = getSamplerInstance()!;
   // Update refs when values change
@@ -192,7 +192,7 @@ export default function useMidiInputs() {
           const rawBeats = durationMs / beatDuration;
           const snapType = recordingSnapTypeRef.current;
           const snap = (beats: number) => {
-            if (snapType === "none") return beats;
+            if (snapType === "whole") return Math.max(1, Math.round(beats));
             const whole = Math.floor(beats);
             const frac = beats % 1;
             let snapped = 0;
@@ -244,7 +244,7 @@ export default function useMidiInputs() {
           const rawBeats = durationMs / beatDuration;
           const snapType = recordingSnapTypeRef.current;
           const snap = (beats: number) => {
-            if (snapType === "none") return beats;
+            if (snapType === "whole") return Math.max(1, Math.round(beats));
             const whole = Math.floor(beats);
             const frac = beats % 1;
             let snapped = 0;
@@ -303,7 +303,7 @@ export default function useMidiInputs() {
         const rawBeats = durationMs / beatDuration;
         const snapType = recordingSnapTypeRef.current;
         const snap = (beats: number) => {
-          if (snapType === "none") return beats;
+          if (snapType === "whole") return Math.max(1, Math.round(beats));
           const whole = Math.floor(beats);
           const frac = beats % 1;
           let snapped = 0;

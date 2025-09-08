@@ -27,16 +27,16 @@ export function useMetronome({ isPlaying, tempo }: UseMetronomeProps) {
   // Create and cleanup the Loop
   useEffect(() => {
     if (!contextRef.current) return;
-
+    const gain = new Tone.Gain({ context: contextRef.current, gain: 0.2 }).toDestination();
     const metronomeSound = new Tone.Synth({
       context: contextRef.current,
-    }).toDestination();
+    }).connect(gain);
 
     loopRef.current = new Tone.Loop({
       context: contextRef.current,
       callback: (time) => {
         // Trigger the click sound
-        metronomeSound.triggerAttackRelease("C5", "32n", time);
+        metronomeSound.triggerAttackRelease("C1", "32n", time);
 
         // Schedule the UI update
         if (!contextRef.current) return;

@@ -26,7 +26,7 @@ function getSamplerInstance() {
 
 // **创建新的 Sampler**
 class SamplerManager {
-  constructor(instrument = "piano", quality = "medium", filterFreq = 1200, panVal = 0) {
+  constructor(instrument = "square", quality = "medium", filterFreq = 1200, panVal = 0) {
     this.sampler = SampleLibrary.load({
       instruments: instrument,
       baseUrl: "/samples/",

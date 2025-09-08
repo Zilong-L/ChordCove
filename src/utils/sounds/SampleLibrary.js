@@ -39,7 +39,7 @@ var SampleLibrary = {
             case 'square':
                 synth = new Tone.PolySynth({
                     oscillator: { type: 'square' },
-                    envelope: { attack: 0.02, decay: 0.15, sustain: 0.8, release: 0.5 }
+                    envelope: {  decay: 0.15, sustain: 0, release: 0.5 }
                 });
                 break;
             case 'sawtooth':
