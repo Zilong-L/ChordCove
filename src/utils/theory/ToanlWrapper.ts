@@ -3,7 +3,7 @@ import { Chord } from "tonal";
 const rareChordType = ["m#5"];
 
 export class ToanlWrapper {
-  static init() { }
+  static init() {}
 
   static detect(source: string[]) {
     const orginalDetections = Chord.detect(source);

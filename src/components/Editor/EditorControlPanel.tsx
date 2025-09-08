@@ -97,10 +97,11 @@ export default function EditorControlPanel() {
               <button
                 key={duration}
                 onClick={() => handleDurationClick(durationNum)}
-                className={`flex items-center justify-center rounded border border-[var(--border)] p-2 transition-colors ${isSelected
-                  ? "bg-[var(--bg-selected)] text-[var(--text-selected)]"
-                  : "bg-[var(--bg-secondary)] text-[var(--text-secondary)]"
-                  }`}
+                className={`flex items-center justify-center rounded border border-[var(--border)] p-2 transition-colors ${
+                  isSelected
+                    ? "bg-[var(--bg-selected)] text-[var(--text-selected)]"
+                    : "bg-[var(--bg-secondary)] text-[var(--text-secondary)]"
+                }`}
                 title={`${durationValues[durationNum]} beat${durationValues[durationNum] !== 1 ? "s" : ""}`}
               >
                 <Icon className="h-6 w-6" />
@@ -115,10 +116,11 @@ export default function EditorControlPanel() {
         <div className="space-y-2">
           <button
             onClick={handleDottedClick}
-            className={`flex w-full items-center justify-center rounded-md border border-[var(--border)] p-2 transition-shadow duration-500 ${isDotted
-              ? "bg-[var(--bg-selected)] text-[var(--text-selected)]"
-              : "bg-[var(--bg-secondary)] text-[var(--text-secondary)]"
-              }`}
+            className={`flex w-full items-center justify-center rounded-md border border-[var(--border)] p-2 transition-shadow duration-500 ${
+              isDotted
+                ? "bg-[var(--bg-selected)] text-[var(--text-selected)]"
+                : "bg-[var(--bg-secondary)] text-[var(--text-secondary)]"
+            }`}
             title="Toggle dotted note"
           >
             <Dotted className="h-6 w-6" />
@@ -132,19 +134,21 @@ export default function EditorControlPanel() {
         <div className="mb-2 text-sm text-[var(--text-tertiary)]">Notation Settings</div>
         <div className="grid grid-cols-2 gap-2">
           <button
-            className={`flex items-center justify-center rounded border border-[var(--border)] text-[var(--text-secondary)] px-3 py-2 ${useRelativePitch
-              ? "bg-[var(--bg-selected)] text-[var(--text-selected)]"
-              : "bg-[var(--bg-secondary)]"
-              }`}
+            className={`flex items-center justify-center rounded border border-[var(--border)] px-3 py-2 text-[var(--text-secondary)] ${
+              useRelativePitch
+                ? "bg-[var(--bg-selected)] text-[var(--text-selected)]"
+                : "bg-[var(--bg-secondary)]"
+            }`}
             onClick={() => dispatch(toggleRelativePitch())}
           >
             <span className="text-sm">Relative Pitch</span>
           </button>
           <button
-            className={`flex items-center justify-center rounded border border-[var(--border)] text-[var(--text-secondary)] px-3 py-2 ${showLyrics
-              ? "bg-[var(--bg-selected)] text-[var(--text-selected)]"
-              : "bg-[var(--bg-secondary)]"
-              }`}
+            className={`flex items-center justify-center rounded border border-[var(--border)] px-3 py-2 text-[var(--text-secondary)] ${
+              showLyrics
+                ? "bg-[var(--bg-selected)] text-[var(--text-selected)]"
+                : "bg-[var(--bg-secondary)]"
+            }`}
             onClick={() => dispatch(setShowLyrics(!showLyrics))}
           >
             <span className="text-sm">Show Lyrics</span>
@@ -157,13 +161,13 @@ export default function EditorControlPanel() {
         <div className="mb-2 text-sm text-[var(--text-tertiary)]">Tracks</div>
         <div className="mb-2 grid grid-cols-2 gap-2">
           <button
-            className="rounded border border-[var(--border)] bg-[var(--bg-secondary)] text-[var(--text-secondary)] p-2 text-sm"
+            className="rounded border border-[var(--border)] bg-[var(--bg-secondary)] p-2 text-sm text-[var(--text-secondary)]"
             onClick={() => handleAddTrack("melody")}
           >
             Add Melody
           </button>
           <button
-            className="rounded border border-[var(--border)] bg-[var(--bg-secondary)] text-[var(--text-secondary)] p-2 text-sm"
+            className="rounded border border-[var(--border)] bg-[var(--bg-secondary)] p-2 text-sm text-[var(--text-secondary)]"
             onClick={() => handleAddTrack("accompaniment")}
           >
             Add Accompaniment
@@ -174,7 +178,7 @@ export default function EditorControlPanel() {
             <div
               key={track.id}
               onClick={() => dispatch(setEditingTrack(index))}
-              className={`flex items-center justify-between  rounded p-2 ${editingTrack === index ? "bg-[var(--bg-selected)] text-[var(--text-selected)] " : "bg-[var(--bg-secondary)] text-[var(--text-tertiary)]"}`}
+              className={`flex items-center justify-between rounded p-2 ${editingTrack === index ? "bg-[var(--bg-selected)] text-[var(--text-selected)]" : "bg-[var(--bg-secondary)] text-[var(--text-tertiary)]"}`}
             >
               {track.type}
               <button

@@ -5,6 +5,7 @@ import type { Score } from "@stores/scoreSlice";
 import type { EditingSlotState } from "@stores/editingSlice";
 import BarView from "./BarView";
 import ScorePlayer from "./ScorePlayer";
+import TempoControl from "./TempoControl";
 import { useKeyInputs } from "./useInputs/useKeyInputs";
 import useMidiInputs from "./useInputs/useMidiInputs";
 import { LyricsInputModal } from "./LyricsInputModal";
@@ -25,10 +26,7 @@ export default function SimpleEditor() {
     <div className="relative flex h-[calc(100vh-8rem)] w-full flex-col gap-6 overflow-y-scroll rounded-md bg-gradient-to-b from-[var(--gradient-start)] to-[var(--gradient-end)] p-8 text-[var(--text-primary)]">
       <div className="mb-6 flex items-center gap-4">
         <KeySelector />
-        <div className="flex items-center gap-2">
-          <span>Tempo:</span>
-          <span>{score.tempo}</span>
-        </div>
+        <TempoControl />
         <div className="flex items-center gap-2">
           <span>Current Position:</span>
           <span>Beat {editingBeat}</span>

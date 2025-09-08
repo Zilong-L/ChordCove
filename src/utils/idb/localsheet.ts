@@ -41,7 +41,7 @@ export interface LocalSheetContent {
   tempo: number; // Default 120?
   timeSignature: string; // Change to string type to match SimpleScore
   content: string; // The core "[I]...[IV]..." data
-  score?: Score;   // Full sheet score data
+  score?: Score; // Full sheet score data
 }
 
 interface ChordCoveDBSchema extends DBSchema {
@@ -86,7 +86,7 @@ export function initLocalSheetDB(): Promise<IDBPDatabase<ChordCoveDBSchema>> {
 
       // Migration from version 2 to 3 - add score field
       if (oldVersion < 3) {
-        console.log('Migrating from version 2 to 3 - adding score field');
+        console.log("Migrating from version 2 to 3 - adding score field");
       }
     },
     blocked() {
@@ -316,7 +316,10 @@ export async function updateLocalSheetContentTesting(
     const syncContentPutStart = performance.now();
     const putContentReq = contentStore.put(updatedContent);
     const syncContentPutEnd = performance.now();
-    console.log("contentStore.put sync call:", (syncContentPutEnd - syncContentPutStart).toFixed(2));
+    console.log(
+      "contentStore.put sync call:",
+      (syncContentPutEnd - syncContentPutStart).toFixed(2)
+    );
 
     await putContentReq;
     updateMetadata = true;
@@ -331,12 +334,18 @@ export async function updateLocalSheetContentTesting(
     const syncMetadataPutStart = performance.now();
     const putMetadataReq = metadataStore.put(updatedMetadata);
     const syncMetadataPutEnd = performance.now();
-    console.log("metadataStore.put sync call:", (syncMetadataPutEnd - syncMetadataPutStart).toFixed(2));
+    console.log(
+      "metadataStore.put sync call:",
+      (syncMetadataPutEnd - syncMetadataPutStart).toFixed(2)
+    );
 
     const asyncMetadataPutStart = performance.now();
     await putMetadataReq;
     const asyncMetadataPutEnd = performance.now();
-    console.log("metadataStore.put await time:", (asyncMetadataPutEnd - asyncMetadataPutStart).toFixed(2));
+    console.log(
+      "metadataStore.put await time:",
+      (asyncMetadataPutEnd - asyncMetadataPutStart).toFixed(2)
+    );
   }
   const txDoneStart = performance.now();
   await tx.done;
@@ -365,7 +374,7 @@ export async function updateLocalSheetContentTesting(
   console.log(`  tx.done:      ${(txDoneEnd - txDoneStart).toFixed(2)} ms`);
   console.log(`  localStorage: ${(lsEnd - lsStart).toFixed(2)} ms`);
   const blob = new Blob([JSON.stringify(updatedContent)], { type: "application/json" });
-  console.log(blob.size)
+  console.log(blob.size);
 }
 // Find a local sheet by its server ID
 export async function findLocalSheetByServerId(serverId: string): Promise<string | null> {

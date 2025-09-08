@@ -266,7 +266,7 @@ export default function RealTimeInput() {
         >
           {isRecording ? "Stop" : "Start"} Recording
         </button>
-        <span>Tempo: {score.tempo} BPM</span>
+        {/* Tempo is controlled globally via TempoControl */}
         <div className="flex items-center gap-2">
           <label htmlFor="inputOffset">Input Offset (ms):</label>
           <input

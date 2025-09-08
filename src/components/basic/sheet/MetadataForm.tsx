@@ -4,9 +4,13 @@ import { useDispatch, useSelector } from "react-redux";
 import { setSheetMetadata } from "@stores/sheetMetadataSlice";
 import { RootState } from "@stores/store";
 import { XMarkIcon } from "@heroicons/react/20/solid";
-import { getLocalSheetData, LocalSheetMetadata, updateLocalSheetMetadata } from "@utils/idb/localsheet";
+import {
+  getLocalSheetData,
+  LocalSheetMetadata,
+  updateLocalSheetMetadata,
+} from "@utils/idb/localsheet";
 import { debounce } from "lodash";
-import { useParams } from 'react-router-dom'
+import { useParams } from "react-router-dom";
 
 interface MetadataFormProps {
   uploading: boolean;
@@ -62,15 +66,21 @@ export default function MetadataForm({ uploading, setPendingImage }: MetadataFor
 
   // Debounced function for saving metadata
   const debouncedSaveMetadata = useCallback(
-    debounce(async (key: string, metadata: Omit<LocalSheetMetadata, "localKey" | "serverModifiedAt" | "localLastSavedAt">) => {
-      if (!key) return;
-      try {
-        await updateLocalSheetMetadata(key, metadata);
-        console.log("Metadata saved locally");
-      } catch (err) {
-        console.error("Failed to save metadata locally:", err);
-      }
-    }, 1000),
+    debounce(
+      async (
+        key: string,
+        metadata: Omit<LocalSheetMetadata, "localKey" | "serverModifiedAt" | "localLastSavedAt">
+      ) => {
+        if (!key) return;
+        try {
+          await updateLocalSheetMetadata(key, metadata);
+          console.log("Metadata saved locally");
+        } catch (err) {
+          console.error("Failed to save metadata locally:", err);
+        }
+      },
+      1000
+    ),
     []
   );
 
@@ -83,7 +93,7 @@ export default function MetadataForm({ uploading, setPendingImage }: MetadataFor
         singers: sheetMetadata.singers,
         coverImage: sheetMetadata.coverImage,
         bvid: sheetMetadata.bvid,
-        sheetType: "full"
+        sheetType: "full",
       });
     }
   }, [sheetMetadata, localKey, debouncedSaveMetadata]);

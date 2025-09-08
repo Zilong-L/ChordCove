@@ -6,9 +6,13 @@ import { useNavigate } from "react-router-dom";
 import { PlusIcon, DocumentIcon, ExclamationTriangleIcon } from "@heroicons/react/24/outline";
 import { createSimpleSheet, createFullSheet } from "../utils/idb/sheetEditing";
 import LocalSheetCard from "@components/basic/sheet/LocalSheetCard";
-import { getAllLocalSheetMetadata, LocalSheetMetadata, deleteLocalSheet } from "../utils/idb/localsheet";
-import { Popover, Transition } from '@headlessui/react'
-import { Fragment } from 'react'
+import {
+  getAllLocalSheetMetadata,
+  LocalSheetMetadata,
+  deleteLocalSheet,
+} from "../utils/idb/localsheet";
+import { Popover, Transition } from "@headlessui/react";
+import { Fragment } from "react";
 
 const MySheetsPage: React.FC = () => {
   const navigate = useNavigate();
@@ -55,7 +59,7 @@ const MySheetsPage: React.FC = () => {
 
   const handleDeleteLocalSheet = async (localKey: string) => {
     await deleteLocalSheet(localKey);
-    setLocalSheets(prev => prev.filter(s => s.localKey !== localKey));
+    setLocalSheets((prev) => prev.filter((s) => s.localKey !== localKey));
   };
 
   const renderServerContent = () => {
@@ -76,7 +80,7 @@ const MySheetsPage: React.FC = () => {
     if (error) {
       return (
         <div className="flex h-64 flex-col items-center justify-center gap-2 rounded border border-red-300 bg-red-50 p-4 text-red-500">
-          <ExclamationTriangleIcon className="h-10 w-10 text-red-400 mb-2" />
+          <ExclamationTriangleIcon className="mb-2 h-10 w-10 text-red-400" />
           <span className="font-semibold">出错了</span>
           <span className="text-sm">Error: {error}</span>
         </div>
@@ -94,7 +98,7 @@ const MySheetsPage: React.FC = () => {
 
     return (
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
-        {serverSheets.map(sheet => (
+        {serverSheets.map((sheet) => (
           <SheetCard key={sheet.id} sheet={sheet} />
         ))}
       </div>
@@ -108,7 +112,7 @@ const MySheetsPage: React.FC = () => {
           {[...Array(2)].map((_, i) => (
             <div key={i} className="animate-pulse">
               <div className="mb-2 aspect-square rounded-lg bg-[var(--bg-tertiary)]"></div>
-              <div className="mb-1 h-4 w-3/4 rounded bg[var(--bg-tertiary)]"></div>
+              <div className="bg[var(--bg-tertiary)] mb-1 h-4 w-3/4 rounded"></div>
               <div className="h-4 w-1/2 rounded bg-[var(--bg-tertiary)]"></div>
             </div>
           ))}
@@ -126,12 +130,8 @@ const MySheetsPage: React.FC = () => {
 
     return (
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
-        {localSheets.map(sheet => (
-          <LocalSheetCard
-            key={sheet.localKey}
-            sheet={sheet}
-            onDelete={handleDeleteLocalSheet}
-          />
+        {localSheets.map((sheet) => (
+          <LocalSheetCard key={sheet.localKey} sheet={sheet} onDelete={handleDeleteLocalSheet} />
         ))}
       </div>
     );
@@ -145,15 +145,17 @@ const MySheetsPage: React.FC = () => {
       {({ open }) => (
         <>
           <Popover.Button
-            className={`
-              ${open ? '' : 'text-opacity-90'}
-              ${isMainButton ? 'group inline-flex items-center gap-2 rounded-lg bg-[var(--bg-secondary)] px-5 py-2.5 text-[var(--text-primary)] shadow-sm transition hover:bg-[var(--bg-hover)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]'
-                : 'mt-4 inline-flex items-center gap-2 rounded-lg bg-[var(--bg-secondary)] px-6 py-2 text-[var(--text-primary)] shadow-sm transition hover:bg-[var(--bg-hover)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]'}
-            `}
+            className={` ${open ? "" : "text-opacity-90"} ${
+              isMainButton
+                ? "group inline-flex items-center gap-2 rounded-lg bg-[var(--bg-secondary)] px-5 py-2.5 text-[var(--text-primary)] shadow-sm transition hover:bg-[var(--bg-hover)] focus:ring-2 focus:ring-[var(--primary)] focus:outline-none"
+                : "mt-4 inline-flex items-center gap-2 rounded-lg bg-[var(--bg-secondary)] px-6 py-2 text-[var(--text-primary)] shadow-sm transition hover:bg-[var(--bg-hover)] focus:ring-2 focus:ring-[var(--primary)] focus:outline-none"
+            } `}
           >
-            <PlusIcon className={`h-5 w-5 ${isMainButton ? 'text-[var(--primary)] transition group-hover:scale-110' : 'text-[var(--text-primary)]'}`} />
+            <PlusIcon
+              className={`h-5 w-5 ${isMainButton ? "text-[var(--primary)] transition group-hover:scale-110" : "text-[var(--text-primary)]"}`}
+            />
             <span className="font-medium">
-              {isMainButton ? '创建新谱子' : '创建你的第一个谱子'}
+              {isMainButton ? "创建新谱子" : "创建你的第一个谱子"}
             </span>
           </Popover.Button>
           <Transition
@@ -189,7 +191,9 @@ const MySheetsPage: React.FC = () => {
                   >
                     <div className="ml-4">
                       <p className="text-sm font-medium text-[var(--text-primary)]">创建完整乐谱</p>
-                      <p className="text-sm text-[var(--text-secondary)]">创建包含旋律和伴奏的完整乐谱</p>
+                      <p className="text-sm text-[var(--text-secondary)]">
+                        创建包含旋律和伴奏的完整乐谱
+                      </p>
                     </div>
                   </button>
                 </div>
@@ -222,7 +226,7 @@ const MySheetsPage: React.FC = () => {
             {renderLocalContent()}
           </div>
           <div>
-            <h2 className="mb-4 text-xl font-semibold text[var(--text-primary)]">已上传的谱子</h2>
+            <h2 className="text[var(--text-primary)] mb-4 text-xl font-semibold">已上传的谱子</h2>
             {renderServerContent()}
           </div>
         </>

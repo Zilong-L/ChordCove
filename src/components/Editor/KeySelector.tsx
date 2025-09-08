@@ -33,12 +33,12 @@ export default function KeySelector() {
               {selectedKey}
             </ListboxButton>
             <div className="relative">
-              <ListboxOptions className="absolute z-50 mt-1 w-full rounded bg-[var(--bg-secondary)] py-1 text-[var(--text-primary)] shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none [&::-webkit-scrollbar]:hidden">
+              <ListboxOptions className="ring-opacity-5 absolute z-50 mt-1 w-full rounded bg-[var(--bg-secondary)] py-1 text-[var(--text-primary)] shadow-lg ring-1 ring-black focus:outline-none [&::-webkit-scrollbar]:hidden">
                 {notes.map((note) => (
                   <ListboxOption
                     key={note.midi}
                     value={note.name}
-                    className="relative cursor-pointer select-none py-2 pl-3 pr-9 hover:bg-[var(--bg-hover)]"
+                    className="relative cursor-pointer py-2 pr-9 pl-3 select-none hover:bg-[var(--bg-hover)]"
                   >
                     {note.name}
                   </ListboxOption>

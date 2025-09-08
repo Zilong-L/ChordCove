@@ -43,11 +43,13 @@ export default function FullSheetEditorPage() {
       try {
         const data = await getLocalSheetData(localKey);
         if (data?.content?.score) {
-          dispatch(setScore({
-            key: data.content.score.key,
-            tempo: data.content.score.tempo,
-            tracks: data.content.score.tracks
-          }));
+          dispatch(
+            setScore({
+              key: data.content.score.key,
+              tempo: data.content.score.tempo,
+              tracks: data.content.score.tracks,
+            })
+          );
           setIsInitialized(true);
         } else {
           setMessage(`未找到本地乐谱: ${localKey}`);
@@ -83,7 +85,7 @@ export default function FullSheetEditorPage() {
   // Watch for score changes and save locally
   useEffect(() => {
     if (!isLoading && localKey) {
-      console.log('saving')
+      console.log("saving");
       debouncedSaveScore(localKey, score);
     }
   }, [localKey, score, debouncedSaveScore, isLoading]);
@@ -92,21 +94,18 @@ export default function FullSheetEditorPage() {
     return <div className="flex h-screen items-center justify-center">加载编辑器中...</div>;
   }
 
-
   return (
     <div className="mx-auto px-2 md:px-8 xl:max-w-[90vw]">
       <div className="flex flex-col gap-6 xl:flex-row xl:items-start">
         <div className="order-2 flex flex-col xl:order-[-1] xl:w-1/5">
-          <MetadataForm
-            uploading={uploading}
-            setPendingImage={setPendingImage}
-          />
+          <MetadataForm uploading={uploading} setPendingImage={setPendingImage} />
           <button
             disabled={uploading || isSavingLocally}
-            className={`mx-auto w-[90%] justify-self-center rounded py-2 transition ${uploading || isSavingLocally
-              ? "bg-[var(--bg-button-disabled)] text-[var(--text-button-disabled)]"
-              : "bg-[var(--bg-button)] text-[var(--text-button)] shadow-inner shadow-[var(--bg-button)] hover:bg-[var(--bg-button-hover)]"
-              }`}
+            className={`mx-auto w-[90%] justify-self-center rounded py-2 transition ${
+              uploading || isSavingLocally
+                ? "bg-[var(--bg-button-disabled)] text-[var(--text-button-disabled)]"
+                : "bg-[var(--bg-button)] text-[var(--text-button)] shadow-[var(--bg-button)] shadow-inner hover:bg-[var(--bg-button-hover)]"
+            }`}
           >
             {uploading || isSavingLocally ? "处理中..." : "上传乐谱"}
           </button>

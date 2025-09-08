@@ -77,7 +77,7 @@ export default function Bar({
       <div
         {...listeners}
         {...attributes}
-        className="absolute right-12 top-[50%] hidden -translate-y-[50%] cursor-grab text-[var(--text-tertiary)] group-hover:block"
+        className="absolute top-[50%] right-12 hidden -translate-y-[50%] cursor-grab text-[var(--text-tertiary)] group-hover:block"
         onClick={(e) => e.stopPropagation()}
       >
         <svg
@@ -97,7 +97,7 @@ export default function Bar({
       </div>
 
       <button
-        className="absolute right-4 top-[50%] hidden -translate-y-[50%] text-[var(--text-tertiary)] hover:cursor-pointer hover:text-[var(--text-primary)] group-hover:block"
+        className="absolute top-[50%] right-4 hidden -translate-y-[50%] text-[var(--text-tertiary)] group-hover:block hover:cursor-pointer hover:text-[var(--text-primary)]"
         onClick={(e) => {
           e.stopPropagation();
           handleDelete(index);

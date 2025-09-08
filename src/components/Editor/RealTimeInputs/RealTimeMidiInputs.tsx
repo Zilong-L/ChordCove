@@ -2,9 +2,9 @@
 import { useState, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../../stores/store";
-import { setRecording } from "@stores/editingSlice";
+import { setRecording, setEditingBeat, setRecordingSnapType } from "@stores/editingSlice";
 import { useMetronome } from "./useMetronome";
-import { pushSlot, clearDirtyBit, setSlot } from "@stores/scoreSlice";
+import { clearDirtyBit, setSlot } from "@stores/scoreSlice";
 import { useEffect, useRef } from "react";
 import { Note } from "tonal";
 import { scorePlaybackService } from "@utils/sounds/ScorePlaybackService";
@@ -29,7 +29,7 @@ interface MIDIStateEvent {
   port: MIDIPort & MIDIInput;
 }
 
-interface MIDIAccess {
+interface _MIDIAccess {
   inputs: Map<string, MIDIInput>;
   onstatechange: ((this: MIDIAccess, ev: MIDIStateEvent) => void) | null;
 }
@@ -37,6 +37,7 @@ interface MIDIAccess {
 interface ActiveNote {
   startTime: number;
   noteMidi: number;
+  startBeat?: number; // capture editing beat at note-on
 }
 type SnapType = "none" | "eighth" | "sixteenth";
 
@@ -74,9 +75,10 @@ export default function RealTimeInput() {
   const editingTrack = editing.editingTrack;
   const isRecording = editing.isRecording;
   const currentTrack = score.tracks[editing.editingTrack];
-  const [startingTime, setStartingTime] = useState<number | null>(null);
-  const [inputOffset, setInputOffset] = useState(0); // in milliseconds
-  const [snapType, setSnapType] = useState<SnapType>("eighth");
+  const [_, setStartingTime] = useState<number | null>(null);
+  const [snapType, setSnapType] = useState<SnapType>(
+    useSelector((s: RootState) => s.editing.recordingSnapType)
+  );
   const currentTrackRef = useRef(score.tracks[editing.editingTrack]);
 
   const { sampler } = getSamplerInstance()!;
@@ -103,20 +105,7 @@ export default function RealTimeInput() {
     }
   }, [isRecording, editingTrack, editingBeat, score.tempo]);
 
-  const calculateBeatPosition = useCallback(
-    (timestamp: number) => {
-      if (!startingTime) return 0;
-      console.log("calculateBeatPosition", timestamp, startingTime, inputOffset);
-      // Apply input offset to the elapsed time calculation
-      const elapsedTime = timestamp - startingTime - inputOffset;
-      const beatDuration = (60 / score.tempo) * 1000; // Convert to milliseconds
-      const beatPosition = elapsedTime / beatDuration;
-      return snapToGrid(editingBeat + beatPosition, snapType);
-    },
-    [startingTime, score.tempo, inputOffset, snapType, editingBeat]
-  );
-
-  // Convert duration in ms to beats
+  // Convert duration in ms to beats (kept here for now; actual recording logic runs in useMidiInputs)
   const msToBeats = useCallback(
     (durationMs: number): number => {
       const beatDuration = (60 / score.tempo) * 1000; // Duration of one beat in ms
@@ -149,21 +138,23 @@ export default function RealTimeInput() {
   );
   // Update the score with the new note
   const updateNotesTrack = useCallback(
-    (beatPosition: number, durationInBeats: number, noteString: string) => {
-      if (!currentTrack || currentTrack.type !== "notes" || !isRecording) return;
+    (beatPosition: number, durationInBeats: number, notes: string[]) => {
+      if (
+        !currentTrack ||
+        (currentTrack.type !== "accompaniment" && currentTrack.type !== "notes") ||
+        !isRecording
+      )
+        return;
 
-      // Update the slot
       const updatedSlot = {
         beat: beatPosition,
         duration: durationInBeats,
-        note: noteString,
+        notes,
         comment: "",
-        dirty: true,
-      };
-      console.log(updatedSlot);
-      // Dispatch updates
+      } as const;
+
       dispatch(
-        pushSlot({
+        setSlot({
           trackId: currentTrack.id,
           slot: updatedSlot,
         })
@@ -188,90 +179,109 @@ export default function RealTimeInput() {
     isPlaying: isRecording,
     tempo: score.tempo,
   });
-  const calculateBeatPositionRef = useRef(calculateBeatPosition);
+  // Refs for stable handlers
   const msToBeatsRef = useRef(msToBeats);
   const updateNotesTrackRef = useRef(updateNotesTrack);
   const updateMelodyTrackRef = useRef(updateMelodyTrack);
+  const currentEditingBeatRef = useRef(editingBeat);
+  useEffect(() => {
+    currentEditingBeatRef.current = editingBeat;
+  }, [editingBeat]);
 
-  const handleMidiMessageForMelody = (() => {
+  const _handleMidiMessageForMelody = (() => {
     let pressingNote: ActiveNote | null = null;
 
     return (message: MIDIMessageEvent) => {
       const [status, note, velocity] = message.data;
 
-      // 处理音符按下
+      // Note On
       if (status === 144 && velocity > 0) {
+        // finalize previous if still hanging
         if (pressingNote) {
-          const beatPosition = calculateBeatPositionRef.current(pressingNote.startTime);
           const durationInBeats = msToBeatsRef.current(performance.now() - pressingNote.startTime);
           const noteLetter = Note.fromMidi(pressingNote.noteMidi);
+          const beatPosition = pressingNote.startBeat ?? currentEditingBeatRef.current;
           updateMelodyTrackRef.current(beatPosition, durationInBeats, noteLetter);
+          dispatch(setEditingBeat(beatPosition + durationInBeats));
         }
-        pressingNote = { startTime: performance.now(), noteMidi: note };
-        console.log("pressingNote", pressingNote);
+        pressingNote = {
+          startTime: performance.now(),
+          noteMidi: note,
+          startBeat: currentEditingBeatRef.current,
+        };
       }
-      // 处理音符释放
+      // Note Off
       else if (status === 128 || (status === 144 && velocity === 0)) {
         if (pressingNote && note == pressingNote.noteMidi) {
-          const beatPosition = calculateBeatPositionRef.current(pressingNote.startTime);
           const durationInBeats = msToBeatsRef.current(performance.now() - pressingNote.startTime);
           const noteLetter = Note.fromMidi(pressingNote.noteMidi);
-          console.log("pressing", performance.now() - pressingNote.startTime);
-          console.log("updateMelodyTrack", beatPosition, durationInBeats, noteLetter);
+          const beatPosition = pressingNote.startBeat ?? currentEditingBeatRef.current;
           updateMelodyTrackRef.current(beatPosition, durationInBeats, noteLetter);
+          dispatch(setEditingBeat(beatPosition + durationInBeats));
           pressingNote = null;
         }
       }
     };
   })();
 
-  const handleMidiMessageForNotes = (() => {
-    let pressingNotes: ActiveNote[] = [];
-    let sustainedNotes: ActiveNote[] = [];
-
+  const _handleMidiMessageForAccompaniment = (() => {
+    const pressingNotes = new Set<number>();
+    const sustainedNotes = new Set<number>();
+    const addingNotes = new Set<number>();
     let sustainActive = false;
+    let chordStartBeat: number | null = null;
+    let chordStartTime: number | null = null;
+
+    const tryFinalizeChord = () => {
+      if (chordStartTime == null || chordStartBeat == null) return;
+      if (pressingNotes.size === 0 && sustainedNotes.size === 0) {
+        const durationInBeats = msToBeatsRef.current(performance.now() - chordStartTime);
+        const notes = Array.from(addingNotes)
+          .sort((a, b) => a - b)
+          .map((n) => Note.fromMidi(n));
+        updateNotesTrackRef.current(chordStartBeat, durationInBeats, notes);
+        dispatch(setEditingBeat(chordStartBeat + durationInBeats));
+        addingNotes.clear();
+        chordStartBeat = null;
+        chordStartTime = null;
+      }
+    };
 
     return (message: MIDIMessageEvent) => {
       const [status, note, velocity] = message.data;
-      // 处理踏板
+
+      // Sustain pedal
       if (status === 176 && note === 64) {
         sustainActive = velocity > 0;
         if (!sustainActive) {
-          const pressingMidis = pressingNotes.map((n) => n.noteMidi);
-          const toProcessNotes = sustainedNotes.filter((n) => !pressingMidis.includes(n.noteMidi));
-          sustainedNotes = sustainedNotes.filter((n) => pressingMidis.includes(n.noteMidi));
-          for (const note of toProcessNotes) {
-            const beatPosition = calculateBeatPositionRef.current(note.startTime);
-            const durationInBeats = msToBeatsRef.current(performance.now() - note.startTime);
-            const noteLetter = Note.fromMidi(note.noteMidi);
-            updateNotesTrackRef.current(beatPosition, durationInBeats, noteLetter);
+          // On release, drop sustained notes that are not pressed
+          for (const n of Array.from(sustainedNotes)) {
+            if (!pressingNotes.has(n)) sustainedNotes.delete(n);
           }
+          tryFinalizeChord();
         }
       }
-      // 处理音符按下
+      // Note on
       else if (status === 144 && velocity > 0) {
-        const currentNote = { startTime: performance.now(), noteMidi: note };
-        pressingNotes.push(currentNote);
-        sustainedNotes.push(currentNote);
-      }
-      // 处理音符释放
-      else if (status === 128 || (status === 144 && velocity === 0)) {
-        pressingNotes = pressingNotes.filter((n) => n.noteMidi !== note);
-        if (!sustainActive) {
-          const toProcessNotes = sustainedNotes.filter((n) => n.noteMidi == note);
-          sustainedNotes = sustainedNotes.filter((n) => n.noteMidi !== note);
-          for (const note of toProcessNotes) {
-            const beatPosition = calculateBeatPositionRef.current(note.startTime);
-            const durationInBeats = msToBeatsRef.current(performance.now() - note.startTime);
-            const noteLetter = Note.fromMidi(note.noteMidi);
-            updateNotesTrackRef.current(beatPosition, durationInBeats, noteLetter);
-          }
+        if (chordStartBeat == null) {
+          chordStartBeat = currentEditingBeatRef.current;
+          chordStartTime = performance.now();
         }
+        pressingNotes.add(note);
+        sustainedNotes.add(note);
+        addingNotes.add(note);
       }
-      console.log(pressingNotes, sustainedNotes);
+      // Note off
+      else if (status === 128 || (status === 144 && velocity === 0)) {
+        pressingNotes.delete(note);
+        if (!sustainActive) {
+          sustainedNotes.delete(note);
+        }
+        tryFinalizeChord();
+      }
     };
   })();
-  const handleSound = (message: MIDIMessageEvent) => {
+  const _handleSound = (message: MIDIMessageEvent) => {
     const [status, note, velocity] = message.data;
     if (status === 144 && velocity > 0) {
       sampler.triggerAttack(Note.fromMidi(note));
@@ -280,100 +290,40 @@ export default function RealTimeInput() {
     else if (status === 128 || (status === 144 && velocity === 0)) {
       sampler.triggerRelease(Note.fromMidi(note));
     }
-  }
-  const handleMidiMessage = (message: MIDIMessageEvent) => {
-    handleSound(message);
-    switch (currentTrackRef.current.type) {
-      case "notes":
-        handleMidiMessageForNotes(message);
-        break;
-      case "melody":
-        handleMidiMessageForMelody(message);
-        break;
-    }
   };
+  // MIDI listening is centralized in useMidiInputs. This component handles UI + metronome + playback.
 
   useEffect(() => {
-    if (!navigator.requestMIDIAccess) {
-      console.log("WebMIDI is not supported in this browser.");
-      return;
-    }
-
-    let midiAccess: MIDIAccess | null = null;
-
-    navigator
-      .requestMIDIAccess()
-      .then((access) => {
-        midiAccess = access;
-        console.log("MIDI Access granted!");
-
-        // Connect to all available MIDI inputs
-        access.inputs.forEach((input) => {
-          console.log("Connecting to MIDI input:", input.name);
-          input.onmidimessage = handleMidiMessage;
-        });
-
-        // Listen for new MIDI devices
-        access.onstatechange = (e: MIDIStateEvent) => {
-          const port = e.port;
-          if (port.type === "input") {
-            if (port.state === "connected") {
-              console.log("MIDI input connected:", port.name);
-              port.onmidimessage = handleMidiMessage;
-            }
-          }
-        };
-      })
-      .catch((error) => console.error("Error requesting MIDI access:", error));
-
-    // Cleanup function
-    return () => {
-      if (midiAccess) {
-        midiAccess.inputs.forEach((input) => {
-          input.onmidimessage = null;
-        });
-      }
-    };
-  }, []); // Empty dependency array since we're using refs
-
-  useEffect(() => {
-    calculateBeatPositionRef.current = calculateBeatPosition;
     msToBeatsRef.current = msToBeats;
     updateNotesTrackRef.current = updateNotesTrack;
     updateMelodyTrackRef.current = updateMelodyTrack;
-  }, [calculateBeatPosition, msToBeats, updateNotesTrack, updateMelodyTrack]);
+  }, [msToBeats, updateNotesTrack, updateMelodyTrack]);
 
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-4">
         <button
           onClick={handleStartAndStop}
-          className={`rounded px-4 py-2 text-[var(--text-primary)] transition-colors ${isRecording
-            ? "bg-[var(--bg-danger)] hover:bg-[var(--bg-danger-hover)]"
-            : "bg-[var(--bg-button)] hover:bg-[var(--bg-button-hover)]"
-            }`}
+          className={`rounded px-4 py-2 text-[var(--text-primary)] transition-colors ${
+            isRecording
+              ? "bg-[var(--bg-danger)] hover:bg-[var(--bg-danger-hover)]"
+              : "bg-[var(--bg-button)] hover:bg-[var(--bg-button-hover)]"
+          }`}
         >
           {isRecording ? "Stop" : "Start"} Recording
         </button>
-        <span className="text-[var(--text-primary)]">Tempo: {score.tempo} BPM</span>
-        <div className="flex items-center gap-2">
-          <label htmlFor="inputOffset" className="text-[var(--text-primary)]">
-            Input Offset (ms):
-          </label>
-          <input
-            id="inputOffset"
-            type="number"
-            value={inputOffset}
-            onChange={(e) => setInputOffset(Number(e.target.value))}
-            className="w-20 rounded border border-[var(--border-primary)] bg-[var(--bg-secondary)] px-2 py-1 text-[var(--text-primary)] focus:border-[var(--border-focus)] focus:outline-none"
-          />
-        </div>
+        {/* Tempo is controlled globally via TempoControl */}
+        <div className="flex items-center gap-2"></div>
         <div className="flex items-center gap-2">
           <label className="flex items-center gap-2 text-[var(--text-primary)]">
             Snap to:
             <select
               value={snapType}
-              onChange={(e) => setSnapType(e.target.value as SnapType)}
+              onChange={(e) => {
+                const v = e.target.value as SnapType;
+                setSnapType(v);
+                dispatch(setRecordingSnapType(v));
+              }}
               className="rounded border border-[var(--border-primary)] bg-[var(--bg-secondary)] px-2 py-1 text-[var(--text-primary)] focus:border-[var(--border-focus)] focus:outline-none"
             >
               <option value="none">Off</option>

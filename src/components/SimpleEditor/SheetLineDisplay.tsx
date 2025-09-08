@@ -42,7 +42,7 @@ export default function SheetLineDisplay({ text }: { text: string }) {
                 elements.push(
                   <span key={`pos-${pos}`} className="relative text-[var(--text-primary)]">
                     {chordsAtPosition.length > 0 && (
-                      <div className="absolute left-0 top-[-1.5em] flex gap-1 font-bold text-[var(--text-secondary)]">
+                      <div className="absolute top-[-1.5em] left-0 flex gap-1 font-bold text-[var(--text-secondary)]">
                         {chordsAtPosition.map((cd, idx) => (
                           <span key={idx}>{cd.chord}</span>
                         ))}

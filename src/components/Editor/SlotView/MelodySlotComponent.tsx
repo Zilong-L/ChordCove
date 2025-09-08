@@ -48,11 +48,11 @@ export const MelodySlotComponent = React.memo(
           <div className="relative">
             <span className="inline-block">{content}</span>
             {octaveIndicator}
-            {hasDot && <span className="absolute -right-2 top-1/2 -translate-y-1/2">.</span>}
+            {hasDot && <span className="absolute top-1/2 -right-2 -translate-y-1/2">.</span>}
             {/* Underlines container */}
             {underlineCount > 0 && (
               <div
-                className="absolute left-0 right-0"
+                className="absolute right-0 left-0"
                 style={{
                   top: "calc(100% - 2px)",
                   height: `${underlineCount * 3}px`,

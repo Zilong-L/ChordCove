@@ -305,5 +305,5 @@ export const {
   pushSlot,
   clearDirtyBit,
 } = scoreSlice.actions;
-export { initialState }
+export { initialState };
 export default scoreSlice.reducer;

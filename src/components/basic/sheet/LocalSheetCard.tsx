@@ -36,12 +36,12 @@ export default function LocalSheetCard({ sheet, widthClassName, onDelete }: Loca
   };
 
   return (
-    <div className="group relative rounded-lg border border-[var(--border-primary)] bg-[var(--bg-secondary)] p-4 hover:bg-[var(--bg-hover)] transition-shadow hover:shadow-md">
+    <div className="group relative rounded-lg border border-[var(--border-primary)] bg-[var(--bg-secondary)] p-4 transition-shadow hover:bg-[var(--bg-hover)] hover:shadow-md">
       {/* Delete button (top right) */}
       {onDelete && (
         <button
           type="button"
-          className="absolute right-2 top-2 z-10 rounded-full p-1 text-[var(--text-tertiary)] hover:bg-[var(--bg-hover)] hover:text-red-500 transition opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto"
+          className="pointer-events-none absolute top-2 right-2 z-10 rounded-full p-1 text-[var(--text-tertiary)] opacity-0 transition group-hover:pointer-events-auto group-hover:opacity-100 hover:bg-[var(--bg-hover)] hover:text-red-500"
           title="删除草稿"
           onClick={(e) => {
             e.stopPropagation();
@@ -52,20 +52,16 @@ export default function LocalSheetCard({ sheet, widthClassName, onDelete }: Loca
           <XMarkIcon className="h-5 w-5" />
         </button>
       )}
-      <Link
-        to={`/editor/${sheet.sheetType}/${sheet.localKey}`}
-        className="block"
-        tabIndex={-1}
-      >
+      <Link to={`/editor/${sheet.sheetType}/${sheet.localKey}`} className="block" tabIndex={-1}>
         <div className={`relative z-0 ${widthClassName || "aspect-square"}`}>
           {sheet.coverImage ? (
             <img
               src={sheet.coverImage}
               alt={sheet.title || "未命名乐谱"}
-              className="mb-2 h-full w-full rounded-lg object-cover aspect-square"
+              className="mb-2 aspect-square h-full w-full rounded-lg object-cover"
             />
           ) : (
-            <div className="mb-2 h-full w-full aspect-square rounded-lg bg-[var(--bg-tertiary)] flex items-center justify-center">
+            <div className="mb-2 flex aspect-square h-full w-full items-center justify-center rounded-lg bg-[var(--bg-tertiary)]">
               <span className="text-[var(--text-secondary)]">无封面</span>
             </div>
           )}

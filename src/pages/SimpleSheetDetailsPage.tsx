@@ -58,7 +58,7 @@ export default function SheetEditor() {
 
         <div className="relative flex h-[90vh] flex-col overflow-x-hidden lg:w-3/4">
           <SimpleSheetDisplay />
-          <div className="absolute right-8 top-4 flex flex-col gap-2 text-[var(--text-tertiary)]">
+          <div className="absolute top-4 right-8 flex flex-col gap-2 text-[var(--text-tertiary)]">
             <EditSheetButton loading={loading} />
             {sheetMetadata.id && <LikeButton sheetId={sheetMetadata.id} />}
           </div>

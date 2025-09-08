@@ -67,7 +67,7 @@ export default function LoginPage() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
-                    className="w-full rounded bg-[var(--bg-primary)] p-3 text-[var(--text-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--border-primary)]"
+                    className="w-full rounded bg-[var(--bg-primary)] p-3 text-[var(--text-primary)] focus:ring-1 focus:ring-[var(--border-primary)] focus:outline-none"
                   />
                 </div>
                 <div>
@@ -83,7 +83,7 @@ export default function LoginPage() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
-                    className="w-full rounded bg-[var(--bg-primary)] p-3 text-[var(--text-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--border-primary)]"
+                    className="w-full rounded bg-[var(--bg-primary)] p-3 text-[var(--text-primary)] focus:ring-1 focus:ring-[var(--border-primary)] focus:outline-none"
                   />
                 </div>
                 {error && <div className="mt-2 text-center text-sm text-red-500">{error}</div>}

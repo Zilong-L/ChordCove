@@ -306,7 +306,6 @@ export default function SheetEditor() {
 
   return (
     <div className="mx-auto h-[calc(100vh-4rem)] overflow-scroll px-2 md:px-8 xl:max-w-[90rem]">
-
       <div className="flex flex-col gap-6 lg:flex-row">
         <div className="order-2 flex flex-col gap-4 lg:order-[-1] lg:w-1/4">
           <MetadataForm
@@ -319,7 +318,7 @@ export default function SheetEditor() {
           <button
             onClick={handleSync}
             disabled={uploading || isSavingLocally}
-            className="mx-auto w-[90%] justify-self-center rounded bg-[var(--bg-secondary)] py-2 text-[var(--text-primary)] shadow-inner shadow-[var(--bg-secondary)] transition hover:bg-[var(--bg-hover)]"
+            className="mx-auto w-[90%] justify-self-center rounded bg-[var(--bg-secondary)] py-2 text-[var(--text-primary)] shadow-[var(--bg-secondary)] shadow-inner transition hover:bg-[var(--bg-hover)]"
             title={sheetMetadata.id ? "保存修改" : "上传乐谱"}
           >
             保存
@@ -352,7 +351,7 @@ export default function SheetEditor() {
                 dispatch(setContent(textarea.value));
               }
             }}
-            className="mx-auto mb-4 mt-4 min-h-48 w-[90%] resize-none rounded border border-[var(--border-primary)] bg-transparent p-2 text-[var(--text-primary)] outline-none"
+            className="mx-auto mt-4 mb-4 min-h-48 w-[90%] resize-none rounded border border-[var(--border-primary)] bg-transparent p-2 text-[var(--text-primary)] outline-none"
             placeholder="输入乐谱内容"
             title="乐谱内容"
             aria-label="乐谱内容"

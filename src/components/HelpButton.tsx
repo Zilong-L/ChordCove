@@ -9,7 +9,7 @@ export default function HelpButton() {
 
   return (
     <>
-      <div className="fixed bottom-6 right-6 z-40">
+      <div className="fixed right-6 bottom-6 z-40">
         <Menu as="div" className="relative inline-block text-left">
           <Menu.Button className="items-center justify-center rounded-full bg-[var(--text-primary)] text-[var(--bg-page)] shadow-lg hover:bg-[var(--accent-blue-hover)] focus:outline-none">
             <QuestionMarkCircleIcon className="h-6 w-6" />
@@ -24,7 +24,7 @@ export default function HelpButton() {
             leaveFrom="transform opacity-100 scale-100"
             leaveTo="transform opacity-0 scale-95"
           >
-            <Menu.Items className="absolute bottom-full right-0 mb-2 w-56 origin-bottom-right rounded-lg bg-[var(--bg-primary)] shadow-lg ring-1 ring-[var(--border-primary)] focus:outline-none">
+            <Menu.Items className="absolute right-0 bottom-full mb-2 w-56 origin-bottom-right rounded-lg bg-[var(--bg-primary)] shadow-lg ring-1 ring-[var(--border-primary)] focus:outline-none">
               <div className="p-1">
                 <Menu.Item>
                   {({ active }) => (

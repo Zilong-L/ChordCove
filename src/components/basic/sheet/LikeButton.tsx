@@ -91,7 +91,7 @@ const LikeButton: React.FC<LikeButtonProps> = ({ sheetId, onLikeToggle, initialS
     <button
       onClick={toggleLike}
       disabled={isLoading}
-      className={`rounded-full p-2 transition-colors duration-150 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:hover:bg-gray-700 ${isLoading ? "cursor-not-allowed opacity-50" : ""}`}
+      className={`rounded-full p-2 transition-colors duration-150 hover:bg-gray-200 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none dark:hover:bg-gray-700 ${isLoading ? "cursor-not-allowed opacity-50" : ""}`}
       aria-label={liked ? "Unlike" : "Like"}
     >
       {liked ? (

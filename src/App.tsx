@@ -25,19 +25,9 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/artist/:id" element={<ArtistPage />} />
 
-          <Route
-            path="/edit/:id"
-            element={
-              <SimpleSheetEditorPage />
-            }
-          />
+          <Route path="/edit/:id" element={<SimpleSheetEditorPage />} />
           <Route path="/sheet/simple/:id" element={<SimpleSheetDetailsPage />} />
-          <Route
-            path="/editor/full/:id"
-            element={
-              <FullSheetEditorPage />
-            }
-          />
+          <Route path="/editor/full/:id" element={<FullSheetEditorPage />} />
           <Route path="/sheet/full/:id" element={<SimpleSheetDetailsPage />} />
           <Route
             path="/liked"
@@ -47,18 +37,8 @@ function App() {
               </ProtectedRoute>
             }
           />
-          <Route
-            path="/my-sheets"
-            element={
-              <MySheetsPage />
-            }
-          />
-          <Route
-            path="/editor/simple/:localKey"
-            element={
-              <SimpleSheetEditorPage />
-            }
-          />
+          <Route path="/my-sheets" element={<MySheetsPage />} />
+          <Route path="/editor/simple/:localKey" element={<SimpleSheetEditorPage />} />
         </Route>
       </Routes>
       <HelpButton />

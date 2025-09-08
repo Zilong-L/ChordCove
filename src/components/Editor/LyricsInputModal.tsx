@@ -24,7 +24,6 @@ export const LyricsInputModal = () => {
 
   // Close modal when clicking outside
 
-
   // Add keyboard shortcut for opening lyrics input
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {

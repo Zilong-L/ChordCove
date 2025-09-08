@@ -41,8 +41,7 @@ export function EditSheetButton({ loading }: { loading: boolean }) {
         uploader: sheetMetadata.uploader || "",
         uploaderId: sheetMetadata.uploaderId || -1,
         bvid: sheetMetadata.bvid || "",
-        sheetType: "simple" as const
-
+        sheetType: "simple" as const,
       };
 
       // Prepare content to save
@@ -72,7 +71,7 @@ export function EditSheetButton({ loading }: { loading: boolean }) {
   return (
     <button
       onClick={handleEditSheet}
-      className="rounded-full p-2 transition-colors duration-150 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:hover:bg-gray-700"
+      className="rounded-full p-2 transition-colors duration-150 hover:bg-gray-200 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none dark:hover:bg-gray-700"
       aria-label="Edit sheet"
       disabled={loading}
     >

@@ -36,7 +36,7 @@ export default function ShortcutsModal({ isOpen, onClose }: ShortcutsModalProps)
               <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-[var(--bg-primary)] p-6 shadow-xl transition-all">
                 <Dialog.Title
                   as="h3"
-                  className="mb-4 text-lg font-medium leading-6 text-[var(--text-tertiary)]"
+                  className="mb-4 text-lg leading-6 font-medium text-[var(--text-tertiary)]"
                 >
                   Keyboard Shortcuts
                 </Dialog.Title>

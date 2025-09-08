@@ -7,7 +7,7 @@ import {
   MusicalNoteIcon,
   GlobeAsiaAustraliaIcon,
 } from "@heroicons/react/24/outline";
-import { createSimpleSheet, } from "../../utils/idb/sheetEditing";
+import { createSimpleSheet } from "../../utils/idb/sheetEditing";
 import { useUiStore } from "@stores/uiStore";
 export default function Sidebar() {
   const { isAuthenticated } = useSelector((state: RootState) => state.auth);
@@ -26,7 +26,7 @@ export default function Sidebar() {
   return (
     <aside
       className={
-        `fixed left-0 top-0 z-10 h-screen overflow-hidden border-r border-[var(--border-primary)] ` +
+        `fixed top-0 left-0 z-10 h-screen overflow-hidden border-r border-[var(--border-primary)] ` +
         `bg-[var(--bg-page)] text-[var(--text-primary)] transition-[width] duration-300 ease-in-out` +
         ` ${isSidebarOpen ? "w-64 translate-x-0" : "w-0"} ` +
         ` md:translate-x-0 ${isSidebarOpen ? "md:w-64" : "md:w-[5.5rem]"}`

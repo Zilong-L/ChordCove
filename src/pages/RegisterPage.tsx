@@ -139,7 +139,7 @@ export default function RegisterPage() {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
-                      className="w-full rounded bg-[var(--bg-primary)] p-3 text-[var(--text-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--border-primary)]"
+                      className="w-full rounded bg-[var(--bg-primary)] p-3 text-[var(--text-primary)] focus:ring-1 focus:ring-[var(--border-primary)] focus:outline-none"
                     />
                   </div>
                   {error && <div className="mt-2 text-center text-sm text-red-500">{error}</div>}
@@ -183,7 +183,7 @@ export default function RegisterPage() {
                         onChange={(e) => setVerificationCode(e.target.value)}
                         required
                         maxLength={6}
-                        className="flex-1 rounded bg-[var(--bg-primary)] p-3 text-[var(--text-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--border-primary)]"
+                        className="flex-1 rounded bg-[var(--bg-primary)] p-3 text-[var(--text-primary)] focus:ring-1 focus:ring-[var(--border-primary)] focus:outline-none"
                       />
                       <button
                         type="button"
@@ -193,7 +193,7 @@ export default function RegisterPage() {
                           loading || countdown > 0
                             ? "cursor-not-allowed bg-[var(--bg-button-disabled)] text-[var(--text-button-disabled)]"
                             : "bg-[var(--bg-button)] text-[var(--text-button)] hover:bg-[var(--bg-button-hover)]"
-                        } whitespace-nowrap rounded text-sm font-medium transition-colors`}
+                        } rounded text-sm font-medium whitespace-nowrap transition-colors`}
                       >
                         {countdown > 0 ? `${countdown}s` : "重新发送"}
                       </button>
@@ -212,7 +212,7 @@ export default function RegisterPage() {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
-                      className="w-full rounded bg-[var(--bg-primary)] p-3 text-[var(--text-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--border-primary)]"
+                      className="w-full rounded bg-[var(--bg-primary)] p-3 text-[var(--text-primary)] focus:ring-1 focus:ring-[var(--border-primary)] focus:outline-none"
                     />
                     <p className="mt-1 text-xs text-[var(--text-tertiary)]">
                       密码需要包含大小写字母和数字，至少8位

@@ -5,7 +5,7 @@ export default function ReadOnlyMetadataForm() {
   const { title, composers, singers, uploader, coverImage, bvid } = useSelector(
     (state: RootState) => state.sheetMetadata
   );
-  
+
   return (
     <div className="space-y-4 rounded-lg bg-gradient-to-b from-[var(--gradient-start)] to-[var(--gradient-end)] p-4">
       <div>
