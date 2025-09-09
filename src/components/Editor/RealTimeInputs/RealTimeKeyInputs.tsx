@@ -22,7 +22,6 @@ interface ActiveKeyPress {
   key: string;
 }
 
-
 const VALID_KEYS = ["1", "2", "3", "4", "5", "6", "7"];
 
 // use shared snapToGrid from utils

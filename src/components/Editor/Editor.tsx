@@ -8,7 +8,6 @@ import TempoControl from "./TempoControl";
 import { useKeyInputs } from "./useInputs/useKeyInputs";
 import useMidiInputs from "./useInputs/useMidiInputs";
 import { LyricsInputModal } from "./LyricsInputModal";
-// import RealTimeInput from "./RealTimeInputs/RealTimeKeyInputs";
 import RealTimeMidiInput from "./RealTimeInputs/RealTimeMidiInputs";
 
 export default function SimpleEditor() {
@@ -25,8 +24,6 @@ export default function SimpleEditor() {
       <div className="mb-6 flex items-center gap-4">
         <KeySelector />
         <TempoControl />
-        {/* Removed current position indicator for a cleaner panel */}
-        {/* <RealTimeInput /> */}
         <RealTimeMidiInput />
         <ScorePlayer />
       </div>
