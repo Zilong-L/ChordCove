@@ -33,13 +33,13 @@ var SampleLibrary = {
             case 'triangle':
                 synth = new Tone.PolySynth({
                     oscillator: { type: 'triangle' },
-                    envelope: { attack: 0.05, decay: 0.1, sustain: 1, release: 0.5 }
+                    envelope: { attack: 0.00, decay: 0.1, sustain: 1, release: 0.5 }
                 });
                 break;
             case 'square':
                 synth = new Tone.PolySynth({
                     oscillator: { type: 'square' },
-                    envelope: {  decay: 0.15, sustain: 0, release: 0.5 }
+                    envelope: { attack: 0.00, decay: 0.15, sustain: 0, release: 0.5 }
                 });
                 break;
             case 'sawtooth':

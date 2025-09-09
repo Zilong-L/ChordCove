@@ -4,7 +4,7 @@ import * as Tone from 'tone';
 
 let globalChorous = new Tone.Chorus({
   frequency: 0.1,
-  delayTime: 10,
+  delayTime: 0,
   depth: 0.71,
   feedback: 0.47,
   spread: 181,
@@ -26,7 +26,7 @@ function getSamplerInstance() {
 
 // **创建新的 Sampler**
 class SamplerManager {
-  constructor(instrument = "square", quality = "medium", filterFreq = 1200, panVal = 0) {
+  constructor(instrument = "triangle", quality = "medium", filterFreq = 1200, panVal = 0) {
     this.sampler = SampleLibrary.load({
       instruments: instrument,
       baseUrl: "/samples/",

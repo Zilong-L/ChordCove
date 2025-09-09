@@ -7,8 +7,8 @@ import { useMetronome } from "./useMetronome";
 import { clearDirtyBit, setSlot } from "@stores/scoreSlice";
 import { useEffect, useRef } from "react";
 import { Note } from "tonal";
-import { scorePlaybackService } from "@utils/sounds/ScorePlaybackService";
 import { getSamplerInstance } from "@utils/sounds/Toneloader";
+import { getContext } from "tone";
 // WebMidi types
 interface MIDIMessageEvent {
   data: Uint8Array;
@@ -39,40 +39,16 @@ interface ActiveNote {
   noteMidi: number;
   startBeat?: number; // capture editing beat at note-on
 }
-type SnapType = "whole" | "eighth" | "sixteenth";
+import { snapToGrid, type SnapType } from "@utils/snap";
 
-// Snap to grid based on snap type
-const snapToGrid = (beat: number, snapType: SnapType): number => {
-  if (snapType === "whole") return Math.max(1, Math.round(beat));
-
-  const fraction = beat % 1; // Get the fractional part
-  const wholeBeat = Math.floor(beat);
-
-  // Snap to nearest fraction based on snap type
-  let snappedFraction;
-  if (snapType === "eighth") {
-    // Snap to 8th notes (0, 0.5)
-    if (fraction < 0.25) snappedFraction = 0;
-    else if (fraction < 0.75) snappedFraction = 0.5;
-    else snappedFraction = 1;
-  } else {
-    // Snap to 16th notes (0, 0.25, 0.5, 0.75)
-    if (fraction < 0.125) snappedFraction = 0;
-    else if (fraction < 0.375) snappedFraction = 0.25;
-    else if (fraction < 0.625) snappedFraction = 0.5;
-    else if (fraction < 0.875) snappedFraction = 0.75;
-    else snappedFraction = 1;
-  }
-
-  return wholeBeat + snappedFraction;
-};
+// use shared snapToGrid from utils
 
 export default function RealTimeInput() {
   const dispatch = useDispatch();
   const score = useSelector((state: RootState) => state.score);
   const editing = useSelector((state: RootState) => state.editing);
   const editingBeat = editing.editingBeat;
-  const editingTrack = editing.editingTrack;
+  // const editingTrack = editing.editingTrack;
   const isRecording = editing.isRecording;
   const currentTrack = score.tracks[editing.editingTrack];
   const [snapType, setSnapType] = useState<SnapType>(
@@ -86,31 +62,15 @@ export default function RealTimeInput() {
     currentTrackRef.current = score.tracks[editing.editingTrack];
   }, [score.tracks, editing.editingTrack]);
 
-  // Control playback based on recording state changes
-  useEffect(() => {
-    if (isRecording) {
-      const accompanimentTracks = score.tracks.filter((_, index) => index !== editingTrack);
-      scorePlaybackService.setup(accompanimentTracks, score.tempo).then(() => {
-        scorePlaybackService.play(editingBeat);
-      });
-
-      return () => {
-        if (!isRecording) {
-          scorePlaybackService.dispose();
-        }
-      };
-    } else {
-      scorePlaybackService.stop();
-    }
-  }, [isRecording, editingTrack, editingBeat, score.tempo]);
+  // No auto playback when recording starts; metronome handles timing only
 
   // Convert duration in ms to beats (kept here for now; actual recording logic runs in useMidiInputs)
   const msToBeats = useCallback(
     (durationMs: number): number => {
       const beatDuration = (60 / score.tempo) * 1000; // Duration of one beat in ms
-      const snapedDuration = snapToGrid(durationMs / beatDuration, snapType);
-      if (snapType === "whole") return Math.max(1, Math.round(snapedDuration));
-      return snapedDuration == 0 ? 0.25 : snapedDuration;
+      const snappedDuration = snapToGrid(durationMs / beatDuration, snapType);
+      if (snapType === "whole") return Math.max(1, Math.round(snappedDuration));
+      return snappedDuration;
     },
     [score.tempo, snapType]
   );
@@ -282,7 +242,7 @@ export default function RealTimeInput() {
   const _handleSound = (message: MIDIMessageEvent) => {
     const [status, note, velocity] = message.data;
     if (status === 144 && velocity > 0) {
-      sampler.triggerAttack(Note.fromMidi(note));
+      sampler.triggerAttack(Note.fromMidi(note), getContext().currentTime);
     }
     // 处理音符释放
     else if (status === 128 || (status === 144 && velocity === 0)) {

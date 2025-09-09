@@ -2,7 +2,6 @@ import KeySelector from "./KeySelector";
 import { useSelector } from "react-redux";
 import { RootState } from "@stores/store";
 import type { Score } from "@stores/scoreSlice";
-import type { EditingSlotState } from "@stores/editingSlice";
 import BarView from "./BarView";
 import ScorePlayer from "./ScorePlayer";
 import TempoControl from "./TempoControl";
@@ -14,7 +13,6 @@ import RealTimeMidiInput from "./RealTimeInputs/RealTimeMidiInputs";
 
 export default function SimpleEditor() {
   // Get states from Redux
-  const { editingBeat } = useSelector((state: RootState) => state.editing as EditingSlotState);
 
   const score = useSelector((state: RootState) => state.score as Score);
   // Use keyboard input hook
@@ -27,10 +25,7 @@ export default function SimpleEditor() {
       <div className="mb-6 flex items-center gap-4">
         <KeySelector />
         <TempoControl />
-        <div className="flex items-center gap-2">
-          <span>Current Position:</span>
-          <span>Beat {editingBeat}</span>
-        </div>
+        {/* Removed current position indicator for a cleaner panel */}
         {/* <RealTimeInput /> */}
         <RealTimeMidiInput />
         <ScorePlayer />

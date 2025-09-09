@@ -6,6 +6,8 @@ import { EditingSlotState, setEditingBeat, setLastInputNote } from "@stores/edit
 import { durationValues, type NoteDuration } from "#types/sheet";
 import { Note } from "tonal";
 import { getSamplerInstance } from "@utils/sounds/Toneloader";
+import { snapToGrid } from "@utils/snap";
+import { getContext } from "tone";
 // WebMidi types
 interface MIDIMessageEvent {
   data: Uint8Array;
@@ -96,7 +98,10 @@ export default function useMidiInputs() {
           slot: updatedSlot,
         })
       );
-      dispatch(setEditingBeat(currentBeat + duration));
+      // Advance editing position immediately for subsequent hits to not replace the last note
+      const nextBeat = currentBeat + duration;
+      currentBeatRef.current = nextBeat;
+      dispatch(setEditingBeat(nextBeat));
     }
   };
 
@@ -169,11 +174,14 @@ export default function useMidiInputs() {
   })();
   const handleSound = (message: MIDIMessageEvent) => {
     const [status, note, velocity] = message.data;
-    if (status === 144 && velocity > 0) {
-      sampler.triggerAttack(Note.fromMidi(note));
+    if (status >= 144 && status <= 159 && velocity > 0) {
+      sampler.triggerAttack(Note.fromMidi(note), getContext().currentTime);
     }
     // 处理音符释放
-    else if (status === 128 || (status === 144 && velocity === 0)) {
+    else if (
+      (status >= 128 && status <= 143) ||
+      (status >= 144 && status <= 159 && velocity === 0)
+    ) {
       sampler.triggerRelease(Note.fromMidi(note));
     }
   };
@@ -183,34 +191,15 @@ export default function useMidiInputs() {
     return (message: MIDIMessageEvent) => {
       const [status, note, velocity] = message.data;
       const now = performance.now();
-      // Note On
-      if (status === 144 && velocity > 0) {
+      // Note On (any channel)
+      if (status >= 144 && status <= 159 && velocity > 0) {
         // finalize previous if still hanging
         if (pressingNote) {
           const durationMs = now - pressingNote.startTime;
           const beatDuration = (60 / (score.tempo || 120)) * 1000;
           const rawBeats = durationMs / beatDuration;
           const snapType = recordingSnapTypeRef.current;
-          const snap = (beats: number) => {
-            if (snapType === "whole") return Math.max(1, Math.round(beats));
-            const whole = Math.floor(beats);
-            const frac = beats % 1;
-            let snapped = 0;
-            if (snapType === "eighth") snapped = frac < 0.25 ? 0 : frac < 0.75 ? 0.5 : 1;
-            else
-              snapped =
-                frac < 0.125
-                  ? 0
-                  : frac < 0.375
-                    ? 0.25
-                    : frac < 0.625
-                      ? 0.5
-                      : frac < 0.875
-                        ? 0.75
-                        : 1;
-            return whole + snapped || 0.25;
-          };
-          const durationInBeats = snap(rawBeats);
+          const durationInBeats = snapToGrid(rawBeats, snapType);
           const noteLetter = Note.fromMidi(pressingNote.noteMidi);
           const beatPosition = pressingNote.startBeat ?? currentBeatRef.current;
           const currentTrack = currentTrackRef.current;
@@ -227,7 +216,10 @@ export default function useMidiInputs() {
                 },
               })
             );
-            dispatch(setEditingBeat(beatPosition + durationInBeats));
+            const nextBeat = beatPosition + durationInBeats;
+            // advance ref first so the next note-on captures the updated start
+            currentBeatRef.current = nextBeat;
+            dispatch(setEditingBeat(nextBeat));
           }
         }
         pressingNote = {
@@ -236,33 +228,17 @@ export default function useMidiInputs() {
           startBeat: currentBeatRef.current,
         };
       }
-      // Note Off
-      else if (status === 128 || (status === 144 && velocity === 0)) {
+      // Note Off (any channel) or Note On with velocity 0
+      else if (
+        (status >= 128 && status <= 143) ||
+        (status >= 144 && status <= 159 && velocity === 0)
+      ) {
         if (pressingNote && note === pressingNote.noteMidi) {
           const durationMs = now - pressingNote.startTime;
           const beatDuration = (60 / (score.tempo || 120)) * 1000;
           const rawBeats = durationMs / beatDuration;
           const snapType = recordingSnapTypeRef.current;
-          const snap = (beats: number) => {
-            if (snapType === "whole") return Math.max(1, Math.round(beats));
-            const whole = Math.floor(beats);
-            const frac = beats % 1;
-            let snapped = 0;
-            if (snapType === "eighth") snapped = frac < 0.25 ? 0 : frac < 0.75 ? 0.5 : 1;
-            else
-              snapped =
-                frac < 0.125
-                  ? 0
-                  : frac < 0.375
-                    ? 0.25
-                    : frac < 0.625
-                      ? 0.5
-                      : frac < 0.875
-                        ? 0.75
-                        : 1;
-            return whole + snapped || 0.25;
-          };
-          const durationInBeats = snap(rawBeats);
+          const durationInBeats = snapToGrid(rawBeats, snapType);
           const noteLetter = Note.fromMidi(pressingNote.noteMidi);
           const beatPosition = pressingNote.startBeat ?? currentBeatRef.current;
           const currentTrack = currentTrackRef.current;
@@ -302,18 +278,7 @@ export default function useMidiInputs() {
         const beatDuration = (60 / (score.tempo || 120)) * 1000;
         const rawBeats = durationMs / beatDuration;
         const snapType = recordingSnapTypeRef.current;
-        const snap = (beats: number) => {
-          if (snapType === "whole") return Math.max(1, Math.round(beats));
-          const whole = Math.floor(beats);
-          const frac = beats % 1;
-          let snapped = 0;
-          if (snapType === "eighth") snapped = frac < 0.25 ? 0 : frac < 0.75 ? 0.5 : 1;
-          else
-            snapped =
-              frac < 0.125 ? 0 : frac < 0.375 ? 0.25 : frac < 0.625 ? 0.5 : frac < 0.875 ? 0.75 : 1;
-          return whole + snapped || 0.25;
-        };
-        const durationInBeats = snap(rawBeats);
+        const durationInBeats = snapToGrid(rawBeats, snapType);
         const notes = Array.from(addingNotes)
           .sort((a, b) => a - b)
           .map((n) => Note.fromMidi(n));
@@ -350,8 +315,8 @@ export default function useMidiInputs() {
           finishChord();
         }
       }
-      // Note on
-      else if (status === 144 && velocity > 0) {
+      // Note on (any channel)
+      else if (status >= 144 && status <= 159 && velocity > 0) {
         if (chordStartBeat == null) {
           chordStartBeat = currentBeatRef.current;
           chordStartTime = performance.now();
@@ -360,8 +325,11 @@ export default function useMidiInputs() {
         sustainedNotes.add(note);
         addingNotes.add(note);
       }
-      // Note off
-      else if (status === 128 || (status === 144 && velocity === 0)) {
+      // Note off (any channel) or note-on with velocity 0
+      else if (
+        (status >= 128 && status <= 143) ||
+        (status >= 144 && status <= 159 && velocity === 0)
+      ) {
         pressingNotes.delete(note);
         if (!sustainActive) {
           sustainedNotes.delete(note);

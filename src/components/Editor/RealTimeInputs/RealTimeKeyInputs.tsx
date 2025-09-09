@@ -5,6 +5,7 @@ import { RootState } from "../../../stores/store";
 import { setRecording, setLastInputNote } from "@stores/editingSlice";
 import { useMetronome } from "./useMetronome";
 import { findCloestNote, getNoteInKey, keyMap } from "@utils/theory/Note";
+import { snapToGrid, type SnapType } from "@utils/snap";
 import { setSlot } from "@stores/scoreSlice";
 
 interface KeyPress {
@@ -21,32 +22,10 @@ interface ActiveKeyPress {
   key: string;
 }
 
-type SnapType = "whole" | "eighth" | "sixteenth";
 
 const VALID_KEYS = ["1", "2", "3", "4", "5", "6", "7"];
 
-// Snap to grid based on snap type
-const snapToGrid = (beat: number, snapType: SnapType): number => {
-  if (snapType === "whole") return Math.max(1, Math.round(beat));
-
-  const fraction = beat % 1; // Get the fractional part
-  const wholeBeat = Math.floor(beat);
-
-  let snappedFraction;
-  if (snapType === "eighth") {
-    if (fraction < 0.25) snappedFraction = 0;
-    else if (fraction < 0.75) snappedFraction = 0.5;
-    else snappedFraction = 1;
-  } else {
-    if (fraction < 0.125) snappedFraction = 0;
-    else if (fraction < 0.375) snappedFraction = 0.25;
-    else if (fraction < 0.625) snappedFraction = 0.5;
-    else if (fraction < 0.875) snappedFraction = 0.75;
-    else snappedFraction = 1;
-  }
-
-  return wholeBeat + snappedFraction == 0 ? (snapType == "eighth" ? 0.5 : 0.25) : wholeBeat + snappedFraction;
-};
+// use shared snapToGrid from utils
 
 export default function RealTimeInput() {
   const dispatch = useDispatch();
