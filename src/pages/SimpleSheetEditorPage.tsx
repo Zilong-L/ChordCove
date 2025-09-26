@@ -80,7 +80,7 @@ export default function SheetEditor() {
               singers: [],
               uploader: "",
               uploaderId: -1,
-              coverImage: "",
+              coverImage: data.metadata.coverImage || "",
             })
           );
 
@@ -261,11 +261,13 @@ export default function SheetEditor() {
       });
       console.log(data);
       if (data) {
+        const persistedCover = data.coverImage || finalCoverImage;
         // Update IndexedDB with server response
         await updateLocalSheetAfterSync(localKey, {
           id: data.id,
           createdAt: data.createdAt,
           lastModified: data.lastModified,
+          coverImage: persistedCover,
         });
 
         // Update Redux store
@@ -273,7 +275,7 @@ export default function SheetEditor() {
           setSheetMetadata({
             ...sheetMetadata,
             id: data.id,
-            coverImage: finalCoverImage,
+            coverImage: persistedCover,
           })
         );
 

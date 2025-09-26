@@ -130,9 +130,17 @@ const MySheetsPage: React.FC = () => {
 
     return (
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
-        {localSheets.map((sheet) => (
-          <LocalSheetCard key={sheet.localKey} sheet={sheet} onDelete={handleDeleteLocalSheet} />
-        ))}
+        {localSheets.map((sheet) => {
+          const matchedServer = sheet.serverId
+            ? serverSheets.find((s) => s.id === sheet.serverId)
+            : undefined;
+          const merged = sheet.coverImage
+            ? sheet
+            : { ...sheet, coverImage: matchedServer?.coverImage || null };
+          return (
+            <LocalSheetCard key={sheet.localKey} sheet={merged} onDelete={handleDeleteLocalSheet} />
+          );
+        })}
       </div>
     );
   };
