@@ -13,6 +13,7 @@ import {
 interface LyricsContextValue {
   trackId: string;
   trackIndex: number;
+  allowEditing: boolean;
 }
 
 const LyricsSlotContext = createContext<LyricsContextValue | null>(null);
@@ -20,13 +21,18 @@ const LyricsSlotContext = createContext<LyricsContextValue | null>(null);
 export function LyricsSlotProvider({
   trackId,
   trackIndex,
+  allowEditing = true,
   children,
 }: {
   trackId: string;
   trackIndex: number;
+  allowEditing?: boolean;
   children: React.ReactNode;
 }) {
-  const value = useMemo(() => ({ trackId, trackIndex }), [trackId, trackIndex]);
+  const value = useMemo(
+    () => ({ trackId, trackIndex, allowEditing }),
+    [trackId, trackIndex, allowEditing]
+  );
   return <LyricsSlotContext.Provider value={value}>{children}</LyricsSlotContext.Provider>;
 }
 
@@ -52,7 +58,7 @@ interface LyricsSlotProps {
 }
 
 export function LyricsSlotComponent({ slot }: LyricsSlotProps) {
-  const { trackId, trackIndex } = useLyricsSlotContext();
+  const { trackId, trackIndex, allowEditing } = useLyricsSlotContext();
   const dispatch = useDispatch();
   const editing = useSelector((state: RootState) => state.editing);
   const score = useSelector((state: RootState) => state.score);
@@ -69,7 +75,8 @@ export function LyricsSlotComponent({ slot }: LyricsSlotProps) {
   const effectiveTrackIndex = track === baseTrack ? trackIndex : score.tracks.indexOf(track);
   const storeSlot = track.slots.find((s) => s.beat === targetBeat);
   const lyricsText = storeSlot?.lyrics ?? slot.lyrics ?? "";
-  const canEditLyrics = storeSlot ? !slotHelpers.isEmpty(track.type, storeSlot) : false;
+  const canEditLyrics =
+    allowEditing && storeSlot ? !slotHelpers.isEmpty(track.type, storeSlot) : false;
 
   const widthPercent = 100;
 
@@ -93,7 +100,7 @@ export function LyricsSlotComponent({ slot }: LyricsSlotProps) {
   return (
     <div
       className={`mt-2 w-full text-sm ${canEditLyrics ? "cursor-text" : ""}`}
-      onClick={handleEnterEdit}
+      onClick={canEditLyrics ? handleEnterEdit : undefined}
     >
       {isActive ? (
         <div

@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Home from "@pages/Home";
 import SimpleSheetDetailsPage from "@pages/SimpleSheetDetailsPage";
 import SimpleSheetEditorPage from "@pages/SimpleSheetEditorPage";
+import FullSheetDetailsPage from "@pages/FullSheetDetailsPage";
 import ArtistPage from "@pages/ArtistPage";
 import Layout from "@components/layout/Layout";
 import Demo from "@pages/Demo";
@@ -28,7 +29,7 @@ function App() {
           <Route path="/edit/:id" element={<SimpleSheetEditorPage />} />
           <Route path="/sheet/simple/:id" element={<SimpleSheetDetailsPage />} />
           <Route path="/editor/full/:id" element={<FullSheetEditorPage />} />
-          <Route path="/sheet/full/:id" element={<SimpleSheetDetailsPage />} />
+          <Route path="/sheet/full/:id" element={<FullSheetDetailsPage />} />
           <Route
             path="/liked"
             element={

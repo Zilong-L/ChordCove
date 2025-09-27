@@ -21,6 +21,7 @@ export default function SheetEditor() {
   const [loading, setLoading] = useState(true);
   const [sheetMissing, setSheetMissing] = useState(false);
   useEffect(() => {
+    setLoading(true);
     (async () => {
       try {
         const sheetMetadata = await fetchApi<SheetMetaData>(
@@ -35,6 +36,7 @@ export default function SheetEditor() {
       } catch (error) {
         console.error("Error fetching sheet:", error);
         setSheetMissing(true);
+        setLoading(false);
       }
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -57,11 +59,19 @@ export default function SheetEditor() {
         </div>
 
         <div className="relative flex h-[90vh] flex-col overflow-x-hidden lg:w-3/4">
-          <SimpleSheetDisplay />
-          <div className="absolute top-4 right-8 flex flex-col gap-2 text-[var(--text-tertiary)]">
-            <EditSheetButton loading={loading} />
-            {sheetMetadata.id && <LikeButton sheetId={sheetMetadata.id} />}
-          </div>
+          {loading ? (
+            <div className="flex flex-1 items-center justify-center text-xl text-[var(--text-primary)]">
+              加载中...
+            </div>
+          ) : (
+            <SimpleSheetDisplay />
+          )}
+          {!loading && (
+            <div className="absolute top-4 right-8 flex flex-col gap-2 text-[var(--text-tertiary)]">
+              <EditSheetButton loading={loading} />
+              {sheetMetadata.id && <LikeButton sheetId={sheetMetadata.id} />}
+            </div>
+          )}
         </div>
       </div>
     </div>

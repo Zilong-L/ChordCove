@@ -119,6 +119,7 @@ const BarGroup = React.memo(
     editingBeat,
     onNoteClick,
     colSpan,
+    allowEditing,
   }: {
     barIndex: number;
     tracks: Track[];
@@ -126,6 +127,7 @@ const BarGroup = React.memo(
     editingBeat: number;
     onNoteClick: (trackIndex: number, beat: number) => void;
     colSpan: number;
+    allowEditing: boolean;
   }) => {
     const trackBars = useMemo(() => {
       return tracks.map((track, trackIndex) => {
@@ -175,7 +177,11 @@ const BarGroup = React.memo(
           {trackBars.map(({ track, bar, trackIndex }) => (
             <div key={track.id} className={`relative`}>
               {bar ? (
-                <LyricsSlotProvider trackId={track.id} trackIndex={trackIndex}>
+                <LyricsSlotProvider
+                  trackId={track.id}
+                  trackIndex={trackIndex}
+                  allowEditing={allowEditing}
+                >
                   <Bar
                     bar={bar}
                     editingBeat={editingTrack === trackIndex ? editingBeat : -1}
@@ -199,7 +205,11 @@ const BarGroup = React.memo(
 );
 
 // Main BarView component
-export default function BarView() {
+type BarViewProps = {
+  allowEditing?: boolean;
+};
+
+export default function BarView({ allowEditing = true }: BarViewProps) {
   const dispatch = useDispatch();
   const { editingBeat, editingTrack } = useSelector((state: RootState) => state.editing);
   const score = useSelector((state: RootState) => state.score as Score);
@@ -253,6 +263,7 @@ export default function BarView() {
             editingBeat={editingBeat}
             onNoteClick={handleNoteClick}
             colSpan={barSpans[barIndex]}
+            allowEditing={allowEditing}
           />
         ))}
       </div>
