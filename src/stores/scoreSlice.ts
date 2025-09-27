@@ -18,14 +18,13 @@ export interface Score {
 export interface BaseSlot {
   beat: number;
   duration: number;
-  comment: string;
+  lyrics?: string;
   dirty?: boolean;
 }
 
 // Specialized slot types
 export interface MelodySlot extends BaseSlot {
   note: string; // Single note
-  lyrics?: string; // Optional lyrics for the note
 }
 
 export interface NotesSlot extends BaseSlot {
@@ -36,12 +35,8 @@ export interface AccompanimentSlot extends BaseSlot {
   notes: string[]; // Multiple notes for accompaniment
 }
 
-export interface ChordSlot extends BaseSlot {
-  chord: string; // Chord symbol
-}
-
 // Union type for all slot types
-export type Slot = MelodySlot | NotesSlot | AccompanimentSlot | ChordSlot;
+export type Slot = MelodySlot | NotesSlot | AccompanimentSlot;
 
 // Helper functions for slot operations
 export const slotHelpers = {
@@ -73,7 +68,7 @@ export const slotHelpers = {
 
 // Helper function to create empty slots
 export function createEmptySlot(type: TrackType, beat: number, duration: number): Slot {
-  const baseSlot = { beat, duration, comment: "" };
+  const baseSlot = { beat, duration, lyrics: "" };
   switch (type) {
     case "melody":
       return { ...baseSlot, note: "" };
@@ -88,15 +83,14 @@ export function createEmptySlot(type: TrackType, beat: number, duration: number)
 
 // Helper function to create a slot from raw data
 export function createSlot(type: TrackType, data: Partial<Slot>): Slot {
-  const { beat = 0, duration = 4, comment = "" } = data;
-  const baseSlot = { beat, duration, comment };
+  const { beat = 0, duration = 4, lyrics = "" } = data as Partial<BaseSlot>;
+  const baseSlot = { beat, duration, lyrics };
 
   switch (type) {
     case "melody":
       return {
         ...baseSlot,
         note: (data as Partial<MelodySlot>).note || "",
-        lyrics: (data as Partial<MelodySlot>).lyrics,
       };
     case "notes":
       return {

@@ -117,7 +117,7 @@ export default function RealTimeInput() {
         beat: beatPosition,
         duration: durationInBeats,
         note: finalNote,
-        comment: "",
+        lyrics: "",
       };
       console.log(updatedSlot);
       // Dispatch updates

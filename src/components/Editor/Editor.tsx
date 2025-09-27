@@ -7,8 +7,8 @@ import ScorePlayer from "./ScorePlayer";
 import TempoControl from "./TempoControl";
 import { useKeyInputs } from "./useInputs/useKeyInputs";
 import useMidiInputs from "./useInputs/useMidiInputs";
-import { LyricsInputModal } from "./LyricsInputModal";
 import RealTimeMidiInput from "./RealTimeInputs/RealTimeMidiInputs";
+import MidiDeviceSelect from "./MidiDeviceSelect";
 
 export default function SimpleEditor() {
   // Get states from Redux
@@ -25,6 +25,7 @@ export default function SimpleEditor() {
         <KeySelector />
         <TempoControl />
         <RealTimeMidiInput />
+        <MidiDeviceSelect />
         <ScorePlayer />
       </div>
 
@@ -33,7 +34,6 @@ export default function SimpleEditor() {
         <h3 className="mb-2 text-lg font-semibold text-[var(--text-primary)]">Bar View</h3>
         <BarView />
       </div>
-      <LyricsInputModal />
     </div>
   );
 }

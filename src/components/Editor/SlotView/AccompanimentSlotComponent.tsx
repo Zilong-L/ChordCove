@@ -23,19 +23,21 @@ export const AccompanimentSlotComponent = React.memo(
       const detected = ToanlWrapper.detect(notes);
       return detected.length > 0 ? ToanlWrapper.simplifyChord(detected[0]) : "";
     }, [slot]);
+
+    const containerProps =
+      slot.notes && slot.notes.length > 0
+        ? {
+            className: "data-tooltip relative flex w-full items-center justify-center",
+            "data-tooltip": slot.notes,
+          }
+        : {
+            className: "relative flex w-full items-center justify-center",
+          };
+
     return (
       <BaseSlotComponent slot={slot}>
-        <div
-          {...(slot.notes && slot.notes.length > 0
-            ? {
-                className: "data-tooltip relative flex w-full items-center justify-center",
-                "data-tooltip": slot.notes,
-              }
-            : {
-                className: "relative flex w-full items-center justify-center",
-              })}
-        >
-          <div className="relative">
+        <div {...containerProps}>
+          <div className="relative flex w-full items-center justify-center">
             <span className="inline-block">{slot.sustain ? "" : chordName || "?"}</span>
           </div>
         </div>

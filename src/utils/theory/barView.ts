@@ -3,7 +3,10 @@ import type { Slot, MelodySlot, AccompanimentSlot, NotesSlot } from "@stores/sco
 // Create a union type for SlotView that includes originalBeat and sustain
 interface SlotViewBase {
   originalBeat: number;
+  originalDuration: number;
   sustain?: boolean;
+  spanUnits?: number;
+  lyricSpanUnits?: number;
 }
 export type MelodySlotView = MelodySlot & SlotViewBase;
 export type AccompanimentSlotView = AccompanimentSlot & SlotViewBase;
@@ -62,6 +65,7 @@ export function splitNotesIntoBars(notes: Slot[], beatsPerBar: number = 4): BarV
           beat: currentBeat,
           duration: durationInCurrentBar,
           originalBeat: note.beat,
+          originalDuration: durationInCurrentBar,
           sustain: !isFirst,
         } as MelodySlotView;
       } else if ("notes" in note) {
@@ -70,17 +74,20 @@ export function splitNotesIntoBars(notes: Slot[], beatsPerBar: number = 4): BarV
           beat: currentBeat,
           duration: durationInCurrentBar,
           originalBeat: note.beat,
+          originalDuration: durationInCurrentBar,
           sustain: !isFirst,
         } as NotesSlotView | AccompanimentSlotView;
       } else {
-        // Handle chord type or any other types
+        // Handle chord type or any other types by mapping to a Notes-like view
+        const chordLike = note as unknown as { beat: number; lyrics?: string };
         slotView = {
-          ...note,
           beat: currentBeat,
           duration: durationInCurrentBar,
-          originalBeat: note.beat,
+          originalBeat: chordLike.beat,
+          originalDuration: durationInCurrentBar,
           sustain: !isFirst,
-          notes: [], // Add empty notes array for chord type
+          notes: [],
+          lyrics: chordLike.lyrics ?? "",
         } as NotesSlotView;
       }
 
@@ -130,6 +137,7 @@ function breakDownToBasicDurations(
       duration: fitDuration,
       sustain: !isFirstNote,
       originalBeat: note.originalBeat || note.beat,
+      originalDuration: note.originalDuration ?? note.duration,
     });
 
     remainingDuration = Number((remainingDuration - fitDuration).toFixed(4)); // Handle floating point precision
@@ -157,6 +165,7 @@ export function breakDownNotesWithinBar(notes: SlotView[]): SlotView[] {
         duration: 1,
         sustain: !isFirst,
         originalBeat: note.originalBeat || note.beat,
+        originalDuration: note.originalDuration ?? note.duration,
       });
       remainingDuration = Number((remainingDuration - 1).toFixed(4));
       currentBeat += 1;

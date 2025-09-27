@@ -9,35 +9,28 @@ import { getSamplerInstance } from "@utils/sounds/Toneloader";
 import { snapToGrid } from "@utils/snap";
 import { getContext } from "tone";
 // WebMidi types
-interface MIDIMessageEvent {
-  data: Uint8Array;
-}
-
-interface MIDIInput extends EventTarget {
+// Use lightweight WebMIDI aliases to avoid DOM type conflicts
+type WMIDIMessageEvent = { data: Uint8Array };
+type WMIDIInput = {
+  id?: string;
   name: string;
-  onmidimessage: ((this: MIDIInput, ev: MIDIMessageEvent) => void) | null;
-}
-
-interface MIDIPort {
-  name: string;
-  state: string;
-  type: string;
-}
-
-interface MIDIStateEvent {
-  port: MIDIPort & MIDIInput;
-}
-
-interface MIDIAccess {
-  inputs: Map<string, MIDIInput>;
-  onstatechange: ((this: MIDIAccess, ev: MIDIStateEvent) => void) | null;
-}
+  type?: string;
+  state?: string;
+  onmidimessage: ((ev: WMIDIMessageEvent) => void) | null;
+};
+type WMIDIInputMap = {
+  forEach(cb: (value: WMIDIInput, key: string) => void): void;
+};
+type WMIDIAccess = {
+  inputs: WMIDIInputMap;
+  onstatechange: ((ev: { port: WMIDIInput | null }) => void) | null;
+};
 
 export default function useMidiInputs() {
   const dispatch = useDispatch();
   const score = useSelector((state: RootState) => state.score as Score);
   const edit = useSelector((state: RootState) => state.editing as EditingSlotState);
-  const { selectedDuration, isDotted } = edit;
+  const { selectedDuration, isDotted, selectedMidiInputId } = edit;
 
   // Use refs to store current state values that we need in the MIDI handler
   const currentTrackRef = useRef(score.tracks[edit.editingTrack]);
@@ -49,6 +42,7 @@ export default function useMidiInputs() {
 
   const { sampler } = getSamplerInstance()!;
   // Update refs when values change
+
   useEffect(() => {
     currentTrackRef.current = score.tracks[edit.editingTrack];
     currentBeatRef.current = edit.editingBeat;
@@ -66,8 +60,9 @@ export default function useMidiInputs() {
     edit.recordingSnapType,
   ]);
 
-  const handleMidiMessageForMelody = (message: MIDIMessageEvent) => {
-    const [status, note, velocity] = message.data;
+  const handleMidiMessageForMelody = (message: WMIDIMessageEvent) => {
+    const data = message.data as Uint8Array;
+    const [status, note, velocity] = data;
     const noteName = Note.fromMidi(note);
     // Only handle note on events with velocity > 0
     if (status >= 144 && status <= 159 && velocity > 0) {
@@ -111,7 +106,7 @@ export default function useMidiInputs() {
     const addingNotes = new Set<number>();
     let sustainActive = false;
 
-    return (message: MIDIMessageEvent) => {
+    return (message: WMIDIMessageEvent) => {
       const [status, note, velocity] = message.data;
       const currentTrack = currentTrackRef.current;
       const currentBeat = currentBeatRef.current;
@@ -172,8 +167,9 @@ export default function useMidiInputs() {
       }
     };
   })();
-  const handleSound = (message: MIDIMessageEvent) => {
-    const [status, note, velocity] = message.data;
+  const handleSound = (message: WMIDIMessageEvent) => {
+    const data = message.data as Uint8Array;
+    const [status, note, velocity] = data;
     if (status >= 144 && status <= 159 && velocity > 0) {
       sampler.triggerAttack(Note.fromMidi(note), getContext().currentTime);
     }
@@ -188,7 +184,7 @@ export default function useMidiInputs() {
   // Recording-time handlers (press/release timing based)
   const handleRecordingMelody = (() => {
     let pressingNote: { startTime: number; noteMidi: number; startBeat?: number } | null = null;
-    return (message: MIDIMessageEvent) => {
+    return (message: WMIDIMessageEvent) => {
       const [status, note, velocity] = message.data;
       const now = performance.now();
       // Note On (any channel)
@@ -211,7 +207,7 @@ export default function useMidiInputs() {
                   beat: beatPosition,
                   duration: durationInBeats,
                   note: noteLetter,
-                  comment: "",
+                  lyrics: "",
                   dirty: true,
                 },
               })
@@ -250,7 +246,7 @@ export default function useMidiInputs() {
                   beat: beatPosition,
                   duration: durationInBeats,
                   note: noteLetter,
-                  comment: "",
+                  lyrics: "",
                   dirty: true,
                 },
               })
@@ -291,7 +287,7 @@ export default function useMidiInputs() {
                 beat: chordStartBeat,
                 duration: durationInBeats,
                 notes,
-                comment: "",
+                lyrics: "",
               },
             })
           );
@@ -303,7 +299,7 @@ export default function useMidiInputs() {
       }
     };
 
-    return (message: MIDIMessageEvent) => {
+    return (message: WMIDIMessageEvent) => {
       const [status, note, velocity] = message.data;
       // Sustain pedal
       if (status === 176 && note === 64) {
@@ -339,7 +335,7 @@ export default function useMidiInputs() {
     };
   })();
 
-  const handleMidiMessage = (message: MIDIMessageEvent) => {
+  const handleMidiMessage = (message: WMIDIMessageEvent) => {
     handleSound(message);
     if (isRecordingRef.current) {
       switch (currentTrackRef.current.type) {
@@ -369,27 +365,34 @@ export default function useMidiInputs() {
       return;
     }
 
-    let midiAccess: MIDIAccess | null = null;
+    let midiAccess: WMIDIAccess | null = null;
 
     navigator
       .requestMIDIAccess()
       .then((access) => {
-        midiAccess = access;
+        midiAccess = access as unknown as WMIDIAccess;
         console.log("MIDI Access granted!");
 
-        // Connect to all available MIDI inputs
-        access.inputs.forEach((input) => {
-          console.log("Connecting to MIDI input:", input.name);
-          input.onmidimessage = handleMidiMessage;
+        // Connect only selected input (or all)
+        access.inputs.forEach((input: WMIDIInput, id: string) => {
+          const shouldConnect =
+            !selectedMidiInputId || selectedMidiInputId === "all" || selectedMidiInputId === id;
+          input.onmidimessage = shouldConnect ? (ev) => handleMidiMessage(ev) : null;
+          if (shouldConnect) console.log("Connecting to MIDI input:", input.name);
         });
 
         // Listen for new MIDI devices
-        access.onstatechange = (e: MIDIStateEvent) => {
+        access.onstatechange = (e: { port: WMIDIInput | null }) => {
           const port = e.port;
-          if (port.type === "input") {
+          if (port && port.type === "input") {
             if (port.state === "connected") {
-              console.log("MIDI input connected:", port.name);
-              port.onmidimessage = handleMidiMessage;
+              const input = port as WMIDIInput;
+              const shouldConnect =
+                !selectedMidiInputId ||
+                selectedMidiInputId === "all" ||
+                selectedMidiInputId === input.id;
+              console.log("MIDI input connected:", input.name);
+              input.onmidimessage = shouldConnect ? (ev) => handleMidiMessage(ev) : null;
             }
           }
         };
@@ -404,5 +407,5 @@ export default function useMidiInputs() {
         });
       }
     };
-  }, []); // Empty dependency array since we're using refs
+  }, [selectedMidiInputId]);
 }

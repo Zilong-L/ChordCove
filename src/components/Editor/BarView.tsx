@@ -11,6 +11,7 @@ import { useMemo, useCallback } from "react";
 import React from "react";
 import type { Score, Track, TrackType } from "@stores/scoreSlice";
 import { SlotController } from "./SlotView";
+import { LyricsSlotComponent, LyricsSlotProvider } from "./SlotView/LyricsSlotComponent";
 
 // Bar component to handle individual bars
 const Bar = React.memo(
@@ -27,34 +28,83 @@ const Bar = React.memo(
   }) => {
     const { playingBeat } = useSelector((state: RootState) => state.editing);
     const slots = useMemo(() => breakDownNotesWithinBar(bar.notes), [bar.notes]);
-
-    // Calculate total duration of the bar
-    const totalDuration = useMemo(() => {
-      return slots.reduce((sum, slot) => sum + slot.duration, 0) || 4; // Default to 4 if empty
+    const lyricSpanUnitsMap = useMemo(() => {
+      const map = new Map<number, number>();
+      slots.forEach((slot) => {
+        const units = Math.max(1, Math.round(slot.duration * 16));
+        const existing = map.get(slot.originalBeat) ?? 0;
+        map.set(slot.originalBeat, existing + units);
+      });
+      return map;
     }, [slots]);
 
-    return (
-      <div className="flex min-w-[100px]">
-        {slots.map((slot, index) => {
-          const isEditing = editingBeat === slot.beat;
-          const isPlaying = playingBeat === slot.beat;
+    const slotEntries = useMemo(() => {
+      return slots.map((slot) => {
+        const spanUnits = Math.max(1, Math.round(slot.duration * 16));
+        const lyricSpanUnits = lyricSpanUnitsMap.get(slot.originalBeat) ?? spanUnits;
+        const startUnit = Math.round((slot.beat - bar.startBeat) * 16);
+        return {
+          slot: {
+            ...slot,
+            spanUnits,
+            lyricSpanUnits,
+          },
+          spanUnits,
+          lyricSpanUnits,
+          startUnit,
+        };
+      });
+    }, [slots, lyricSpanUnitsMap, bar.startBeat]);
 
-          // Calculate width percentage based on duration
-          const widthPercentage = (slot.duration / totalDuration) * 100;
+    // Grid resolution: 16 subunits per beat
+    const beatsPerBar = 4; // current editor default
+    const unitsPerBar = beatsPerBar * 16;
+
+    // Aggregate lyrics per originalBeat within this bar
+    return (
+      <div
+        className="grid min-w-[160px] gap-y-1"
+        style={{
+          gridTemplateColumns: `repeat(${unitsPerBar}, 1fr)`,
+          gridTemplateRows: "auto auto",
+        }}
+      >
+        {slotEntries.map(({ slot, spanUnits, startUnit }, index) => {
+          const isEditing = editingBeat === slot.originalBeat;
+          const isPlaying = playingBeat === slot.beat;
 
           return (
             <div
-              key={`${slot.beat}-${index}`}
+              key={`n-${slot.beat}-${index}`}
               className={`relative flex cursor-pointer items-center px-0.5 py-0.5 text-sm hover:bg-[var(--bg-hover)] ${
                 isEditing ? "bg-[var(--bg-active)]" : ""
               } ${isPlaying ? "text-[var(--text-accent)]" : ""}`}
-              style={{ width: `${widthPercentage}%` }}
+              style={{
+                gridColumn: `${startUnit + 1} / span ${spanUnits}`,
+                gridRow: 1,
+              }}
               onClick={() => onNoteClick(slot.originalBeat)}
             >
               <SlotController slot={slot} trackType={trackType} />
             </div>
           );
         })}
+
+        {slotEntries
+          .filter(({ slot }) => !slot.sustain)
+          .map(({ slot, startUnit, lyricSpanUnits }) => (
+            <div
+              className="flex items-start px-0.5"
+              style={
+                {
+                  gridColumn: `${startUnit + 1} / span ${lyricSpanUnits}`,
+                  gridRow: 2,
+                } as React.CSSProperties
+              }
+            >
+              <LyricsSlotComponent slot={slot} />
+            </div>
+          ))}
       </div>
     );
   }
@@ -92,7 +142,8 @@ const BarGroup = React.memo(
                 acc.push({
                   ...cur,
                   notes: [...cur.notes],
-                  originalBeat: cur.beat,
+                  // Preserve originalBeat from the source segment to support cross-bar grouping
+                  originalBeat: cur.originalBeat,
                 });
               }
             }
@@ -124,12 +175,14 @@ const BarGroup = React.memo(
           {trackBars.map(({ track, bar, trackIndex }) => (
             <div key={track.id} className={`relative`}>
               {bar ? (
-                <Bar
-                  bar={bar}
-                  editingBeat={editingTrack === trackIndex ? editingBeat : -1}
-                  onNoteClick={(beat) => onNoteClick(trackIndex, beat)}
-                  trackType={track.type}
-                />
+                <LyricsSlotProvider trackId={track.id} trackIndex={trackIndex}>
+                  <Bar
+                    bar={bar}
+                    editingBeat={editingTrack === trackIndex ? editingBeat : -1}
+                    onNoteClick={(beat) => onNoteClick(trackIndex, beat)}
+                    trackType={track.type}
+                  />
+                </LyricsSlotProvider>
               ) : (
                 <div className="min-w-[100px] p-1 opacity-0">
                   <div className="flex h-full items-center justify-center text-xs text-[var(--text-tertiary)]">

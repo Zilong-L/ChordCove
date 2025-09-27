@@ -141,7 +141,7 @@ export function useKeyInputs() {
           beat: beatPosition,
           duration: snappedBeats,
           note: "",
-          comment: "",
+          lyrics: "",
         } as MelodySlot;
         dispatch(setSlot({ trackId: track.id, slot: updatedSlot }));
         dispatch(setEditingBeat(beatPosition + snappedBeats));
@@ -167,7 +167,7 @@ export function useKeyInputs() {
           beat: beatPosition,
           duration: snappedBeats,
           note: finalNote,
-          comment: "",
+          lyrics: "",
           dirty: true,
         } as const;
         dispatch(setSlot({ trackId: track.id, slot: updatedSlot }));

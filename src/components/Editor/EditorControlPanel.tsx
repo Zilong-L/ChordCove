@@ -5,7 +5,7 @@ import {
   toggleDotted,
   toggleRelativePitch,
   setEditingTrack,
-  setShowLyrics,
+  setShowLyricsForTrack,
 } from "@stores/editingSlice";
 import type { EditingSlotState } from "@stores/editingSlice";
 import { createEmptySlot, type TrackType } from "@stores/scoreSlice";
@@ -35,10 +35,11 @@ const durationIcons: Record<NoteDuration, IconComponent> = {
 
 export default function EditorControlPanel() {
   const dispatch = useDispatch();
-  const { selectedDuration, isDotted, editingTrack, useRelativePitch, showLyrics } = useSelector(
-    (state: RootState) => state.editing as EditingSlotState
-  );
+  const { selectedDuration, isDotted, editingTrack, useRelativePitch, showLyricsByTrack } =
+    useSelector((state: RootState) => state.editing as EditingSlotState);
   const score = useSelector((state: RootState) => state.score);
+  const currentTrack = score.tracks[editingTrack];
+  const showLyrics = currentTrack ? !!showLyricsByTrack[currentTrack.id] : false;
 
   const handleDurationClick = (duration: NoteDuration) => {
     dispatch(setSelectedDuration(duration));
@@ -149,7 +150,11 @@ export default function EditorControlPanel() {
                 ? "bg-[var(--bg-selected)] text-[var(--text-selected)]"
                 : "bg-[var(--bg-secondary)]"
             }`}
-            onClick={() => dispatch(setShowLyrics(!showLyrics))}
+            onClick={() => {
+              if (currentTrack) {
+                dispatch(setShowLyricsForTrack({ trackId: currentTrack.id, value: !showLyrics }));
+              }
+            }}
           >
             <span className="text-sm">Show Lyrics</span>
           </button>

@@ -182,7 +182,7 @@ export default function SheetEditor() {
   const handleImageUpload = async (file: File, hash: string): Promise<string> => {
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("sha256", hash);
+    formData.append("sheetId", hash);
 
     const response = await fetchApi<{ data: { coverImage: string } }>(
       `${API_BASE_URL}/api/upload-image`,

@@ -1,8 +1,6 @@
 // editingSlice.ts
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-export type EditingMode = "notes" | "lyrics" | "chords" | "comments";
-
 export interface EditingSlotState {
   editingTrack: number;
   editingBeat: number;
@@ -12,13 +10,13 @@ export interface EditingSlotState {
   noteInput: string;
   allowedDurations: [1, 2, 4, 8, 16];
   isDotted: boolean;
-  editingMode: EditingMode;
   useRelativePitch: boolean;
   isLyricsEditing: boolean;
   lyricsInputValue: string;
   isRecording: boolean;
-  showLyrics: boolean; // Toggle for showing lyrics under melody track
+  showLyricsByTrack: Record<string, boolean>; // Per-track toggle for showing lyrics under each track
   recordingSnapType: "whole" | "eighth" | "sixteenth";
+  selectedMidiInputId: string | "all" | null; // Selected MIDI input device id
 }
 
 const initialState: EditingSlotState = {
@@ -30,13 +28,13 @@ const initialState: EditingSlotState = {
   noteInput: "",
   allowedDurations: [1, 2, 4, 8, 16],
   isDotted: false,
-  editingMode: "notes",
   useRelativePitch: true,
   isLyricsEditing: false,
   lyricsInputValue: "",
   isRecording: false,
-  showLyrics: false,
+  showLyricsByTrack: {},
   recordingSnapType: "eighth",
+  selectedMidiInputId: "all",
 };
 
 const editingSlice = createSlice({
@@ -67,9 +65,7 @@ const editingSlice = createSlice({
     advanceEditingPosition: (state) => {
       state.editingBeat += 1;
     },
-    setEditingMode: (state, action: PayloadAction<EditingMode>) => {
-      state.editingMode = action.payload;
-    },
+
     toggleRelativePitch: (state) => {
       state.useRelativePitch = !state.useRelativePitch;
     },
@@ -85,8 +81,12 @@ const editingSlice = createSlice({
     setRecordingSnapType: (state, action: PayloadAction<"whole" | "eighth" | "sixteenth">) => {
       state.recordingSnapType = action.payload;
     },
-    setShowLyrics: (state, action: PayloadAction<boolean>) => {
-      state.showLyrics = action.payload;
+    setShowLyricsForTrack: (state, action: PayloadAction<{ trackId: string; value: boolean }>) => {
+      const { trackId, value } = action.payload;
+      state.showLyricsByTrack = { ...state.showLyricsByTrack, [trackId]: value };
+    },
+    setSelectedMidiInputId: (state, action: PayloadAction<string | "all" | null>) => {
+      state.selectedMidiInputId = action.payload;
     },
   },
 });
@@ -100,13 +100,13 @@ export const {
   setLastInputNote,
   setNoteInput,
   advanceEditingPosition,
-  setEditingMode,
   toggleRelativePitch,
   setLyricsEditing,
   setLyricsInputValue,
   setRecording,
-  setShowLyrics,
+  setShowLyricsForTrack,
   setRecordingSnapType,
+  setSelectedMidiInputId,
 } = editingSlice.actions;
 
 export default editingSlice.reducer;
