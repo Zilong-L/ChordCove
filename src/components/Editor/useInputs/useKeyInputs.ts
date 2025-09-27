@@ -389,8 +389,6 @@ export function useKeyInputs() {
 
     if (currentTrack.type === "melody") {
       Object.assign(updatedSlot, { note: "" });
-    } else if (currentTrack.type === "notes") {
-      Object.assign(updatedSlot, { notes: [] });
     } else if (currentTrack.type === "accompaniment") {
       Object.assign(updatedSlot, { notes: [] });
     }

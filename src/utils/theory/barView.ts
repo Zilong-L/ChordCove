@@ -1,4 +1,4 @@
-import type { Slot, MelodySlot, AccompanimentSlot, NotesSlot } from "@stores/scoreSlice";
+import type { Slot, MelodySlot, AccompanimentSlot } from "@stores/scoreSlice";
 
 // Create a union type for SlotView that includes originalBeat and sustain
 interface SlotViewBase {
@@ -10,8 +10,7 @@ interface SlotViewBase {
 }
 export type MelodySlotView = MelodySlot & SlotViewBase;
 export type AccompanimentSlotView = AccompanimentSlot & SlotViewBase;
-export type NotesSlotView = NotesSlot & SlotViewBase;
-export type SlotView = MelodySlotView | AccompanimentSlotView | NotesSlotView;
+export type SlotView = MelodySlotView | AccompanimentSlotView;
 
 export interface BarView {
   startBeat: number;
@@ -76,7 +75,7 @@ export function splitNotesIntoBars(notes: Slot[], beatsPerBar: number = 4): BarV
           originalBeat: note.beat,
           originalDuration: durationInCurrentBar,
           sustain: !isFirst,
-        } as NotesSlotView | AccompanimentSlotView;
+        } as AccompanimentSlotView;
       } else {
         // Handle chord type or any other types by mapping to a Notes-like view
         const chordLike = note as unknown as { beat: number; lyrics?: string };
@@ -88,7 +87,7 @@ export function splitNotesIntoBars(notes: Slot[], beatsPerBar: number = 4): BarV
           sustain: !isFirst,
           notes: [],
           lyrics: chordLike.lyrics ?? "",
-        } as NotesSlotView;
+        } as AccompanimentSlotView;
       }
 
       // Add note to the appropriate bar

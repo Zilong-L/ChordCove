@@ -279,7 +279,7 @@ export default function useMidiInputs() {
           .sort((a, b) => a - b)
           .map((n) => Note.fromMidi(n));
         const currentTrack = currentTrackRef.current;
-        if (currentTrack.type === "accompaniment" || currentTrack.type === "notes") {
+        if (currentTrack.type === "accompaniment") {
           dispatch(
             setSlot({
               trackId: currentTrack.id,
@@ -342,7 +342,6 @@ export default function useMidiInputs() {
         case "melody":
           handleRecordingMelody(message);
           break;
-        case "notes":
         case "accompaniment":
           handleRecordingAccompaniment(message);
           break;

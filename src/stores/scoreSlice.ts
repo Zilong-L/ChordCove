@@ -1,7 +1,7 @@
 // store/scoreSlice.ts
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-export type TrackType = "melody" | "accompaniment" | "notes";
+export type TrackType = "melody" | "accompaniment";
 
 export interface Track {
   id: string;
@@ -26,17 +26,12 @@ export interface BaseSlot {
 export interface MelodySlot extends BaseSlot {
   note: string; // Single note
 }
-
-export interface NotesSlot extends BaseSlot {
-  notes: string[]; // Multiple notes for chords
-}
-
 export interface AccompanimentSlot extends BaseSlot {
   notes: string[]; // Multiple notes for accompaniment
 }
 
 // Union type for all slot types
-export type Slot = MelodySlot | NotesSlot | AccompanimentSlot;
+export type Slot = MelodySlot | AccompanimentSlot;
 
 // Helper functions for slot operations
 export const slotHelpers = {
@@ -44,8 +39,6 @@ export const slotHelpers = {
     switch (type) {
       case "melody":
         return !(slot as MelodySlot).note;
-      case "notes":
-        return !(slot as NotesSlot).notes.length;
       case "accompaniment":
         return (slot as AccompanimentSlot).notes.length === 0;
       default:
@@ -56,8 +49,6 @@ export const slotHelpers = {
     switch (trackType) {
       case "melody":
         return Object.prototype.hasOwnProperty.call(slot, "note");
-      case "notes":
-        return Object.prototype.hasOwnProperty.call(slot, "notes");
       case "accompaniment":
         return Object.prototype.hasOwnProperty.call(slot, "notes");
       default:
@@ -72,8 +63,6 @@ export function createEmptySlot(type: TrackType, beat: number, duration: number)
   switch (type) {
     case "melody":
       return { ...baseSlot, note: "" };
-    case "notes":
-      return { ...baseSlot, notes: [] };
     case "accompaniment":
       return { ...baseSlot, notes: [] };
     default:
@@ -91,11 +80,6 @@ export function createSlot(type: TrackType, data: Partial<Slot>): Slot {
       return {
         ...baseSlot,
         note: (data as Partial<MelodySlot>).note || "",
-      };
-    case "notes":
-      return {
-        ...baseSlot,
-        notes: (data as Partial<NotesSlot>).notes || [],
       };
     case "accompaniment":
       return {
@@ -146,6 +130,7 @@ export function replaceOrInsertSlot(slots: Slot[], newSlot: Slot): Slot[] {
     // Split existing slot into two parts
     slotsCopy[existingIndex].duration -= newSlot.duration;
     slotsCopy[existingIndex].beat += newSlot.duration;
+    slotsCopy[existingIndex].lyrics = "";
     slotsCopy.splice(existingIndex, 0, newSlot);
   } else {
     // Consume subsequent slots if needed

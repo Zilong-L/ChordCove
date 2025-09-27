@@ -4,7 +4,7 @@ import {
   splitNotesIntoBars,
   breakDownNotesWithinBar,
   type BarView,
-  type NotesSlotView,
+  type AccompanimentSlotView,
 } from "@utils/theory/barView";
 import { setEditingBeat, setEditingTrack } from "@stores/editingSlice";
 import { useMemo, useCallback } from "react";
@@ -131,9 +131,9 @@ const BarGroup = React.memo(
       return tracks.map((track, trackIndex) => {
         const bars = splitNotesIntoBars(track.slots);
 
-        if (track.type === "notes" && bars[barIndex]) {
+        if (track.type === "accompaniment" && bars[barIndex]) {
           const originalbar = bars[barIndex];
-          const newNotes = originalbar.notes.reduce<NotesSlotView[]>((acc, cur) => {
+          const newNotes = originalbar.notes.reduce<AccompanimentSlotView[]>((acc, cur) => {
             const existingSlot = acc.find((slot) => slot.beat === cur.beat);
             if ("notes" in cur) {
               if (existingSlot) {
