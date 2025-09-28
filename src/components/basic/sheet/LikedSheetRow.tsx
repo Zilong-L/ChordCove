@@ -20,10 +20,12 @@ const getArtistName = (sheet: SheetMetaData): string => {
 
 export default function LikedSheetRow({ sheet }: LikedSheetRowProps) {
   const artistName = getArtistName(sheet);
+  const sheetDetailUrl =
+    sheet.sheetType === "full" ? `/sheet/full/${sheet.id}` : `/sheet/simple/${sheet.id}`;
 
   return (
     <Link
-      to={`/sheet/${sheet.id}`}
+      to={sheetDetailUrl}
       className="flex cursor-pointer items-center justify-between gap-4 rounded px-2 py-2 transition-colors duration-150 hover:bg-[var(--bg-hover)]"
     >
       <div className="flex flex-1 items-center gap-4 overflow-hidden">
