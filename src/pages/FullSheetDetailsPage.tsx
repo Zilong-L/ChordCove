@@ -4,6 +4,8 @@ import { useParams } from "react-router-dom";
 import ReadOnlyMetadataForm from "@components/basic/sheet/ReadOnlyMetadataForm";
 import ScoreViewer from "@components/Editor/ScoreViewer";
 import LikeButton from "@components/basic/sheet/LikeButton";
+import ScoreControlDrawer from "@components/Editor/ScoreControlDrawer";
+import { EditSheetButton } from "@components/basic/sheet/EditSheetButton";
 import { fetchApi, API_BASE_URL, R2_BASE_URL } from "@utils/api";
 import { setSheetMetadata } from "@stores/sheetMetadataSlice";
 import { setScore, type Score } from "@stores/scoreSlice";
@@ -14,6 +16,7 @@ export default function FullSheetDetailsPage() {
   const { id: sheetId } = useParams<{ id: string }>();
   const dispatch = useDispatch();
   const sheetMetadata = useSelector((state: RootState) => state.sheetMetadata);
+  const [controlsOpen, setControlsOpen] = useState(true);
   const [loading, setLoading] = useState(true);
   const [sheetMissing, setSheetMissing] = useState(false);
 
@@ -69,18 +72,28 @@ export default function FullSheetDetailsPage() {
       <div className="flex flex-col gap-6 lg:flex-row">
         <div className="order-2 flex flex-col lg:order-[-1] lg:w-1/4">
           <ReadOnlyMetadataForm />
-          {!loading && sheetMetadata.id && <LikeButton sheetId={sheetMetadata.id} />}
         </div>
 
-        <div className="relative flex h-[90vh] flex-col overflow-x-hidden lg:w-3/4">
+        <div className="relative flex h-[90vh] flex-col lg:w-3/4">
           {loading ? (
             <div className="flex flex-1 items-center justify-center text-[var(--text-primary)]">
               加载中...
             </div>
           ) : (
-            <ScoreViewer />
+            <>
+              <ScoreViewer
+                className="h-full"
+                headerActions={
+                  <>
+                    <EditSheetButton loading={loading} />
+                    {sheetMetadata.id && <LikeButton sheetId={sheetMetadata.id} />}
+                  </>
+                }
+              />
+            </>
           )}
         </div>
+        <ScoreControlDrawer open={controlsOpen} onToggle={() => setControlsOpen((prev) => !prev)} />
       </div>
     </div>
   );

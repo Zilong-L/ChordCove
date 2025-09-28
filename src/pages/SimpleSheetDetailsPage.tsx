@@ -3,7 +3,7 @@ import ReadOnlyMetadataForm from "../components/basic/sheet/ReadOnlyMetadataForm
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@stores/store";
 import LikeButton from "@components/basic/sheet/LikeButton";
-import { EditSheetButton } from "../components/SimpleEditor/EditSheetButton";
+import { EditSheetButton } from "@components/basic/sheet/EditSheetButton";
 import { fetchApi, R2_BASE_URL } from "@utils/api";
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
@@ -58,19 +58,20 @@ export default function SheetEditor() {
           <ReadOnlyMetadataForm />
         </div>
 
-        <div className="relative flex h-[90vh] flex-col overflow-x-hidden lg:w-3/4">
+        <div className="flex h-[90vh] flex-col overflow-hidden lg:w-3/4">
           {loading ? (
             <div className="flex flex-1 items-center justify-center text-xl text-[var(--text-primary)]">
               加载中...
             </div>
           ) : (
-            <SimpleSheetDisplay />
-          )}
-          {!loading && (
-            <div className="absolute top-4 right-8 flex flex-col gap-2 text-[var(--text-tertiary)]">
-              <EditSheetButton loading={loading} />
-              {sheetMetadata.id && <LikeButton sheetId={sheetMetadata.id} />}
-            </div>
+            <SimpleSheetDisplay
+              actions={
+                <>
+                  <EditSheetButton loading={loading} />
+                  {sheetMetadata.id && <LikeButton sheetId={sheetMetadata.id} />}
+                </>
+              }
+            />
           )}
         </div>
       </div>

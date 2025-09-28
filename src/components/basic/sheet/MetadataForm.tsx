@@ -18,8 +18,9 @@ interface MetadataFormProps {
   setPendingImage?: (data: { file: File; hash: string } | null) => void;
 }
 
-export default function MetadataForm({ uploading, setPendingImage }: MetadataFormProps) {
-  const { id: localKey } = useParams<{ id: string }>();
+export default function MetadataForm({ uploading, localKey, setPendingImage }: MetadataFormProps) {
+  const params = useParams<{ id?: string; localKey?: string }>();
+  const resolvedLocalKey = localKey ?? params.id ?? params.localKey;
   const sheetMetadata = useSelector((state: RootState) => state.sheetMetadata);
   const auth = useSelector((state: RootState) => state.auth);
   const { title = "", composers = [], singers = [], coverImage = "", bvid = "" } = sheetMetadata;
@@ -33,8 +34,8 @@ export default function MetadataForm({ uploading, setPendingImage }: MetadataFor
 
   useEffect(() => {
     const loadLocalData = async () => {
-      if (localKey) {
-        const localData = await getLocalSheetData(localKey);
+      if (resolvedLocalKey) {
+        const localData = await getLocalSheetData(resolvedLocalKey);
         if (localData) {
           dispatch(
             setSheetMetadata({
@@ -62,7 +63,7 @@ export default function MetadataForm({ uploading, setPendingImage }: MetadataFor
     };
 
     loadLocalData();
-  }, [localKey, dispatch]);
+  }, [resolvedLocalKey, dispatch]);
 
   // Debounced function for saving metadata
   const debouncedSaveMetadata = useCallback(
@@ -86,17 +87,17 @@ export default function MetadataForm({ uploading, setPendingImage }: MetadataFor
 
   // Save metadata when it changes
   useEffect(() => {
-    if (localKey) {
-      debouncedSaveMetadata(localKey, {
+    if (resolvedLocalKey) {
+      debouncedSaveMetadata(resolvedLocalKey, {
         title: sheetMetadata.title,
         composers: sheetMetadata.composers,
         singers: sheetMetadata.singers,
         coverImage: sheetMetadata.coverImage,
         bvid: sheetMetadata.bvid,
-        sheetType: "full",
+        sheetType: sheetMetadata.sheetType || "full",
       });
     }
-  }, [sheetMetadata, localKey, debouncedSaveMetadata]);
+  }, [sheetMetadata, resolvedLocalKey, debouncedSaveMetadata]);
 
   useEffect(() => {
     // Reset preview image when coverImage changes from parent

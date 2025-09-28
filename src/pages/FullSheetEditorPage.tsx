@@ -132,10 +132,15 @@ export default function FullSheetEditorPage() {
     }
   }, [localKey, score, debouncedSaveScore, isLoading]);
 
-  const handleImageUpload = async (file: File, sheetId: string): Promise<string> => {
+  const getHashFromUrl = (url: string): string | null => {
+    const match = url.match(/\/([a-f0-9]{64})\.webp$/);
+    return match ? match[1] : null;
+  };
+
+  const handleImageUpload = async (file: File, hash: string): Promise<string> => {
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("sheetId", sheetId);
+    formData.append("hash", hash);
 
     const response = await fetchApi<{ data: { coverImage: string } }>(
       `${API_BASE_URL}/api/upload-image`,
@@ -178,7 +183,13 @@ export default function FullSheetEditorPage() {
       let finalCoverImage = sheetMetadata.coverImage;
 
       if (pendingImage) {
-        finalCoverImage = await handleImageUpload(pendingImage.file, sheetId);
+        const currentHash = sheetMetadata.coverImage
+          ? getHashFromUrl(sheetMetadata.coverImage)
+          : null;
+
+        if (currentHash !== pendingImage.hash) {
+          finalCoverImage = await handleImageUpload(pendingImage.file, pendingImage.hash);
+        }
       }
 
       const requestBody = {

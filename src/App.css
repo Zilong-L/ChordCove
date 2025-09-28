@@ -2,3 +2,7 @@
 @import "./styles/scrollbar.css";
 @import "./styles/tooltips.css";
 @import "tailwindcss";
+
+html{
+    overflow:hidden
+}

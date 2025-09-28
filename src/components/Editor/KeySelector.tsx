@@ -25,8 +25,8 @@ export default function KeySelector() {
   const notes = midiRange("C3", "C5"); // 获取 C3-C5 之间所有音符
   return (
     <Transition show={true}>
-      <div className="grid grid-flow-row grid-cols-[80px_50px]">
-        Key:
+      <div className="grid grid-flow-row grid-cols-[60px_50px]">
+        Key
         <Listbox value={selectedKey} onChange={handleKeyChange}>
           <div className="relative w-32">
             <ListboxButton className="w-full rounded px-2 text-left text-[var(--text-primary)]">

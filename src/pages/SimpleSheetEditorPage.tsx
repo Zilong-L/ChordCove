@@ -74,13 +74,22 @@ export default function SheetEditor() {
           dispatch(
             setSheetMetadata({
               id: data.metadata.serverId || "",
-              title: data.metadata.title,
-              sheetType: "simple",
-              composers: [],
-              singers: [],
-              uploader: "",
-              uploaderId: -1,
+              title: data.metadata.title || "",
+              sheetType: data.metadata.sheetType || "simple",
+              composers:
+                data.metadata.composers?.map((composer) => ({
+                  ...composer,
+                  role: "COMPOSER",
+                })) || [],
+              singers:
+                data.metadata.singers?.map((singer) => ({
+                  ...singer,
+                  role: "SINGER",
+                })) || [],
+              uploader: data.metadata.uploader || "",
+              uploaderId: data.metadata.uploaderId ?? 0,
               coverImage: data.metadata.coverImage || "",
+              bvid: data.metadata.bvid || "",
             })
           );
 
@@ -182,7 +191,7 @@ export default function SheetEditor() {
   const handleImageUpload = async (file: File, hash: string): Promise<string> => {
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("sheetId", hash);
+    formData.append("hash", hash);
 
     const response = await fetchApi<{ data: { coverImage: string } }>(
       `${API_BASE_URL}/api/upload-image`,

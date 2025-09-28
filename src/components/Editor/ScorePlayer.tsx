@@ -13,9 +13,15 @@ import { scorePlaybackService } from "@utils/sounds/ScorePlaybackService";
 
 interface ScorePlayerProps {
   className?: string;
+  showStepControls?: boolean;
+  showStopButton?: boolean;
 }
 
-export default function ScorePlayer({ className = "" }: ScorePlayerProps) {
+export default function ScorePlayer({
+  className = "",
+  showStepControls = true,
+  showStopButton = true,
+}: ScorePlayerProps) {
   const dispatch = useDispatch();
   const [isPlaying, setIsPlaying] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
@@ -100,14 +106,16 @@ export default function ScorePlayer({ className = "" }: ScorePlayerProps) {
 
   return (
     <div className={`flex items-center gap-2 ${className}`}>
-      <button
-        onClick={handleStepBackward}
-        className="rounded p-2 hover:bg-[var(--bg-hover)]"
-        title="Previous Note"
-        disabled={isPlaying}
-      >
-        <BackwardIcon className="h-4 w-4 text-[var(--text-primary)]" />
-      </button>
+      {showStepControls && (
+        <button
+          onClick={handleStepBackward}
+          className="rounded p-2 hover:bg-[var(--bg-hover)]"
+          title="Previous Note"
+          disabled={isPlaying}
+        >
+          <BackwardIcon className="h-4 w-4 text-[var(--text-primary)]" />
+        </button>
+      )}
 
       {isPlaying ? (
         <button
@@ -135,18 +143,26 @@ export default function ScorePlayer({ className = "" }: ScorePlayerProps) {
         </button>
       )}
 
-      <button onClick={handleStop} className="rounded p-2 hover:bg-[var(--bg-hover)]" title="Stop">
-        <StopIcon className="h-4 w-4 text-[var(--text-primary)]" />
-      </button>
+      {showStopButton && (
+        <button
+          onClick={handleStop}
+          className="rounded p-2 hover:bg-[var(--bg-hover)]"
+          title="Stop"
+        >
+          <StopIcon className="h-4 w-4 text-[var(--text-primary)]" />
+        </button>
+      )}
 
-      <button
-        onClick={handleStepForward}
-        className="rounded p-2 hover:bg-[var(--bg-hover)]"
-        title="Next Note"
-        disabled={isPlaying}
-      >
-        <ForwardIcon className="h-4 w-4 text-[var(--text-primary)]" />
-      </button>
+      {showStepControls && (
+        <button
+          onClick={handleStepForward}
+          className="rounded p-2 hover:bg-[var(--bg-hover)]"
+          title="Next Note"
+          disabled={isPlaying}
+        >
+          <ForwardIcon className="h-4 w-4 text-[var(--text-primary)]" />
+        </button>
+      )}
     </div>
   );
 }

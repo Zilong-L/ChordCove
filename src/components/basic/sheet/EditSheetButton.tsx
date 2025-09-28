@@ -1,72 +1,76 @@
-import { v4 as uuidv4 } from "uuid";
+import { useCallback } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { v4 as uuidv4 } from "uuid";
+
 import { RootState } from "@stores/store";
 import { addLocalSheet, findLocalSheetByServerId } from "@utils/idb/localsheet";
 
-// Rename for more clarity
-export function EditSheetButton({ loading }: { loading: boolean }) {
-  const navigate = useNavigate();
+interface EditSheetButtonProps {
+  loading: boolean;
+}
 
-  // Get current sheet data from Redux store
+export function EditSheetButton({ loading }: EditSheetButtonProps) {
+  const navigate = useNavigate();
   const sheetMetadata = useSelector((state: RootState) => state.sheetMetadata);
   const simpleScore = useSelector((state: RootState) => state.simpleScore);
+  const fullScore = useSelector((state: RootState) => state.score);
 
-  const handleEditSheet = async () => {
+  const handleEditSheet = useCallback(async () => {
+    if (loading) return;
+
     try {
-      // Check if we already have a local copy of this sheet
+      const sheetType = sheetMetadata.sheetType === "full" ? "full" : "simple";
+
       if (sheetMetadata.id) {
         const existingLocalKey = await findLocalSheetByServerId(sheetMetadata.id);
-        console.log(`Searching for existing local copy with server ID `, sheetMetadata);
         if (existingLocalKey) {
-          //get local metadata
-          const localMetadata = await findLocalSheetByServerId(sheetMetadata.id);
-          console.log(`Found existing local copy with key: ${existingLocalKey}`, localMetadata);
-          console.log(`Found existing local copy with key: ${existingLocalKey}`);
-          navigate(`/editor/${sheetMetadata.sheetType}/${existingLocalKey}`);
+          navigate(`/editor/${sheetType}/${existingLocalKey}`);
           return;
         }
       }
 
-      // No existing copy found, create a new one
       const localKey = uuidv4();
 
-      // Prepare metadata to save with ALL fields
       const metadata = {
         title: sheetMetadata.title,
-        serverId: sheetMetadata.id, // Store the server ID to track relationship
+        serverId: sheetMetadata.id,
         composers: sheetMetadata.composers || [],
         singers: sheetMetadata.singers || [],
         coverImage: sheetMetadata.coverImage || "",
         uploader: sheetMetadata.uploader || "",
         uploaderId: sheetMetadata.uploaderId || -1,
         bvid: sheetMetadata.bvid || "",
-        sheetType: "simple" as const,
-      };
+        sheetType,
+      } as const;
 
-      // Prepare content to save
-      const content = {
-        key: simpleScore.key,
-        tempo: simpleScore.tempo,
-        timeSignature: simpleScore.timeSignature,
-        content: simpleScore.content,
-      };
+      const content =
+        sheetType === "simple"
+          ? {
+              key: simpleScore.key,
+              tempo: simpleScore.tempo,
+              timeSignature: simpleScore.timeSignature,
+              content: simpleScore.content,
+            }
+          : {
+              key: fullScore.key,
+              tempo: fullScore.tempo,
+              timeSignature: "4/4",
+              content: "",
+              score: fullScore,
+            };
 
-      // Save current sheet data to IndexedDB
       await addLocalSheet({
         localKey,
         metadata,
         content,
       });
 
-      console.log(`Created local copy for editing with key: ${localKey}`);
-
-      // Navigate to the editor with the local key
-      navigate(`/editor/simple/${localKey}`);
+      navigate(`/editor/${sheetType}/${localKey}`);
     } catch (error) {
       console.error("Failed to create sheet copy for editing:", error);
     }
-  };
+  }, [fullScore, loading, navigate, sheetMetadata, simpleScore]);
 
   return (
     <button
