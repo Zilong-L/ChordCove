@@ -72,7 +72,7 @@ export default function ScoreControls({ className = "" }: ScoreControlsProps) {
 
       <section className="flex flex-col gap-3">
         <h3 className="text-xs tracking-wide text-[var(--text-tertiary)] uppercase">播放控制</h3>
-        <ScorePlayer className="justify-start" showStepControls={false} showStopButton={false} />
+        <ScorePlayer />
       </section>
     </aside>
   );
